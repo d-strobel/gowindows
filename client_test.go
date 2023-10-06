@@ -1,4 +1,4 @@
-package client
+package gowindows
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ func TestNewValidConfig(t *testing.T) {
 		WinRMTimeout:  10 * time.Second, // Provide a valid timeout
 	}
 
-	client, err := New(validConfig)
+	client, err := NewClient(validConfig)
 	if err != nil {
 		t.Errorf("Expected no error, but got %v", err)
 	}
@@ -31,7 +31,7 @@ func TestNewInvalidConfig(t *testing.T) {
 		// Missing required fields
 	}
 
-	client, err := New(invalidConfig)
+	client, err := NewClient(invalidConfig)
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
@@ -48,7 +48,7 @@ func TestNewDefaultValues(t *testing.T) {
 		WinRMHost:     "testhost",
 	}
 
-	client, err := New(defaultConfig)
+	client, err := NewClient(defaultConfig)
 	if err != nil {
 		t.Errorf("Expected no error, but got %v", err)
 	}
