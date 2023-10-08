@@ -2,7 +2,10 @@ module github.com/d-strobel/gowindows
 
 go 1.21.1
 
-require github.com/masterzen/winrm v0.0.0-20230926183142-a7fbe840deba
+require (
+	github.com/masterzen/winrm v0.0.0-20230926183142-a7fbe840deba
+	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+)
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20211209120228-48547f28849e // indirect
@@ -16,7 +19,7 @@ require (
 	github.com/jcmturner/gokrb5/v8 v8.4.2 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
+	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
