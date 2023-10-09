@@ -1,4 +1,5 @@
 <!-- Badges -->
+[![Build][build badge]][build page]
 [![GoDoc][godoc badge]][godoc page]
 [![GoReport][goreport badge]][goreport page]
 
@@ -18,3 +19,6 @@ This package mainly focuses on providing the neccessary functions for the [terra
 
 [goreport badge]: https://goreportcard.com/badge/github.com/d-strobel/gowindows
 [goreport page]: https://goreportcard.com/report/github.com/d-strobel/gowindows
+
+[build badge]: https://github.com/d-strobel/gowindows/actions/workflows/build.yml/badge.svg
+[build page]: https://github.com/d-strobel/gowindows/actions/workflows/build.yml
