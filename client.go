@@ -30,3 +30,8 @@ func NewClient(conf *connection.Config) (*Client, error) {
 
 	return c, nil
 }
+
+// Close closes all active connections
+func (c *Client) Close() error {
+	return c.Connection.Close()
+}
