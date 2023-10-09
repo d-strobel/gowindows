@@ -10,18 +10,22 @@ type Client struct {
 	Local      *local.Client
 }
 
-// NewClient returns a Client that contains either a WinRM or SSH client.
+// NewClient returns a Client object that contains the Connection and the subpackages.
 // Use this Client to run the functions inside the package directories.
 func NewClient(conf *connection.Config) (*Client, error) {
 
-	c := new(Client)
 	var err error
 
+	// Allocate a new Client
+	c := new(Client)
+
+	// Store new connection to the Client
 	c.Connection, err = connection.NewConnection(conf)
 	if err != nil {
 		return nil, err
 	}
 
+	// Build the client with the subpackages
 	c.Local = local.NewClient(c.Connection)
 
 	return c, nil
