@@ -49,9 +49,12 @@ type SSHConfig struct {
 	SSHPassword string
 }
 
-func NewConnection(conf *Config) (*Connection, error) {
+// New returns a Connection object.
+// If WinRMConfig is specified then the Connection contains a WinRM conenction.
+// If SSHConfig is specified then the Connection contains a SSH conenction.
+func New(conf *Config) (*Connection, error) {
 
-	// Assert
+	// Assert WinRM and SSH configuration
 	if conf.WinRM == nil && conf.SSH == nil {
 		return nil, errors.New("one of WinRMConfig and SSHConfig must be set")
 	}
@@ -59,6 +62,7 @@ func NewConnection(conf *Config) (*Connection, error) {
 		return nil, errors.New("only one of WinRMConfig and SSHConfig must be set")
 	}
 
+	// Allocate a new Connection
 	c := new(Connection)
 
 	// WinRM configuration
@@ -123,12 +127,7 @@ func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 		config.WinRMTimeout,
 	)
 
-	winRMClient, err := winrm.NewClient(winRMEndpoint, config.WinRMUsername, config.WinRMPassword)
-	if err != nil {
-		return nil, err
-	}
-
-	return winRMClient, nil
+	return winrm.NewClient(winRMEndpoint, config.WinRMUsername, config.WinRMPassword)
 }
 
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
@@ -161,11 +160,9 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 }
 
 // Close closes any open connection.
-// Only ssh connection will be terminated here.
-// To avoid surprises in the future, this should always be called in a defer statement.
-func (conn *Connection) Close() error {
-	if conn.SSH != nil {
-		err := conn.SSH.Close()
+func (c *Connection) Close() error {
+	if c.SSH != nil {
+		err := c.SSH.Close()
 		if err != nil {
 			return err
 		}

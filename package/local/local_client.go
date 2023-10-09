@@ -8,7 +8,7 @@ type Client struct {
 	Connection *connection.Connection
 }
 
-// NewClient returns a Client for the local package
-func NewClient(conn *connection.Connection) *Client {
+// New returns a Client for the local package
+func New(conn *connection.Connection) *Client {
 	return &Client{Connection: conn}
 }
