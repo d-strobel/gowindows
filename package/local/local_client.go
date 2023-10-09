@@ -1,7 +1,7 @@
 package local
 
 import (
-	"github.com/d-strobel/gowindows/package/connection"
+	"github.com/d-strobel/gowindows/connection"
 )
 
 type Client struct {

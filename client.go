@@ -1,7 +1,7 @@
 package gowindows
 
 import (
-	"github.com/d-strobel/gowindows/package/connection"
+	"github.com/d-strobel/gowindows/connection"
 	"github.com/d-strobel/gowindows/package/local"
 )
 
