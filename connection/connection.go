@@ -3,8 +3,6 @@ package connection
 import (
 	"context"
 	"errors"
-	"fmt"
-	"io"
 	"time"
 
 	"github.com/masterzen/winrm"
@@ -49,9 +47,14 @@ type SSHConfig struct {
 	SSHPassword string
 }
 
+type CMDResult struct {
+	StdOut string
+	StdErr string
+}
+
 // New returns a Connection object.
-// If WinRMConfig is specified then the Connection contains a WinRM conenction.
-// If SSHConfig is specified then the Connection contains a SSH conenction.
+// If WinRMConfig is specified the Connection contains a WinRM conenction.
+// If SSHConfig is specified the Connection contains a SSH conenction.
 func New(conf *Config) (*Connection, error) {
 
 	// Assert WinRM and SSH configuration
@@ -104,69 +107,34 @@ func (c *Connection) Close() error {
 	return nil
 }
 
-func (c *Connection) Run(ctx context.Context, cmd string) (string, error) {
-	var result string
+// Run runs a command with a connection and context
+// It returns stdout, stderr and error
+func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
 
-	// Get encoded powershell command to execute over WinRM or SSH
-	pwshCmd := winrm.Powershell(cmd)
+	// Allocate CMDResult
+	r := new(CMDResult)
 
 	// WinRM execution
 	if c.WinRM != nil {
-		stdout, _, _, err := c.WinRM.RunWithContextWithString(ctx, pwshCmd, "")
+		stdout, stderr, _, err := c.WinRM.RunWithContextWithString(ctx, winrm.Powershell(cmd), "")
 		if err != nil {
-			return "", err
+			r.StdErr = stderr
+			return r, err
 		}
 
-		result = stdout
+		r.StdOut = stdout
 	}
 
 	// SSH execution
 	if c.SSH != nil {
-		// Open a new SSH session
-		s, err := c.SSH.NewSession()
+		stdout, stderr, err := c.runSSH(ctx, winrm.Powershell(cmd))
 		if err != nil {
-			return "", err
-		}
-		defer s.Close()
-
-		// Create pipes to capture STDOUT and STDERR
-		stdout, err := s.StdoutPipe()
-		if err != nil {
-			return "", err
-		}
-		stderr, err := s.StderrPipe()
-		if err != nil {
-			return "", err
+			r.StdErr = stderr
+			return r, err
 		}
 
-		// Run the command
-		err = s.Start(pwshCmd)
-		if err != nil {
-			return "", nil
-		}
-
-		// Read output from pipes
-		stdoutBytes, err := io.ReadAll(stdout)
-		if err != nil {
-			return "", nil
-		}
-		stderrBytes, err := io.ReadAll(stderr)
-		if err != nil {
-			return "", nil
-		}
-
-		// Wait for the command to complete
-		err = s.Wait()
-		if err != nil {
-			return "", nil
-		}
-
-		if stderrBytes == nil {
-			return "", errors.New(fmt.Sprintf("Command failed with following error:\n%s", string(stderrBytes)))
-		}
-
-		result = string(stdoutBytes)
+		r.StdOut = stdout
 	}
 
-	return result, nil
+	return r, nil
 }
