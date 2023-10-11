@@ -3,52 +3,68 @@ package local
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-)
+	"strings"
 
-type SID struct {
-	Value string `json:"Value"`
-}
+	"github.com/d-strobel/gowindows/parser"
+)
 
 type Group struct {
 	Name        string `json:"Name"`
 	Description string `json:"Description"`
-	Sid         SID    `json:"SID"`
+	SID         SID    `json:"SID"`
+}
+
+type GroupParams struct {
+	Name        string
+	Description string
+	SID         string
+	Context     context.Context
 }
 
 var g Group
 
-// GetLocalGroupByName will return a Group by a given name.
-// If the group is not present, it will return an error.
-func (c *Client) GetGroupByName(ctx context.Context, name string) (*Group, error) {
+// GroupRead gets a group by a SID or Name and returns a Group object
+func (c *Client) GroupRead(params GroupParams) (*Group, error) {
 
-	cmd := fmt.Sprintf("Get-LocalGroup -Name \"%s\" | ConvertTo-Json", name)
+	// Assert needed parameters
+	if params.Name == "" && params.SID == "" {
+		return nil, errors.New("Name or SID must be set")
+	}
+	if params.Context == nil {
+		return nil, errors.New("Context must be set")
+	}
 
-	result, err := c.Connection.Run(ctx, cmd)
+	// Base command
+	cmds := []string{"Get-LocalGroup"}
+
+	// Add parameters
+	// Prefer SID over Name
+	if params.SID != "" {
+		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmds = append(cmds, fmt.Sprintf("-Name %s", params.Name))
+	}
+
+	cmd := strings.Join(cmds, " ")
+
+	// Optional parameters
+	opts := &parser.PwshOpts{
+		JSONOutput: true,
+	}
+
+	// Powershell command object
+	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+
+	// Run the comand
+	result, err := c.Connection.Run(params.Context, pwshCmd)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal([]byte(result), &g)
-	if err != nil {
-		return nil, err
-	}
-
-	return &g, nil
-}
-
-// GetLocalGroupBySID will return a Group by a given SID.
-// If the group is not present, it will return an error.
-func (c *Client) GetGroupBySID(ctx context.Context, sid string) (*Group, error) {
-
-	cmd := fmt.Sprintf("Get-LocalGroup -SID \"%s\" | ConvertTo-Json", sid)
-
-	result, err := c.Connection.Run(ctx, cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal([]byte(result), &g)
+	// Unmarshal result
+	err = json.Unmarshal([]byte(result.StdOut), &g)
 	if err != nil {
 		return nil, err
 	}
