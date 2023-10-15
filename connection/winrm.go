@@ -2,9 +2,20 @@ package connection
 
 import (
 	"errors"
+	"time"
 
 	"github.com/masterzen/winrm"
 )
+
+type WinRMConfig struct {
+	WinRMUsername string
+	WinRMPassword string
+	WinRMHost     string
+	WinRMPort     int
+	WinRMUseTLS   bool
+	WinRMInsecure bool
+	WinRMTimeout  time.Duration
+}
 
 func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 

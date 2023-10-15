@@ -30,23 +30,6 @@ type Config struct {
 	SSH   *SSHConfig
 }
 
-type WinRMConfig struct {
-	WinRMUsername string
-	WinRMPassword string
-	WinRMHost     string
-	WinRMPort     int
-	WinRMUseTLS   bool
-	WinRMInsecure bool
-	WinRMTimeout  time.Duration
-}
-
-type SSHConfig struct {
-	SSHHost     string
-	SSHPort     int
-	SSHUsername string
-	SSHPassword string
-}
-
 type CMDResult struct {
 	StdOut string
 	StdErr string

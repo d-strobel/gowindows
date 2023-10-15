@@ -9,6 +9,13 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+type SSHConfig struct {
+	SSHHost     string
+	SSHPort     int
+	SSHUsername string
+	SSHPassword string
+}
+
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
