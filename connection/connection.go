@@ -111,12 +111,15 @@ func (c *Connection) Close() error {
 // It returns stdout, stderr and error
 func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
 
+	// Prepare base64 encoded powershell command to pass into the run functions
+	pwshCmd := winrm.Powershell(cmd)
+
 	// Allocate CMDResult
 	r := new(CMDResult)
 
 	// WinRM execution
 	if c.WinRM != nil {
-		stdout, stderr, _, err := c.WinRM.RunWithContextWithString(ctx, winrm.Powershell(cmd), "")
+		stdout, stderr, _, err := c.WinRM.RunWithContextWithString(ctx, pwshCmd, "")
 		if err != nil {
 			return nil, err
 		}
@@ -130,7 +133,7 @@ func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
 
 	// SSH execution
 	if c.SSH != nil {
-		stdout, stderr, err := c.runSSH(ctx, winrm.Powershell(cmd))
+		stdout, stderr, err := c.runSSH(ctx, pwshCmd)
 		if err != nil {
 			r.StdErr = stderr
 			return r, err
