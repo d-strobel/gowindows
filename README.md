@@ -11,6 +11,11 @@ This package mainly focuses on providing the neccessary functions for the [terra
 
 ## Development
 
+### Conventional Commits
+
+Commit messages must follow the conventional commit guidelines.<br>
+For further information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
+
 ### Testing
 
 To run all tests run the following command:
