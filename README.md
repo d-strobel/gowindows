@@ -9,6 +9,14 @@ Go library to configure Windows based systems.
 
 This package mainly focuses on providing the neccessary functions for the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows).
 
+## Development
+
+### Testing
+
+To run all tests run the following command:
+```bash
+make testacc
+```
 
 ## Inspirations
 * [hashicorp - terraform-provider-ad](https://github.com/hashicorp/terraform-provider-ad)
