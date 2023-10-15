@@ -8,9 +8,20 @@ import (
 
 type psString string
 
+// Normalize error messages
+func (s *psString) UnmarshalText(text []byte) error {
+	str := string(text)
+	str = strings.TrimSpace(str)
+	if str[0] == '+' && len(str) > 2 {
+		*s = psString(fmt.Sprintf("\n%s", str[2:]))
+	} else {
+		*s = psString(str)
+	}
+
+	return nil
+}
+
 // PSOutput is used to unmarshall CLIXML output
-// Right now we are only using this to extract error messages, but it can be extended
-// to unpack more elements if required.
 type PSOutput struct {
 	PSStrings []psString `xml:"S"`
 }
