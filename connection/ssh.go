@@ -82,9 +82,16 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 
 	// Wait for the command to complete
 	err = s.Wait()
-	if err != nil {
+
+	// Return the error if stderr has no value
+	if err != nil && stderrBytes == nil {
 		return "", "", err
 	}
 
-	return string(stdoutBytes), string(stderrBytes), nil
+	// Return stderr over the error when stderr has a value
+	if stderrBytes != nil {
+		return "", string(stderrBytes), nil
+	}
+
+	return string(stdoutBytes), "", nil
 }
