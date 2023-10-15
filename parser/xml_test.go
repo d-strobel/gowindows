@@ -28,7 +28,7 @@ const clixmlError = ` #< CLIXML
 	<S S="Error">   .Management.Commands.SetADOrganizationalUnit_x000D__x000A_</S><S S="Error"> _x000D__x000A_</S>
 	</Objs>`
 
-func TestDecodeXMLCLI(t *testing.T) {
+func TestDecodeCLIXML(t *testing.T) {
 	expected := `Set-ADOrganizationalUnit : A parameter cannot be found that matches parameter name 'Path'.At line:1 char:101
 ... e description" -Path "DC=yourdomain,DC=com" -ProtectedFromAccidentalDeletion $tr ...
                    ~~~~~
