@@ -24,7 +24,7 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	}
 
 	// Parse ssh host string
-	sshHost := fmt.Sprintf("%s:%s", config.SSHHost, fmt.Sprint(config.SSHPort))
+	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)
 
 	// Configuration
 	sshConfig := &ssh.ClientConfig{
