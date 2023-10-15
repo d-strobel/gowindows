@@ -80,8 +80,14 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 		return "", "", err
 	}
 
-	// Wait for the command to complete
-	err = s.Wait()
+	// Wait for the command to complete with context support
+	select {
+	case <-ctx.Done():
+		_ = s.Signal(ssh.SIGINT)
+		return "", "", ctx.Err()
+	default:
+		err = s.Wait()
+	}
 
 	// Return the error if stderr has no value
 	if err != nil && stderrBytes == nil {
