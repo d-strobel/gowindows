@@ -118,8 +118,11 @@ func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
 	if c.WinRM != nil {
 		stdout, stderr, _, err := c.WinRM.RunWithContextWithString(ctx, winrm.Powershell(cmd), "")
 		if err != nil {
+			return nil, err
+		}
+		if stderr != "" {
 			r.StdErr = stderr
-			return r, err
+			return r, nil
 		}
 
 		r.StdOut = stdout
@@ -131,6 +134,10 @@ func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
 		if err != nil {
 			r.StdErr = stderr
 			return r, err
+		}
+		if stderr != "" {
+			r.StdErr = stderr
+			return r, nil
 		}
 
 		r.StdOut = stdout

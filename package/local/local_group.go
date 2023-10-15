@@ -63,6 +63,16 @@ func (c *Client) GroupRead(params GroupParams) (*Group, error) {
 		return nil, err
 	}
 
+	// Handle stderr
+	if result.StdErr != "" {
+		errXML, err := parser.DecodeCLIXML(result.StdErr)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, errors.New(errXML)
+	}
+
 	// Unmarshal result
 	err = json.Unmarshal([]byte(result.StdOut), &g)
 	if err != nil {
