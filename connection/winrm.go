@@ -18,6 +18,14 @@ type WinRMConfig struct {
 	WinRMKerberos *KerberosConfig
 }
 
+const (
+	// WinRM default values
+	defaultWinRMPort     int           = 5986
+	defaultWinRMUseTLS   bool          = false
+	defaultWinRMInsecure bool          = true
+	defaultWinRMTimeout  time.Duration = 0
+)
+
 func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 
 	// Assert

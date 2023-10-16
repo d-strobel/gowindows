@@ -3,21 +3,9 @@ package connection
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/masterzen/winrm"
 	"golang.org/x/crypto/ssh"
-)
-
-const (
-	// WinRM default values
-	defaultWinRMPort     int           = 5986
-	defaultWinRMUseTLS   bool          = false
-	defaultWinRMInsecure bool          = true
-	defaultWinRMTimeout  time.Duration = 0
-
-	// SSH default values
-	defaultSSHPort int = 22
 )
 
 type Connection struct {

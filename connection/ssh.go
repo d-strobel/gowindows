@@ -16,6 +16,11 @@ type SSHConfig struct {
 	SSHPassword string
 }
 
+const (
+	// SSH default values
+	defaultSSHPort int = 22
+)
+
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
