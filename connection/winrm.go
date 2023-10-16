@@ -20,7 +20,8 @@ type WinRMConfig struct {
 
 const (
 	// WinRM default values
-	defaultWinRMPort     int           = 5986
+	defaultWinRMPort     int           = 5985
+	defaultWinRMPortTLS  int           = 5986
 	defaultWinRMUseTLS   bool          = false
 	defaultWinRMInsecure bool          = true
 	defaultWinRMTimeout  time.Duration = 0
@@ -34,11 +35,16 @@ func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 	}
 
 	// Set default values
-	if config.WinRMPort == 0 {
-		config.WinRMPort = defaultWinRMPort
-	}
 	if !config.WinRMUseTLS {
 		config.WinRMUseTLS = defaultWinRMUseTLS
+	}
+	if config.WinRMPort == 0 {
+		config.WinRMPort = defaultWinRMPort
+
+		// Set a different default port if TLS enabled
+		if config.WinRMUseTLS {
+			config.WinRMPort = defaultWinRMPortTLS
+		}
 	}
 	if config.WinRMTimeout == 0 {
 		config.WinRMTimeout = defaultWinRMTimeout
