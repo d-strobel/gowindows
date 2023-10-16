@@ -15,6 +15,7 @@ type WinRMConfig struct {
 	WinRMUseTLS   bool
 	WinRMInsecure bool
 	WinRMTimeout  time.Duration
+	WinRMKerberos *KerberosConfig
 }
 
 func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
@@ -51,6 +52,12 @@ func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 		nil, // Client Key
 		config.WinRMTimeout,
 	)
+
+	// Kerberos transport
+	if config.WinRMKerberos != nil {
+		params := winRMKerberosParams(config)
+		return winrm.NewClientWithParameters(winRMEndpoint, config.WinRMUsername, config.WinRMPassword, params)
+	}
 
 	return winrm.NewClient(winRMEndpoint, config.WinRMUsername, config.WinRMPassword)
 }
