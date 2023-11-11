@@ -22,7 +22,10 @@ type GroupParams struct {
 	SID         string
 }
 
-var g Group
+var (
+	g  Group
+	gs []Group
+)
 
 // GroupRead gets a group by a SID or Name and returns a Group object
 func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, error) {
@@ -76,4 +79,43 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 	}
 
 	return &g, nil
+}
+
+// GroupList returns all groups
+func (c *Client) GroupList(ctx context.Context) (*[]Group, error) {
+
+	// Command
+	cmd := "Get-LocalGroup"
+
+	// Optional parameters
+	opts := &parser.PwshOpts{
+		JSONOutput: true,
+	}
+
+	// Powershell command object
+	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+
+	// Run the comand
+	result, err := c.Connection.Run(ctx, pwshCmd)
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle stderr
+	if result.StdErr != "" {
+		errXML, err := parser.DecodeCLIXML(result.StdErr)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, errors.New(errXML)
+	}
+
+	// Unmarshal result
+	err = json.Unmarshal([]byte(result.StdOut), &gs)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gs, nil
 }
