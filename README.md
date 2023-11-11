@@ -23,6 +23,9 @@ To run all tests run the following command:
 make testacc
 ```
 
+## Third-Party libraries
+* [masterzen/winrm](https://github.com/masterzen/winrm)
+
 ## Inspirations
 * [hashicorp - terraform-provider-ad](https://github.com/hashicorp/terraform-provider-ad)
 
