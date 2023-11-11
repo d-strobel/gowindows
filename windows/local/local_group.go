@@ -233,3 +233,51 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 
 	return group, nil
 }
+
+// GroupDelete removes a group by a SID or Name
+func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
+
+	// Assert needed parameters
+	if params.Name == "" && params.SID == "" {
+		return errors.New("Name or SID must be set to change the a group")
+	}
+
+	// Base command
+	cmds := []string{"Remove-LocalGroup"}
+
+	// Add parameters
+	// Prefer SID over Name to identifiy group
+	if params.SID != "" {
+		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	cmd := strings.Join(cmds, " ")
+
+	// Optional parameters
+	opts := &parser.PwshOpts{
+		JSONOutput: false,
+	}
+
+	// Powershell command object
+	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+
+	// Run the comand
+	result, err := c.Connection.Run(ctx, pwshCmd)
+	if err != nil {
+		return err
+	}
+
+	// Handle stderr
+	if result.StdErr != "" {
+		errXML, err := parser.DecodeCLIXML(result.StdErr)
+		if err != nil {
+			return err
+		}
+
+		return errors.New(errXML)
+	}
+
+	return nil
+}
