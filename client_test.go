@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/gowindows/package/local"
+	"github.com/d-strobel/gowindows/windows/local"
 	"github.com/stretchr/testify/mock"
 )
 

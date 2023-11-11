@@ -15,7 +15,17 @@ type WinRMConfig struct {
 	WinRMUseTLS   bool
 	WinRMInsecure bool
 	WinRMTimeout  time.Duration
+	WinRMKerberos *KerberosConfig
 }
+
+const (
+	// WinRM default values
+	defaultWinRMPort     int           = 5985
+	defaultWinRMPortTLS  int           = 5986
+	defaultWinRMUseTLS   bool          = false
+	defaultWinRMInsecure bool          = true
+	defaultWinRMTimeout  time.Duration = 0
+)
 
 func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 
@@ -25,11 +35,16 @@ func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 	}
 
 	// Set default values
-	if config.WinRMPort == 0 {
-		config.WinRMPort = defaultWinRMPort
-	}
 	if !config.WinRMUseTLS {
 		config.WinRMUseTLS = defaultWinRMUseTLS
+	}
+	if config.WinRMPort == 0 {
+		config.WinRMPort = defaultWinRMPort
+
+		// Set a different default port if TLS enabled
+		if config.WinRMUseTLS {
+			config.WinRMPort = defaultWinRMPortTLS
+		}
 	}
 	if config.WinRMTimeout == 0 {
 		config.WinRMTimeout = defaultWinRMTimeout
@@ -51,6 +66,12 @@ func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 		nil, // Client Key
 		config.WinRMTimeout,
 	)
+
+	// Kerberos transport
+	if config.WinRMKerberos != nil {
+		params := winRMKerberosParams(config)
+		return winrm.NewClientWithParameters(winRMEndpoint, config.WinRMUsername, config.WinRMPassword, params)
+	}
 
 	return winrm.NewClient(winRMEndpoint, config.WinRMUsername, config.WinRMPassword)
 }
