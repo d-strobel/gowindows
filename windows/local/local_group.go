@@ -20,20 +20,16 @@ type GroupParams struct {
 	Name        string
 	Description string
 	SID         string
-	Context     context.Context
 }
 
 var g Group
 
 // GroupRead gets a group by a SID or Name and returns a Group object
-func (c *Client) GroupRead(params GroupParams) (*Group, error) {
+func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, error) {
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
 		return nil, errors.New("Name or SID must be set")
-	}
-	if params.Context == nil {
-		return nil, errors.New("Context must be set")
 	}
 
 	// Base command
@@ -58,7 +54,7 @@ func (c *Client) GroupRead(params GroupParams) (*Group, error) {
 	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
-	result, err := c.Connection.Run(params.Context, pwshCmd)
+	result, err := c.Connection.Run(ctx, pwshCmd)
 	if err != nil {
 		return nil, err
 	}
