@@ -43,7 +43,7 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 	if params.SID != "" {
 		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
 	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name %s", params.Name))
+		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
 	}
 
 	cmd := strings.Join(cmds, " ")
