@@ -172,3 +172,64 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 
 	return &g, nil
 }
+
+// GroupUpdate updates a group and returns the Group object
+// Currently only the description parameter can be cahnged
+func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, error) {
+
+	// Assert needed parameters
+	if params.Name == "" && params.SID == "" {
+		return nil, errors.New("Name or SID must be set to change the a group")
+	}
+
+	if params.Description == "" {
+		return nil, errors.New("Description must be set")
+	}
+
+	// Base command
+	cmds := []string{"Set-LocalGroup"}
+
+	// Add parameters
+	// Prefer SID over Name to identifiy group
+	if params.SID != "" {
+		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
+
+	cmd := strings.Join(cmds, " ")
+
+	// Optional parameters
+	opts := &parser.PwshOpts{
+		JSONOutput: false,
+	}
+
+	// Powershell command object
+	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+
+	// Run the comand
+	result, err := c.Connection.Run(ctx, pwshCmd)
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle stderr
+	if result.StdErr != "" {
+		errXML, err := parser.DecodeCLIXML(result.StdErr)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, errors.New(errXML)
+	}
+
+	// Read out group to return the new group object
+	group, err := c.GroupRead(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
+}
