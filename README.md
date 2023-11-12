@@ -9,6 +9,8 @@ Go library to configure Windows based systems.
 
 This package mainly focuses on providing the neccessary functions for the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows).
 
+⚠️ This project has just started and is not yet production ready!
+
 ## Development
 
 ### Conventional Commits
