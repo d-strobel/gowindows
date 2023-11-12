@@ -179,7 +179,7 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return nil, errors.New("Name or SID must be set to change the a group")
+		return nil, errors.New("Name or SID must be set to change a group")
 	}
 
 	if params.Description == "" {
@@ -239,7 +239,7 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return errors.New("Name or SID must be set to change the a group")
+		return errors.New("Name or SID must be set to delete a group")
 	}
 
 	// Base command
