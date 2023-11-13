@@ -17,9 +17,7 @@ func TestGroupRead(t *testing.T) {
 
 		assert.Error(t, err, "Error should not be nil")
 		assert.Nil(t, group, "Group should be nil")
-
-		expectedError := "Name or SID must be set"
-		assert.EqualError(t, err, expectedError, "Error message should match")
+		assert.ErrorContains(t, err, "GroupRead: group parameter 'Name' or 'SID' must be set")
 	})
 }
 
@@ -33,9 +31,7 @@ func TestGroupCreate(t *testing.T) {
 
 		assert.Error(t, err, "Error should not be nil")
 		assert.Nil(t, group, "Group should be nil")
-
-		expectedError := "Name must be set"
-		assert.EqualError(t, err, expectedError, "Error message should match")
+		assert.ErrorContains(t, err, "GroupCreate: group parameter 'Name' must be set")
 	})
 }
 
@@ -49,9 +45,7 @@ func TestGroupUpdate(t *testing.T) {
 
 		assert.Error(t, err, "Error should not be nil")
 		assert.Nil(t, group, "Group should be nil")
-
-		expectedError := "Name or SID must be set to change a group"
-		assert.EqualError(t, err, expectedError, "Error message should match")
+		assert.ErrorContains(t, err, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	})
 
 	// Test without description parameters should fail
@@ -63,9 +57,7 @@ func TestGroupUpdate(t *testing.T) {
 
 		assert.Error(t, err, "Error should not be nil")
 		assert.Nil(t, group, "Group should be nil")
-
-		expectedError := "Description must be set"
-		assert.EqualError(t, err, expectedError, "Error message should match")
+		assert.ErrorContains(t, err, "GroupUpdate: group parameter 'Description' must be set")
 	})
 }
 
@@ -78,8 +70,6 @@ func TestGroupDelete(t *testing.T) {
 		err := client.GroupDelete(context.Background(), params)
 
 		assert.Error(t, err, "Error should not be nil")
-
-		expectedError := "Name or SID must be set to delete a group"
-		assert.EqualError(t, err, expectedError, "Error message should match")
+		assert.ErrorContains(t, err, "GroupDelete: group parameter 'Name' or 'SID' must be set")
 	})
 }

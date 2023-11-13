@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/d-strobel/gowindows/parser"
+	"github.com/d-strobel/gowindows/winerror"
 )
 
 type Group struct {
@@ -32,7 +33,7 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return nil, errors.New("Name or SID must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupRead: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Base command
@@ -125,7 +126,7 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 
 	// Assert needed parameters
 	if params.Name == "" {
-		return nil, errors.New("Name must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupCreate: group parameter 'Name' must be set")
 	}
 
 	// Base command
@@ -179,11 +180,11 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return nil, errors.New("Name or SID must be set to change a group")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	}
 
 	if params.Description == "" {
-		return nil, errors.New("Description must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Description' must be set")
 	}
 
 	// Base command
@@ -239,7 +240,7 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return errors.New("Name or SID must be set to delete a group")
+		return winerror.Errorf(winerror.ConfigError, "GroupDelete: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Base command
