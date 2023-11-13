@@ -3,7 +3,6 @@ package local
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -70,7 +69,7 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupRead:\n%s", errXML)
 	}
 
 	// Unmarshal result
@@ -109,7 +108,7 @@ func (c *Client) GroupList(ctx context.Context) (*[]Group, error) {
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupList:\n%s", errXML)
 	}
 
 	// Unmarshal result
@@ -162,7 +161,7 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupCreate:\n%s", errXML)
 	}
 
 	// Unmarshal result
@@ -223,7 +222,7 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupUpdate:\n%s", errXML)
 	}
 
 	// Read out group to return the new group object
@@ -277,7 +276,7 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 			return err
 		}
 
-		return errors.New(errXML)
+		return winerror.Errorf(winerror.WindowsError, "GroupDelete:\n%s", errXML)
 	}
 
 	return nil
