@@ -62,5 +62,14 @@ func TestErrorf(t *testing.T) {
 		if winErr.Error() != expectedResult {
 			t.Errorf("Expected error message: '%s'\nGot: '%s'", expectedResult, winErr.Error())
 		}
+
+		// ParserError
+		root = ParserError
+		expectedResult = "[parser_error] Sample error message"
+		winErr = Errorf(root, msg)
+
+		if winErr.Error() != expectedResult {
+			t.Errorf("Expected error message: '%s'\nGot: '%s'", expectedResult, winErr.Error())
+		}
 	})
 }

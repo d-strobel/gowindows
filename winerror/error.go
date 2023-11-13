@@ -9,6 +9,7 @@ const (
 	ConfigError     = "configuration_error"
 	ConnectionError = "connection_error"
 	WindowsError    = "windows_error"
+	ParserError     = "parser_error"
 )
 
 // Error type for gowindows
