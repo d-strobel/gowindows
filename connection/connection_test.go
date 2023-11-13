@@ -13,7 +13,7 @@ func TestNewConnectionErrorMessages(t *testing.T) {
 		_, err := New(conf)
 
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "one of WinRMConfig and SSHConfig must be set")
+		assert.Contains(t, err.Error(), "Connection: object 'WinRMConfig' or 'SSHConfig' must be set")
 	})
 
 	t.Run("Error - Both WinRM and SSH", func(t *testing.T) {
@@ -37,6 +37,6 @@ func TestNewConnectionErrorMessages(t *testing.T) {
 		_, err := New(conf)
 
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "only one of WinRMConfig and SSHConfig must be set")
+		assert.Contains(t, err.Error(), "Connection: object must only contain 'WinRMConfig' or 'SSHConfig'")
 	})
 }
