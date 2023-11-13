@@ -79,7 +79,7 @@ func (c *Connection) Close() error {
 }
 
 // Run runs a command with a connection and context
-// It returns stdout, stderr and error
+// It returns stdout and stderr within a CMDResult object
 func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
 
 	// Prepare base64 encoded powershell command to pass into the run functions
