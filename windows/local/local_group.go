@@ -54,7 +54,7 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -93,7 +93,7 @@ func (c *Client) GroupList(ctx context.Context) (*[]Group, error) {
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -146,7 +146,7 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -207,7 +207,7 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -261,7 +261,7 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
