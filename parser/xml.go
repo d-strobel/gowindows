@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"strings"
+
+	"github.com/d-strobel/gowindows/winerror"
 )
 
 type psString string
@@ -53,7 +55,7 @@ func DecodeCLIXML(xmlDoc string) (string, error) {
 
 		err := xml.Unmarshal([]byte(xmlDoc), &v)
 		if err != nil {
-			return "", fmt.Errorf("while unmarshalling CLIXML document: %s", err)
+			return "", winerror.Errorf(winerror.ParserError, "DecodeCLIXML: Failed to unmarshal xml document: %s", err)
 		}
 
 		xmlDoc = strings.TrimSpace(v.String())

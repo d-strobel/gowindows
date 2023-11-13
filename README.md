@@ -9,6 +9,8 @@ Go library to configure Windows based systems.
 
 This package mainly focuses on providing the neccessary functions for the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows).
 
+⚠️ This project has just started and is not yet production ready!
+
 ## Development
 
 ### Conventional Commits
@@ -18,7 +20,20 @@ For further information, see [conventionalcommits.org](https://www.conventionalc
 
 ### Testing
 
-To run all tests run the following command:
+### Unit tests
+The unit tests can run without external systems. All functions that relies on external systems are mocked.
+
+Just run the following command:<br>
+It will download the go dependencies and run the unit tests.
+```bash
+make test
+```
+
+### Acceptance test
+This is not present yet!<br>
+In the future I would like to spawn a system with all needed requirements to do an integration test.
+
+To run the acceptance test run the following command:
 ```bash
 make testacc
 ```

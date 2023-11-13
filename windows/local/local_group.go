@@ -3,11 +3,11 @@ package local
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/d-strobel/gowindows/parser"
+	"github.com/d-strobel/gowindows/winerror"
 )
 
 type Group struct {
@@ -32,7 +32,7 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return nil, errors.New("Name or SID must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupRead: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Base command
@@ -54,7 +54,7 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -69,7 +69,7 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupRead:\n%s", errXML)
 	}
 
 	// Unmarshal result
@@ -93,7 +93,7 @@ func (c *Client) GroupList(ctx context.Context) (*[]Group, error) {
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -108,7 +108,7 @@ func (c *Client) GroupList(ctx context.Context) (*[]Group, error) {
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupList:\n%s", errXML)
 	}
 
 	// Unmarshal result
@@ -125,7 +125,7 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 
 	// Assert needed parameters
 	if params.Name == "" {
-		return nil, errors.New("Name must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupCreate: group parameter 'Name' must be set")
 	}
 
 	// Base command
@@ -146,7 +146,7 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -161,7 +161,7 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupCreate:\n%s", errXML)
 	}
 
 	// Unmarshal result
@@ -179,11 +179,11 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return nil, errors.New("Name or SID must be set to change the a group")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	}
 
 	if params.Description == "" {
-		return nil, errors.New("Description must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Description' must be set")
 	}
 
 	// Base command
@@ -207,7 +207,7 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -222,7 +222,7 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 			return nil, err
 		}
 
-		return nil, errors.New(errXML)
+		return nil, winerror.Errorf(winerror.WindowsError, "GroupUpdate:\n%s", errXML)
 	}
 
 	// Read out group to return the new group object
@@ -239,7 +239,7 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return errors.New("Name or SID must be set to change the a group")
+		return winerror.Errorf(winerror.ConfigError, "GroupDelete: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Base command
@@ -261,7 +261,7 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 	}
 
 	// Powershell command object
-	pwshCmd, err := parser.NewPwshCommand([]string{cmd}, opts)
+	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
 
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
@@ -276,7 +276,7 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 			return err
 		}
 
-		return errors.New(errXML)
+		return winerror.Errorf(winerror.WindowsError, "GroupDelete:\n%s", errXML)
 	}
 
 	return nil

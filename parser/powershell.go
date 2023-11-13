@@ -10,7 +10,7 @@ type PwshOpts struct {
 }
 
 // NewPwshCommand returns a ready to run powershell command
-func NewPwshCommand(cmd []string, opts *PwshOpts) (string, error) {
+func NewPwshCommand(cmd []string, opts *PwshOpts) string {
 
 	// Convert output to json
 	if opts.JSONOutput {
@@ -19,5 +19,5 @@ func NewPwshCommand(cmd []string, opts *PwshOpts) (string, error) {
 
 	pwshCmd := strings.Join(cmd, " ")
 
-	return pwshCmd, nil
+	return pwshCmd
 }

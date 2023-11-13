@@ -2,8 +2,8 @@ package connection
 
 import (
 	"context"
-	"errors"
 
+	"github.com/d-strobel/gowindows/winerror"
 	"github.com/masterzen/winrm"
 	"golang.org/x/crypto/ssh"
 )
@@ -24,16 +24,16 @@ type CMDResult struct {
 }
 
 // New returns a Connection object.
-// If WinRMConfig is specified the Connection contains a WinRM conenction.
-// If SSHConfig is specified the Connection contains a SSH conenction.
+// If WinRMConfig is specified the Connection object contains a WinRM connection.
+// If SSHConfig is specified the Connection object contains a SSH connection.
 func New(conf *Config) (*Connection, error) {
 
 	// Assert WinRM and SSH configuration
 	if conf.WinRM == nil && conf.SSH == nil {
-		return nil, errors.New("one of WinRMConfig and SSHConfig must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "Connection: object 'WinRMConfig' or 'SSHConfig' must be set")
 	}
 	if conf.WinRM != nil && conf.SSH != nil {
-		return nil, errors.New("only one of WinRMConfig and SSHConfig must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "Connection: object must only contain 'WinRMConfig' or 'SSHConfig'")
 	}
 
 	// Allocate a new Connection
@@ -43,7 +43,7 @@ func New(conf *Config) (*Connection, error) {
 	if conf.WinRM != nil {
 		winRMClient, err := newWinRMClient(conf.WinRM)
 		if err != nil {
-			return nil, err
+			return nil, winerror.Errorf(winerror.ConnectionError, "WinRM: %s", err)
 		}
 
 		c = &Connection{
@@ -55,7 +55,7 @@ func New(conf *Config) (*Connection, error) {
 	if conf.SSH != nil {
 		sshClient, err := newSSHClient(conf.SSH)
 		if err != nil {
-			return nil, err
+			return nil, winerror.Errorf(winerror.ConnectionError, "SSH: %s", err)
 		}
 
 		c = &Connection{
@@ -71,7 +71,7 @@ func (c *Connection) Close() error {
 	if c.SSH != nil {
 		err := c.SSH.Close()
 		if err != nil {
-			return err
+			return winerror.Errorf(winerror.ConnectionError, "Connection: %s", err)
 		}
 	}
 
@@ -79,7 +79,7 @@ func (c *Connection) Close() error {
 }
 
 // Run runs a command with a connection and context
-// It returns stdout, stderr and error
+// It returns stdout and stderr within a CMDResult object
 func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
 
 	// Prepare base64 encoded powershell command to pass into the run functions
