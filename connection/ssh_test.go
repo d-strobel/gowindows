@@ -2,6 +2,8 @@ package connection
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewSSHClient(t *testing.T) {
@@ -17,9 +19,6 @@ func TestNewSSHClient(t *testing.T) {
 			t.Error("Expected a nil SSH client, but got non-nil")
 		}
 
-		expectedErrorMsg := "SSHHost, SSHUsername, and SSHPassword must be set"
-		if err.Error() != expectedErrorMsg {
-			t.Errorf("Expected error message '%s', but got '%s'", expectedErrorMsg, err.Error())
-		}
+		assert.Contains(t, err.Error(), "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and 'SSHPassword' must be set")
 	})
 }

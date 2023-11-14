@@ -2,6 +2,8 @@ package connection
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewWinRMClient(t *testing.T) {
@@ -41,10 +43,7 @@ func TestNewWinRMClient(t *testing.T) {
 			t.Error("Expected a nil client, but got non-nil")
 		}
 
-		expectedErrorMsg := "WinRMHost, WinRMUsername, and WinRMPassword must be set"
-		if err.Error() != expectedErrorMsg {
-			t.Errorf("Expected error message '%s', but got '%s'", expectedErrorMsg, err.Error())
-		}
+		assert.Contains(t, err.Error(), "winrm client: WinRMConfig parameter 'WinRMHost', 'WinRMUsername', and 'WinRMPassword' must be set")
 	})
 }
 

@@ -1,9 +1,9 @@
 package connection
 
 import (
-	"errors"
 	"time"
 
+	"github.com/d-strobel/gowindows/winerror"
 	"github.com/masterzen/winrm"
 )
 
@@ -31,7 +31,7 @@ func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 
 	// Assert
 	if config.WinRMHost == "" || config.WinRMUsername == "" || config.WinRMPassword == "" {
-		return nil, errors.New("WinRMHost, WinRMUsername, and WinRMPassword must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "winrm client: WinRMConfig parameter 'WinRMHost', 'WinRMUsername', and 'WinRMPassword' must be set")
 	}
 
 	// Set default values

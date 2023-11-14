@@ -2,10 +2,10 @@ package connection
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 
+	"github.com/d-strobel/gowindows/winerror"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -25,7 +25,7 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
 	if config.SSHHost == "" || config.SSHUsername == "" || config.SSHPassword == "" {
-		return nil, errors.New("SSHHost, SSHUsername, and SSHPassword must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and 'SSHPassword' must be set")
 	}
 
 	// Parse ssh host string
@@ -44,7 +44,7 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	// Connect to the remote server and perform the SSH handshake.
 	client, err := ssh.Dial("tcp", sshHost, sshConfig)
 	if err != nil {
-		return nil, err
+		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: %s", err)
 	}
 
 	return client, nil

@@ -30,10 +30,10 @@ func New(conf *Config) (*Connection, error) {
 
 	// Assert WinRM and SSH configuration
 	if conf.WinRM == nil && conf.SSH == nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "Connection: object 'WinRMConfig' or 'SSHConfig' must be set")
+		return nil, winerror.Errorf(winerror.ConfigError, "connection client: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
 	}
 	if conf.WinRM != nil && conf.SSH != nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "Connection: object must only contain 'WinRMConfig' or 'SSHConfig'")
+		return nil, winerror.Errorf(winerror.ConfigError, "connection client: Connection object must only contain 'WinRMConfig' or 'SSHConfig'")
 	}
 
 	// Allocate a new Connection
@@ -43,7 +43,7 @@ func New(conf *Config) (*Connection, error) {
 	if conf.WinRM != nil {
 		winRMClient, err := newWinRMClient(conf.WinRM)
 		if err != nil {
-			return nil, winerror.Errorf(winerror.ConnectionError, "WinRM: %s", err)
+			return nil, err
 		}
 
 		c = &Connection{
@@ -55,7 +55,7 @@ func New(conf *Config) (*Connection, error) {
 	if conf.SSH != nil {
 		sshClient, err := newSSHClient(conf.SSH)
 		if err != nil {
-			return nil, winerror.Errorf(winerror.ConnectionError, "SSH: %s", err)
+			return nil, err
 		}
 
 		c = &Connection{
@@ -71,7 +71,7 @@ func (c *Connection) Close() error {
 	if c.SSH != nil {
 		err := c.SSH.Close()
 		if err != nil {
-			return winerror.Errorf(winerror.ConnectionError, "Connection: %s", err)
+			return winerror.Errorf(winerror.ConnectionError, "connection client: %s", err)
 		}
 	}
 
