@@ -95,13 +95,18 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 	}
 
 	// Return the error if stderr has no value
-	if err != nil && stderrBytes == nil {
+	if err != nil && len(stderrBytes) == 0 {
 		return "", "", err
 	}
 
 	// Return stderr over the error when stderr has a value
-	if stderrBytes != nil {
+	if len(stderrBytes) > 0 {
 		return "", string(stderrBytes), nil
+	}
+
+	// Return error when stdout and stderr have no values
+	if len(stdoutBytes) == 0 && len(stderrBytes) == 0 {
+		return "", "", winerror.Errorf(winerror.WindowsError, "ssh session: stdout and stderr are empty")
 	}
 
 	return string(stdoutBytes), "", nil
