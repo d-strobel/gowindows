@@ -28,20 +28,19 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and 'SSHPassword' must be set")
 	}
 
-	// Parse ssh host string
+	// Parse SSH host string
 	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)
 
 	// Configuration
 	sshConfig := &ssh.ClientConfig{
 		User: config.SSHUsername,
 		Auth: []ssh.AuthMethod{
-			// Use the PublicKeys method for remote authentication.
 			ssh.Password(config.SSHPassword),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	// Connect to the remote server and perform the SSH handshake.
+	// Connect to the remote server and perform the SSH handshake
 	client, err := ssh.Dial("tcp", sshHost, sshConfig)
 	if err != nil {
 		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: %s", err)
