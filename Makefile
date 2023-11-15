@@ -9,24 +9,6 @@ ifneq ("$(wildcard .env)","")
 	include .env
 endif
 
-# Assert environment variables for testing
-.PHONY: assert-test-environment
-assert-test-environment:
-	@printf "$(OK_COLOR)==> Assert test environment$(NO_COLOR)\n"
-
-ifndef GOWINDOWS_TEST_SSH_HOST
-	$(error GOWINDOWS_TEST_SSH_HOST is not set.)
-endif
-ifndef GOWINDOWS_TEST_SSH_PORT
-	$(error GOWINDOWS_TEST_SSH_PORT is not set.)
-endif
-ifndef GOWINDOWS_TEST_SSH_USERNAME
-	$(error GOWINDOWS_TEST_SSH_USERNAME is not set.)
-endif
-ifndef GOWINDOWS_TEST_SSH_PASSWORD
-	$(error GOWINDOWS_TEST_SSH_PASSWORD is not set.)
-endif
-
 # Format code
 .PHONY: format
 format:
@@ -52,6 +34,6 @@ test: dependencies
 
 # Acceptance tests
 .PHONY: testacc
-testacc: assert-test-environment requirements dependencies
+testacc: requirements dependencies
 	@printf "$(OK_COLOR)==> Run acceptance tests$(NO_COLOR)\n"
 	go test ./...
