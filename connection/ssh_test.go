@@ -22,3 +22,14 @@ func TestNewSSHClient(t *testing.T) {
 		assert.Contains(t, err.Error(), "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and 'SSHPassword' must be set")
 	})
 }
+
+func TestKnownHostCallback(t *testing.T) {
+	t.Run("IgnoreHostKey", func(t *testing.T) {
+		config := &SSHConfig{
+			SSHInsecureIgnoreHostKey: true,
+		}
+		callback, err := knownHostCallback(config)
+		assert.NoError(t, err)
+		assert.NotNil(t, callback)
+	})
+}

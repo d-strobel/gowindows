@@ -4,21 +4,26 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os/user"
 
 	"github.com/d-strobel/gowindows/winerror"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 type SSHConfig struct {
-	SSHHost     string
-	SSHPort     int
-	SSHUsername string
-	SSHPassword string
+	SSHHost                  string
+	SSHPort                  int
+	SSHUsername              string
+	SSHPassword              string
+	SSHKnownHostsPath        string
+	SSHInsecureIgnoreHostKey bool
 }
 
 const (
 	// SSH default values
-	defaultSSHPort int = 22
+	defaultSSHPort       int    = 22
+	defaultKnownHostPath string = ".ssh/known_hosts"
 )
 
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
@@ -31,13 +36,19 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	// Parse SSH host string
 	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)
 
+	// Check known host key callback
+	knownHostCallback, err := knownHostCallback(config)
+	if err != nil {
+		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: known host callback failed with error: %s", err)
+	}
+
 	// Configuration
 	sshConfig := &ssh.ClientConfig{
 		User: config.SSHUsername,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(config.SSHPassword),
 		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: knownHostCallback,
 	}
 
 	// Connect to the remote server and perform the SSH handshake
@@ -109,4 +120,32 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 	}
 
 	return string(stdoutBytes), "", nil
+}
+
+func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
+
+	// Ignore host key
+	if config.SSHInsecureIgnoreHostKey {
+		return ssh.InsecureIgnoreHostKey(), nil
+	}
+
+	// Get the current user from the system
+	user, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
+	// Set default values
+	knownHostsPath := fmt.Sprintf("%s/%s", user.HomeDir, defaultKnownHostPath)
+	if config.SSHKnownHostsPath != "" {
+		knownHostsPath = config.SSHKnownHostsPath
+	}
+
+	// Create the callback from the known hosts file
+	callback, err := knownhosts.New(knownHostsPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return callback, nil
 }
