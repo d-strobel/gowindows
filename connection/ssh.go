@@ -22,8 +22,8 @@ type SSHConfig struct {
 
 const (
 	// SSH default values
-	defaultSSHPort       int    = 22
-	defaultKnownHostPath string = ".ssh/known_hosts"
+	defaultSSHPort        int    = 22
+	defaultKnownHostsPath string = ".ssh/known_hosts"
 )
 
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
@@ -136,7 +136,7 @@ func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
 	}
 
 	// Set default values
-	knownHostsPath := fmt.Sprintf("%s/%s", user.HomeDir, defaultKnownHostPath)
+	knownHostsPath := fmt.Sprintf("%s/%s", user.HomeDir, defaultKnownHostsPath)
 	if config.SSHKnownHostsPath != "" {
 		knownHostsPath = config.SSHKnownHostsPath
 	}
