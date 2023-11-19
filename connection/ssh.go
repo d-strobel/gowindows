@@ -4,44 +4,61 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"os/user"
 
 	"github.com/d-strobel/gowindows/winerror"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 type SSHConfig struct {
-	SSHHost     string
-	SSHPort     int
-	SSHUsername string
-	SSHPassword string
+	SSHHost                  string
+	SSHPort                  int
+	SSHUsername              string
+	SSHPassword              string
+	SSHPrivateKey            string
+	SSHPrivateKeyPath        string
+	SSHKnownHostsPath        string
+	SSHInsecureIgnoreHostKey bool
 }
 
 const (
 	// SSH default values
-	defaultSSHPort int = 22
+	defaultSSHPort        int    = 22
+	defaultKnownHostsPath string = ".ssh/known_hosts"
 )
 
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
-	if config.SSHHost == "" || config.SSHUsername == "" || config.SSHPassword == "" {
-		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and 'SSHPassword' must be set")
+	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
+		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
 	}
 
-	// Parse ssh host string
+	// Parse SSH host string
 	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)
+
+	// Check known host key callback
+	knownHostCallback, err := knownHostCallback(config)
+	if err != nil {
+		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: known host callback failed with error: %s", err)
+	}
+
+	// Authentication method
+	authMethod, err := authenticationMethod(config)
+	if err != nil {
+		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: %s", err)
+	}
 
 	// Configuration
 	sshConfig := &ssh.ClientConfig{
-		User: config.SSHUsername,
-		Auth: []ssh.AuthMethod{
-			// Use the PublicKeys method for remote authentication.
-			ssh.Password(config.SSHPassword),
-		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		User:            config.SSHUsername,
+		Auth:            authMethod,
+		HostKeyCallback: knownHostCallback,
 	}
 
-	// Connect to the remote server and perform the SSH handshake.
+	// Connect to the remote server and perform the SSH handshake
 	client, err := ssh.Dial("tcp", sshHost, sshConfig)
 	if err != nil {
 		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: %s", err)
@@ -110,4 +127,65 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 	}
 
 	return string(stdoutBytes), "", nil
+}
+
+func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
+
+	// Ignore host key
+	if config.SSHInsecureIgnoreHostKey {
+		return ssh.InsecureIgnoreHostKey(), nil
+	}
+
+	// Get the current user from the system
+	user, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
+	// Set default values
+	knownHostsPath := fmt.Sprintf("%s/%s", user.HomeDir, defaultKnownHostsPath)
+	if config.SSHKnownHostsPath != "" {
+		knownHostsPath = config.SSHKnownHostsPath
+	}
+
+	// Create the callback from the known hosts file
+	callback, err := knownhosts.New(knownHostsPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return callback, nil
+}
+
+func authenticationMethod(config *SSHConfig) ([]ssh.AuthMethod, error) {
+	var authMethod []ssh.AuthMethod = []ssh.AuthMethod{}
+
+	// Private key authentication
+	if config.SSHPrivateKey != "" {
+		signer, err := ssh.ParsePrivateKey([]byte(config.SSHPrivateKey))
+		if err != nil {
+			return nil, err
+		}
+
+		authMethod = append(authMethod, ssh.PublicKeys(signer))
+	} else if config.SSHPrivateKeyPath != "" {
+		privateKey, err := os.ReadFile(config.SSHPrivateKeyPath)
+		if err != nil {
+			return nil, err
+		}
+
+		signer, err := ssh.ParsePrivateKey(privateKey)
+		if err != nil {
+			return nil, err
+		}
+
+		authMethod = append(authMethod, ssh.PublicKeys(signer))
+	}
+
+	// Password authentication
+	if config.SSHPassword != "" {
+		authMethod = append(authMethod, ssh.Password(config.SSHPassword))
+	}
+
+	return authMethod, nil
 }
