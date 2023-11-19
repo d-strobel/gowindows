@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"os/user"
 
 	"github.com/d-strobel/gowindows/winerror"
@@ -16,6 +17,8 @@ type SSHConfig struct {
 	SSHPort                  int
 	SSHUsername              string
 	SSHPassword              string
+	SSHPrivateKey            string
+	SSHPrivateKeyPath        string
 	SSHKnownHostsPath        string
 	SSHInsecureIgnoreHostKey bool
 }
@@ -29,8 +32,8 @@ const (
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
-	if config.SSHHost == "" || config.SSHUsername == "" || config.SSHPassword == "" {
-		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and 'SSHPassword' must be set")
+	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
+		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
 	}
 
 	// Parse SSH host string
@@ -42,12 +45,16 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: known host callback failed with error: %s", err)
 	}
 
+	// Authentication method
+	authMethod, err := authenticationMethod(config)
+	if err != nil {
+		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: %s", err)
+	}
+
 	// Configuration
 	sshConfig := &ssh.ClientConfig{
-		User: config.SSHUsername,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(config.SSHPassword),
-		},
+		User:            config.SSHUsername,
+		Auth:            authMethod,
 		HostKeyCallback: knownHostCallback,
 	}
 
@@ -148,4 +155,37 @@ func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
 	}
 
 	return callback, nil
+}
+
+func authenticationMethod(config *SSHConfig) ([]ssh.AuthMethod, error) {
+	var authMethod []ssh.AuthMethod = []ssh.AuthMethod{}
+
+	// Private key authentication
+	if config.SSHPrivateKey != "" {
+		signer, err := ssh.ParsePrivateKey([]byte(config.SSHPrivateKey))
+		if err != nil {
+			return nil, err
+		}
+
+		authMethod = append(authMethod, ssh.PublicKeys(signer))
+	} else if config.SSHPrivateKeyPath != "" {
+		privateKey, err := os.ReadFile(config.SSHPrivateKeyPath)
+		if err != nil {
+			return nil, err
+		}
+
+		signer, err := ssh.ParsePrivateKey(privateKey)
+		if err != nil {
+			return nil, err
+		}
+
+		authMethod = append(authMethod, ssh.PublicKeys(signer))
+	}
+
+	// Password authentication
+	if config.SSHPassword != "" {
+		authMethod = append(authMethod, ssh.Password(config.SSHPassword))
+	}
+
+	return authMethod, nil
 }
