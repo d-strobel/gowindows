@@ -1,13 +1,14 @@
 package connection
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewConnectionErrorMessages(t *testing.T) {
-	t.Run("Error - Neither WinRM nor SSH", func(t *testing.T) {
+func TestNew(t *testing.T) {
+	t.Run("EmptyConfig", func(t *testing.T) {
 		conf := &Config{}
 
 		_, err := New(conf)
@@ -16,7 +17,7 @@ func TestNewConnectionErrorMessages(t *testing.T) {
 		assert.Contains(t, err.Error(), "connection client: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
 	})
 
-	t.Run("Error - Both WinRM and SSH", func(t *testing.T) {
+	t.Run("Both-WinRM-And-SSH", func(t *testing.T) {
 		winRMConfig := &WinRMConfig{
 			WinRMUsername: "test",
 			WinRMPassword: "test",
@@ -38,5 +39,16 @@ func TestNewConnectionErrorMessages(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "connection client: Connection object must only contain 'WinRMConfig' or 'SSHConfig'")
+	})
+}
+
+func TestRun(t *testing.T) {
+	t.Run("EmptyConfig", func(t *testing.T) {
+		c := &Connection{}
+
+		result, err := c.Run(context.Background(), "test")
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "connection client: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
+		assert.IsType(t, CMDResult{}, result)
 	})
 }

@@ -36,8 +36,8 @@ func New(conf *Config) (*Connection, error) {
 		return nil, winerror.Errorf(winerror.ConfigError, "connection client: Connection object must only contain 'WinRMConfig' or 'SSHConfig'")
 	}
 
-	// Allocate a new Connection
-	c := new(Connection)
+	// Init a new Connection
+	c := &Connection{}
 
 	// WinRM configuration
 	if conf.WinRM != nil {
@@ -46,9 +46,7 @@ func New(conf *Config) (*Connection, error) {
 			return nil, err
 		}
 
-		c = &Connection{
-			WinRM: winRMClient,
-		}
+		c.WinRM = winRMClient
 	}
 
 	// SSH configuration
@@ -58,9 +56,7 @@ func New(conf *Config) (*Connection, error) {
 			return nil, err
 		}
 
-		c = &Connection{
-			SSH: sshClient,
-		}
+		c.SSH = sshClient
 	}
 
 	return c, nil
@@ -78,21 +74,25 @@ func (c *Connection) Close() error {
 	return nil
 }
 
-// Run runs a command with a connection and context
-// It returns stdout and stderr within a CMDResult object
-func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
+// Run runs a command with a connection and context.
+// It returns stdout and stderr within a CMDResult object.
+func (c *Connection) Run(ctx context.Context, cmd string) (CMDResult, error) {
+
+	var r CMDResult
+
+	// Assert configuration
+	if c.WinRM == nil && c.SSH == nil {
+		return r, winerror.Errorf(winerror.ConfigError, "connection client: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
+	}
 
 	// Prepare base64 encoded powershell command to pass into the run functions
 	pwshCmd := winrm.Powershell(cmd)
-
-	// Allocate CMDResult
-	r := new(CMDResult)
 
 	// WinRM execution
 	if c.WinRM != nil {
 		stdout, stderr, _, err := c.WinRM.RunWithContextWithString(ctx, pwshCmd, "")
 		if err != nil {
-			return nil, err
+			return r, err
 		}
 		if stderr != "" {
 			r.StdErr = stderr
