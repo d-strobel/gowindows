@@ -16,7 +16,7 @@ func TestGroupRead(t *testing.T) {
 		group, err := client.GroupRead(context.Background(), params)
 
 		assert.Error(t, err, "Error should not be nil")
-		assert.Nil(t, group, "Group should be nil")
+		assert.IsType(t, Group{}, group)
 		assert.ErrorContains(t, err, "GroupRead: group parameter 'Name' or 'SID' must be set")
 	})
 }
@@ -30,7 +30,7 @@ func TestGroupCreate(t *testing.T) {
 		group, err := client.GroupCreate(context.Background(), params)
 
 		assert.Error(t, err, "Error should not be nil")
-		assert.Nil(t, group, "Group should be nil")
+		assert.IsType(t, Group{}, group)
 		assert.ErrorContains(t, err, "GroupCreate: group parameter 'Name' must be set")
 	})
 }
@@ -44,7 +44,7 @@ func TestGroupUpdate(t *testing.T) {
 		group, err := client.GroupUpdate(context.Background(), params)
 
 		assert.Error(t, err, "Error should not be nil")
-		assert.Nil(t, group, "Group should be nil")
+		assert.IsType(t, Group{}, group)
 		assert.ErrorContains(t, err, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	})
 
@@ -56,7 +56,7 @@ func TestGroupUpdate(t *testing.T) {
 		group, err := client.GroupUpdate(context.Background(), params)
 
 		assert.Error(t, err, "Error should not be nil")
-		assert.Nil(t, group, "Group should be nil")
+		assert.IsType(t, Group{}, group)
 		assert.ErrorContains(t, err, "GroupUpdate: group parameter 'Description' must be set")
 	})
 }

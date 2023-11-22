@@ -22,17 +22,15 @@ type GroupParams struct {
 	SID         string
 }
 
-var (
-	g  Group
-	gs []Group
-)
+// GroupRead gets a group by a SID or Name and returns a Group object.
+func (c *Client) GroupRead(ctx context.Context, params GroupParams) (Group, error) {
 
-// GroupRead gets a group by a SID or Name and returns a Group object
-func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, error) {
+	// Declare Group object
+	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return nil, winerror.Errorf(winerror.ConfigError, "GroupRead: group parameter 'Name' or 'SID' must be set")
+		return g, winerror.Errorf(winerror.ConfigError, "GroupRead: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Base command
@@ -59,30 +57,33 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (*Group, err
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
 	if err != nil {
-		return nil, err
+		return g, err
 	}
 
 	// Handle stderr
 	if result.StdErr != "" {
 		errXML, err := parser.DecodeCLIXML(result.StdErr)
 		if err != nil {
-			return nil, err
+			return g, err
 		}
 
-		return nil, winerror.Errorf(winerror.WindowsError, "GroupRead:\n%s", errXML)
+		return g, winerror.Errorf(winerror.WindowsError, "GroupRead:\n%s", errXML)
 	}
 
 	// Unmarshal result
 	err = json.Unmarshal([]byte(result.StdOut), &g)
 	if err != nil {
-		return nil, err
+		return g, err
 	}
 
-	return &g, nil
+	return g, nil
 }
 
-// GroupList returns all groups
-func (c *Client) GroupList(ctx context.Context) (*[]Group, error) {
+// GroupList returns all groups.
+func (c *Client) GroupList(ctx context.Context) ([]Group, error) {
+
+	// Declare slice of Group object
+	var g []Group
 
 	// Command
 	cmd := "Get-LocalGroup"
@@ -112,20 +113,23 @@ func (c *Client) GroupList(ctx context.Context) (*[]Group, error) {
 	}
 
 	// Unmarshal result
-	err = json.Unmarshal([]byte(result.StdOut), &gs)
+	err = json.Unmarshal([]byte(result.StdOut), &g)
 	if err != nil {
 		return nil, err
 	}
 
-	return &gs, nil
+	return g, nil
 }
 
-// GroupCreate creates a new group and returns the Group object
-func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, error) {
+// GroupCreate creates a new group and returns the Group object.
+func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (Group, error) {
+
+	// Declare Group object
+	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" {
-		return nil, winerror.Errorf(winerror.ConfigError, "GroupCreate: group parameter 'Name' must be set")
+		return g, winerror.Errorf(winerror.ConfigError, "GroupCreate: group parameter 'Name' must be set")
 	}
 
 	// Base command
@@ -151,39 +155,42 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (*Group, e
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
 	if err != nil {
-		return nil, err
+		return g, err
 	}
 
 	// Handle stderr
 	if result.StdErr != "" {
 		errXML, err := parser.DecodeCLIXML(result.StdErr)
 		if err != nil {
-			return nil, err
+			return g, err
 		}
 
-		return nil, winerror.Errorf(winerror.WindowsError, "GroupCreate:\n%s", errXML)
+		return g, winerror.Errorf(winerror.WindowsError, "GroupCreate:\n%s", errXML)
 	}
 
 	// Unmarshal result
 	err = json.Unmarshal([]byte(result.StdOut), &g)
 	if err != nil {
-		return nil, err
+		return g, err
 	}
 
-	return &g, nil
+	return g, nil
 }
 
-// GroupUpdate updates a group and returns the Group object
-// Currently only the description parameter can be cahnged
-func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, error) {
+// GroupUpdate updates a group and returns the Group object.
+// Currently only the description parameter can be changed.
+func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (Group, error) {
+
+	// Declare Group object
+	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return nil, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
+		return g, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	}
 
 	if params.Description == "" {
-		return nil, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Description' must be set")
+		return g, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Description' must be set")
 	}
 
 	// Base command
@@ -212,29 +219,29 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (*Group, e
 	// Run the comand
 	result, err := c.Connection.Run(ctx, pwshCmd)
 	if err != nil {
-		return nil, err
+		return g, err
 	}
 
 	// Handle stderr
 	if result.StdErr != "" {
 		errXML, err := parser.DecodeCLIXML(result.StdErr)
 		if err != nil {
-			return nil, err
+			return g, err
 		}
 
-		return nil, winerror.Errorf(winerror.WindowsError, "GroupUpdate:\n%s", errXML)
+		return g, winerror.Errorf(winerror.WindowsError, "GroupUpdate:\n%s", errXML)
 	}
 
 	// Read out group to return the new group object
 	group, err := c.GroupRead(ctx, params)
 	if err != nil {
-		return nil, err
+		return g, err
 	}
 
 	return group, nil
 }
 
-// GroupDelete removes a group by a SID or Name
+// GroupDelete removes a group by a SID or Name.
 func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	// Assert needed parameters
