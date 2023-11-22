@@ -10,14 +10,14 @@ type Client struct {
 	Local      *local.Client
 }
 
-// NewClient returns a Client object that contains the Connection and the subpackages.
-// Use this Client to run the functions inside the package directories.
+// New returns a Client object that contains the Connection and the Windows package.
+// Use this Client to run the functions inside the Windows subpackages.
 func New(conf *connection.Config) (*Client, error) {
 
 	var err error
 
-	// Allocate a new Client
-	c := new(Client)
+	// Init new Client
+	c := &Client{}
 
 	// Store new connection to the Client
 	c.Connection, err = connection.New(conf)
@@ -32,7 +32,7 @@ func New(conf *connection.Config) (*Client, error) {
 }
 
 // Close closes any open connection.
-// Only ssh connection will be terminated here.
+// For now only ssh connections will be terminated.
 // To avoid surprises in the future, this should always be called in a defer statement.
 func (c *Client) Close() error {
 	return c.Connection.Close()
