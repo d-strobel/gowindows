@@ -3,7 +3,7 @@ package connection
 import (
 	"testing"
 
-	"github.com/masterzen/winrm"
+	"github.com/d-strobel/winrm"
 	"github.com/stretchr/testify/assert"
 )
 

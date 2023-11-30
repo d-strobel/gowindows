@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/d-strobel/gowindows/winerror"
-	"github.com/masterzen/winrm"
+	"github.com/d-strobel/winrm"
 )
 
 type WinRMConfig struct {

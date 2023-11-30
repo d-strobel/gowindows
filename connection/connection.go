@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/d-strobel/gowindows/winerror"
-	"github.com/masterzen/winrm"
+	"github.com/d-strobel/winrm"
 	"golang.org/x/crypto/ssh"
 )
 

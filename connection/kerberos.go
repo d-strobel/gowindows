@@ -1,7 +1,7 @@
 package connection
 
 import (
-	"github.com/masterzen/winrm"
+	"github.com/d-strobel/winrm"
 )
 
 type KerberosConfig struct {
