@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-
-	"github.com/d-strobel/gowindows/parser"
-	"github.com/d-strobel/gowindows/winerror"
 )
 
 type Group struct {
@@ -22,15 +19,19 @@ type GroupParams struct {
 	SID         string
 }
 
+type groupType interface {
+	Group | []Group
+}
+
 // GroupRead gets a group by a SID or Name and returns a Group object.
-func (c *Client) GroupRead(ctx context.Context, params GroupParams) (Group, error) {
+func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
 	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return g, winerror.Errorf(winerror.ConfigError, "GroupRead: group parameter 'Name' or 'SID' must be set")
+		return g, fmt.Errorf("windows.local.GroupRead: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Base command
@@ -44,92 +45,42 @@ func (c *Client) GroupRead(ctx context.Context, params GroupParams) (Group, erro
 		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
 	}
 
+	// JSON Output
+	cmds = append(cmds, "| ConvertTo-Json")
 	cmd := strings.Join(cmds, " ")
 
-	// Optional parameters
-	opts := &parser.PwshOpts{
-		JSONOutput: true,
-	}
-
-	// Powershell command object
-	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
-
-	// Run the comand
-	result, err := c.Connection.Run(ctx, pwshCmd)
-	if err != nil {
-		return g, err
-	}
-
-	// Handle stderr
-	if result.StdErr != "" {
-		errXML, err := parser.DecodeCLIXML(result.StdErr)
-		if err != nil {
-			return g, err
-		}
-
-		return g, winerror.Errorf(winerror.WindowsError, "GroupRead:\n%s", errXML)
-	}
-
-	// Unmarshal result
-	err = json.Unmarshal([]byte(result.StdOut), &g)
-	if err != nil {
-		return g, err
+	if err := groupRun(ctx, c, cmd, &g); err != nil {
+		return g, fmt.Errorf("windows.local.GroupRead: %s", err)
 	}
 
 	return g, nil
 }
 
 // GroupList returns all groups.
-func (c *Client) GroupList(ctx context.Context) ([]Group, error) {
+func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 
 	// Declare slice of Group object
 	var g []Group
 
 	// Command
-	cmd := "Get-LocalGroup"
+	cmd := "Get-LocalGroup | ConvertTo-Json"
 
-	// Optional parameters
-	opts := &parser.PwshOpts{
-		JSONOutput: true,
-	}
-
-	// Powershell command object
-	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
-
-	// Run the comand
-	result, err := c.Connection.Run(ctx, pwshCmd)
-	if err != nil {
-		return nil, err
-	}
-
-	// Handle stderr
-	if result.StdErr != "" {
-		errXML, err := parser.DecodeCLIXML(result.StdErr)
-		if err != nil {
-			return nil, err
-		}
-
-		return nil, winerror.Errorf(winerror.WindowsError, "GroupList:\n%s", errXML)
-	}
-
-	// Unmarshal result
-	err = json.Unmarshal([]byte(result.StdOut), &g)
-	if err != nil {
-		return nil, err
+	if err := groupRun(ctx, c, cmd, &g); err != nil {
+		return g, fmt.Errorf("windows.local.GroupList: %s", err)
 	}
 
 	return g, nil
 }
 
 // GroupCreate creates a new group and returns the Group object.
-func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (Group, error) {
+func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
 	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" {
-		return g, winerror.Errorf(winerror.ConfigError, "GroupCreate: group parameter 'Name' must be set")
+		return g, fmt.Errorf("windows.local.GroupCreate: group parameter 'Name' must be set")
 	}
 
 	// Base command
@@ -142,55 +93,31 @@ func (c *Client) GroupCreate(ctx context.Context, params GroupParams) (Group, er
 		cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
 	}
 
+	// JSON Output
+	cmds = append(cmds, "| ConvertTo-Json")
 	cmd := strings.Join(cmds, " ")
 
-	// Optional parameters
-	opts := &parser.PwshOpts{
-		JSONOutput: true,
-	}
-
-	// Powershell command object
-	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
-
-	// Run the comand
-	result, err := c.Connection.Run(ctx, pwshCmd)
-	if err != nil {
-		return g, err
-	}
-
-	// Handle stderr
-	if result.StdErr != "" {
-		errXML, err := parser.DecodeCLIXML(result.StdErr)
-		if err != nil {
-			return g, err
-		}
-
-		return g, winerror.Errorf(winerror.WindowsError, "GroupCreate:\n%s", errXML)
-	}
-
-	// Unmarshal result
-	err = json.Unmarshal([]byte(result.StdOut), &g)
-	if err != nil {
-		return g, err
+	if err := groupRun(ctx, c, cmd, &g); err != nil {
+		return g, fmt.Errorf("windows.local.GroupCreate: %s", err)
 	}
 
 	return g, nil
 }
 
-// GroupUpdate updates a group and returns the Group object.
+// GroupUpdate updates a group.
 // Currently only the description parameter can be changed.
-func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (Group, error) {
+func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error {
 
-	// Declare Group object
+	// Satisfy groupType interface
 	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return g, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
+		return fmt.Errorf("windows.local.GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	}
 
 	if params.Description == "" {
-		return g, winerror.Errorf(winerror.ConfigError, "GroupUpdate: group parameter 'Description' must be set")
+		return fmt.Errorf("windows.local.GroupUpdate: group parameter 'Description' must be set")
 	}
 
 	// Base command
@@ -205,48 +132,24 @@ func (c *Client) GroupUpdate(ctx context.Context, params GroupParams) (Group, er
 	}
 
 	cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
-
 	cmd := strings.Join(cmds, " ")
 
-	// Optional parameters
-	opts := &parser.PwshOpts{
-		JSONOutput: false,
+	if err := groupRun(ctx, c, cmd, &g); err != nil {
+		return fmt.Errorf("windows.local.GroupUpdate: %s", err)
 	}
 
-	// Powershell command object
-	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
-
-	// Run the comand
-	result, err := c.Connection.Run(ctx, pwshCmd)
-	if err != nil {
-		return g, err
-	}
-
-	// Handle stderr
-	if result.StdErr != "" {
-		errXML, err := parser.DecodeCLIXML(result.StdErr)
-		if err != nil {
-			return g, err
-		}
-
-		return g, winerror.Errorf(winerror.WindowsError, "GroupUpdate:\n%s", errXML)
-	}
-
-	// Read out group to return the new group object
-	group, err := c.GroupRead(ctx, params)
-	if err != nil {
-		return g, err
-	}
-
-	return group, nil
+	return nil
 }
 
 // GroupDelete removes a group by a SID or Name.
-func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
+func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error {
+
+	// Satisfy groupType interface
+	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return winerror.Errorf(winerror.ConfigError, "GroupDelete: group parameter 'Name' or 'SID' must be set")
+		return fmt.Errorf("windows.local.GroupDelete: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Base command
@@ -262,28 +165,39 @@ func (c *Client) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	cmd := strings.Join(cmds, " ")
 
-	// Optional parameters
-	opts := &parser.PwshOpts{
-		JSONOutput: false,
+	if err := groupRun(ctx, c, cmd, &g); err != nil {
+		return fmt.Errorf("windows.local.GroupDelete:\n%s", err)
 	}
 
-	// Powershell command object
-	pwshCmd := parser.NewPwshCommand([]string{cmd}, opts)
+	return nil
+}
 
-	// Run the comand
-	result, err := c.Connection.Run(ctx, pwshCmd)
+// groupRun runs a powershell command against a system.
+func groupRun[T groupType](ctx context.Context, c *LocalClient, cmd string, g *T) error {
+
+	// Run the command
+	result, err := c.Connection.Run(ctx, cmd)
 	if err != nil {
 		return err
 	}
 
 	// Handle stderr
 	if result.StdErr != "" {
-		errXML, err := parser.DecodeCLIXML(result.StdErr)
+		errXML, err := c.parser.DecodeCLIXML(result.StdErr)
 		if err != nil {
 			return err
 		}
 
-		return winerror.Errorf(winerror.WindowsError, "GroupDelete:\n%s", errXML)
+		return fmt.Errorf("%s", errXML)
+	}
+
+	if result.StdOut == "" {
+		return nil
+	}
+
+	// Unmarshal stdout
+	if err = json.Unmarshal([]byte(result.StdOut), &g); err != nil {
+		return err
 	}
 
 	return nil
