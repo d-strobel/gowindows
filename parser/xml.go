@@ -4,26 +4,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"strings"
-
-	"github.com/d-strobel/gowindows/winerror"
 )
 
 type psString string
 
-// Normalize error messages
-func (s *psString) UnmarshalText(text []byte) error {
-	str := string(text)
-	str = strings.TrimSpace(str)
-	if str[0] == '+' && len(str) > 2 {
-		*s = psString(fmt.Sprintf("\n%s", str[2:]))
-	} else {
-		*s = psString(str)
-	}
-
-	return nil
-}
-
-// PSOutput is used to unmarshall CLIXML output
 type PSOutput struct {
 	PSStrings []psString `xml:"S"`
 }
@@ -45,21 +29,21 @@ func (p *PSOutput) String() string {
 }
 
 // DecodeCLIXML extracts an error message if stderr is formatted in CLIXML
-func DecodeCLIXML(xmlDoc string) (string, error) {
+func DecodeCLIXML(xmlErr string) (string, error) {
 
-	if strings.Contains(xmlDoc, "#< CLIXML") {
+	if strings.Contains(xmlErr, "#< CLIXML") {
 
 		var v PSOutput
 
-		xmlDoc = strings.Replace(xmlDoc, "#< CLIXML", "", -1)
+		xmlErr = strings.Replace(xmlErr, "#< CLIXML", "", -1)
 
-		err := xml.Unmarshal([]byte(xmlDoc), &v)
+		err := xml.Unmarshal([]byte(xmlErr), &v)
 		if err != nil {
-			return "", winerror.Errorf(winerror.ParserError, "DecodeCLIXML: Failed to unmarshal xml document: %s", err)
+			return "", fmt.Errorf("DecodeCLIXML: Failed to unmarshal xml document: %s", err)
 		}
 
-		xmlDoc = strings.TrimSpace(v.String())
+		xmlErr = strings.TrimSpace(v.String())
 	}
 
-	return xmlDoc, nil
+	return xmlErr, nil
 }
