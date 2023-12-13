@@ -7,7 +7,7 @@ import (
 
 type Client struct {
 	Connection *connection.Connection
-	Local      *local.Client
+	Local      *local.LocalClient
 }
 
 // New returns a Client object that contains the Connection and the Windows package.

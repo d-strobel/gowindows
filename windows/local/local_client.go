@@ -2,15 +2,17 @@ package local
 
 import (
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parser"
 )
 
-type Client struct {
-	Connection *connection.Connection
+type LocalClient struct {
+	Connection connection.ConnectionInterface
+	parser     parser.Parser
 }
 
 // New returns a Client for the local package.
-func New(conn *connection.Connection) *Client {
-	return &Client{Connection: conn}
+func New(conn *connection.Connection) *LocalClient {
+	return &LocalClient{Connection: conn, parser: parser.New()}
 }
 
 // SID is a common struct by all security principals.
