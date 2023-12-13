@@ -2,8 +2,8 @@ package connection
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/d-strobel/gowindows/winerror"
 	"github.com/d-strobel/winrm"
 	"golang.org/x/crypto/ssh"
 )
@@ -11,6 +11,11 @@ import (
 type Connection struct {
 	WinRM *winrm.Client
 	SSH   *ssh.Client
+}
+
+type ConnectionInterface interface {
+	Run(ctx context.Context, cmd string) (CMDResult, error)
+	Close() error
 }
 
 type Config struct {
@@ -30,10 +35,10 @@ func New(conf *Config) (*Connection, error) {
 
 	// Assert WinRM and SSH configuration
 	if conf.WinRM == nil && conf.SSH == nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "connection client: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
+		return nil, fmt.Errorf("connection: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
 	}
 	if conf.WinRM != nil && conf.SSH != nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "connection client: Connection object must only contain 'WinRMConfig' or 'SSHConfig'")
+		return nil, fmt.Errorf("connection: Connection object must only contain 'WinRMConfig' or 'SSHConfig'")
 	}
 
 	// Init a new Connection
@@ -67,7 +72,7 @@ func (c *Connection) Close() error {
 	if c.SSH != nil {
 		err := c.SSH.Close()
 		if err != nil {
-			return winerror.Errorf(winerror.ConnectionError, "connection client: %s", err)
+			return fmt.Errorf("connection: %s", err)
 		}
 	}
 
@@ -82,7 +87,7 @@ func (c *Connection) Run(ctx context.Context, cmd string) (CMDResult, error) {
 
 	// Assert configuration
 	if c.WinRM == nil && c.SSH == nil {
-		return r, winerror.Errorf(winerror.ConfigError, "connection client: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
+		return r, fmt.Errorf("connection: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
 	}
 
 	// Prepare base64 encoded powershell command to pass into the run functions

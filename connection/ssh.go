@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/d-strobel/gowindows/winerror"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
@@ -33,7 +32,7 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
 	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
-		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
+		return nil, fmt.Errorf("ssh: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
 	}
 
 	// Parse SSH host string
@@ -42,13 +41,13 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	// Check known host key callback
 	knownHostCallback, err := knownHostCallback(config)
 	if err != nil {
-		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: known host callback failed with error: %s", err)
+		return nil, fmt.Errorf("ssh: known host callback failed with error: %s", err)
 	}
 
 	// Authentication method
 	authMethod, err := authenticationMethod(config)
 	if err != nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: %s", err)
+		return nil, fmt.Errorf("ssh: %s", err)
 	}
 
 	// Configuration
@@ -61,7 +60,7 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	// Connect to the remote server and perform the SSH handshake
 	client, err := ssh.Dial("tcp", sshHost, sshConfig)
 	if err != nil {
-		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: %s", err)
+		return nil, fmt.Errorf("ssh: %s", err)
 	}
 
 	return client, nil
@@ -123,7 +122,7 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 
 	// Return error when stdout and stderr have no values
 	if len(stdoutBytes) == 0 && len(stderrBytes) == 0 {
-		return "", "", winerror.Errorf(winerror.WindowsError, "ssh session: stdout and stderr are empty")
+		return "", "", fmt.Errorf("ssh session: stdout and stderr are empty")
 	}
 
 	return string(stdoutBytes), "", nil
