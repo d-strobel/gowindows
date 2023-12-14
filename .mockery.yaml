@@ -1,0 +1,6 @@
+with-expecter: true
+dir: mocks
+packages:
+  github.com/d-strobel/gowindows/connection:
+    config:
+      all: true
