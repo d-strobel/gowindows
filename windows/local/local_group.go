@@ -34,6 +34,11 @@ func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group,
 		return g, fmt.Errorf("windows.local.GroupRead: group parameter 'Name' or 'SID' must be set")
 	}
 
+	// We want to retrieve exactly one group.
+	if strings.Contains(params.Name, "*") {
+		return g, fmt.Errorf("windows.local.GroupRead: group parameter 'Name' does not allow wildcards")
+	}
+
 	// Base command
 	cmds := []string{"Get-LocalGroup"}
 
