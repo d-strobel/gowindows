@@ -4,72 +4,95 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parser"
+	"github.com/d-strobel/gowindows/windows/local/fixtures"
+	"github.com/stretchr/testify/suite"
+
+	mockConnection "github.com/d-strobel/gowindows/connection/mocks"
 )
 
-func TestGroupRead(t *testing.T) {
-	client := &Client{}
-
-	// Test with empty parameters should fail
-	t.Run("EmptyParams", func(t *testing.T) {
-		params := GroupParams{}
-		group, err := client.GroupRead(context.Background(), params)
-
-		assert.Error(t, err, "Error should not be nil")
-		assert.IsType(t, Group{}, group)
-		assert.ErrorContains(t, err, "GroupRead: group parameter 'Name' or 'SID' must be set")
-	})
+// Setup unit test suite
+type GroupUnitTestSuite struct {
+	suite.Suite
+	expectedUsersGroup Group
+	expectedGroupList  []Group
 }
 
-func TestGroupCreate(t *testing.T) {
-	client := &Client{}
+func (suite *GroupUnitTestSuite) SetupTest() {
+	suite.expectedUsersGroup = Group{
+		Name:        "Users",
+		Description: "Users are prevented from making accidental or intentional system-wide changes and can run most applications",
+		SID: SID{
+			Value: "S-1-5-32-545",
+		},
+	}
 
-	// Test with empty parameters should fail
-	t.Run("EmptyParams", func(t *testing.T) {
-		params := GroupParams{}
-		group, err := client.GroupCreate(context.Background(), params)
-
-		assert.Error(t, err, "Error should not be nil")
-		assert.IsType(t, Group{}, group)
-		assert.ErrorContains(t, err, "GroupCreate: group parameter 'Name' must be set")
-	})
+	suite.expectedGroupList = []Group{
+		{
+			Name:        "Administrators",
+			Description: "Administrators have complete and unrestricted access to the computer/domain",
+			SID: SID{
+				Value: "S-1-5-32-544",
+			},
+		},
+		{
+			Name:        "Users",
+			Description: "Users are prevented from making accidental or intentional system-wide changes and can run most applications",
+			SID: SID{
+				Value: "S-1-5-32-545",
+			},
+		},
+	}
 }
 
-func TestGroupUpdate(t *testing.T) {
-	client := &Client{}
+func TestGroupUnitTestSuite(t *testing.T) {
+	suite.Run(t, &GroupUnitTestSuite{})
+}
 
-	// Test with empty parameters should fail
-	t.Run("EmptyParams", func(t *testing.T) {
-		params := GroupParams{}
-		group, err := client.GroupUpdate(context.Background(), params)
+// Unit test functions
+func (suite *GroupUnitTestSuite) TestGroupRun() {
+	suite.T().Parallel()
 
-		assert.Error(t, err, "Error should not be nil")
-		assert.IsType(t, Group{}, group)
-		assert.ErrorContains(t, err, "GroupUpdate: group parameter 'Name' or 'SID' must be set")
-	})
-
-	// Test without description parameters should fail
-	t.Run("WithoutDescription", func(t *testing.T) {
-		params := GroupParams{
-			Name: "User",
+	suite.Run("Should return the user Group", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		c := &LocalClient{
+			Connection: mockConn,
+			parser: parser.Parser{
+				DecodeCLIXML: func(xmlErr string) (string, error) {
+					return xmlErr, nil
+				},
+			},
 		}
-		group, err := client.GroupUpdate(context.Background(), params)
-
-		assert.Error(t, err, "Error should not be nil")
-		assert.IsType(t, Group{}, group)
-		assert.ErrorContains(t, err, "GroupUpdate: group parameter 'Description' must be set")
+		mockConn.On("Run", ctx, "Get-LocalGroup -Name Users | ConvertTo-Json").Return(connection.CMDResult{
+			StdOut: fixtures.UsersGroup,
+		}, nil)
+		var g Group
+		err := groupRun[Group](ctx, c, "Get-LocalGroup -Name Users | ConvertTo-Json", &g)
+		suite.NoError(err)
+		suite.Equal(suite.expectedUsersGroup, g)
 	})
-}
 
-func TestGroupDelete(t *testing.T) {
-	client := &Client{}
-
-	// Test with empty parameters should fail
-	t.Run("EmptyParams", func(t *testing.T) {
-		params := GroupParams{}
-		err := client.GroupDelete(context.Background(), params)
-
-		assert.Error(t, err, "Error should not be nil")
-		assert.ErrorContains(t, err, "GroupDelete: group parameter 'Name' or 'SID' must be set")
+	suite.Run("Should return a slice of Groups", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		c := &LocalClient{
+			Connection: mockConn,
+			parser: parser.Parser{
+				DecodeCLIXML: func(xmlErr string) (string, error) {
+					return xmlErr, nil
+				},
+			},
+		}
+		mockConn.On("Run", ctx, "Get-LocalGroup | ConvertTo-Json").Return(connection.CMDResult{
+			StdOut: fixtures.GroupList,
+		}, nil)
+		var g []Group
+		err := groupRun[[]Group](ctx, c, "Get-LocalGroup | ConvertTo-Json", &g)
+		suite.NoError(err)
+		suite.Equal(suite.expectedGroupList, g)
 	})
 }
