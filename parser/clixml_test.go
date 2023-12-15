@@ -13,6 +13,7 @@ type CLIXMLUnitTestSuite struct {
 	cliXMLError               string
 	expectedString            string
 	expectedUnmarshaledCLIXML *clixml
+	expectedStringSlice       []string
 }
 
 func (suite *CLIXMLUnitTestSuite) SetupTest() {
@@ -64,6 +65,20 @@ FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.ActiveDirectory .Manage
 			" _x000D__x000A_",
 		},
 	}
+
+	suite.expectedStringSlice = []string{
+		"Set-ADOrganizationalUnit : A parameter cannot be found that matches parameter ",
+		"name 'Path'.",
+		"At line:1 char:101",
+		"\n... e description\" -Path \"DC=yourdomain,DC=com\" ",
+		"-ProtectedFromAccidentalDeletion $tr ...",
+		"\n                   ~~~~~",
+		"\nCategoryInfo          : InvalidArgument: (:) [Set-ADOrganizationalUnit], ",
+		"ParameterBindingException",
+		"\nFullyQualifiedErrorId : NamedParameterNotFound,Microsoft.ActiveDirectory ",
+		".Management.Commands.SetADOrganizationalUnit",
+		"",
+	}
 }
 
 func TestCLIXMLUnitTestSuite(t *testing.T) {
@@ -71,20 +86,57 @@ func TestCLIXMLUnitTestSuite(t *testing.T) {
 }
 
 func (suite *CLIXMLUnitTestSuite) TestUnmarshal() {
-	suite.Run("Should unmarshal correctly", func() {
+	suite.T().Parallel()
+
+	suite.Run("should unmarshal correctly", func() {
 		actualResult := &clixml{}
 		err := actualResult.unmarshal(suite.cliXMLError)
 		suite.Require().NoError(err)
 		suite.Equal(suite.expectedUnmarshaledCLIXML, actualResult)
+	})
+	suite.Run("should return error when empty string", func() {
+		actualResult := &clixml{}
+		err := actualResult.unmarshal("")
+		suite.Error(err)
+	})
+}
+
+func (suite *CLIXMLUnitTestSuite) TestStringSlice() {
+	suite.T().Parallel()
+
+	suite.Run("should return the expected string slice", func() {
+		actualResult := suite.expectedUnmarshaledCLIXML.stringSlice()
+		suite.Equal(suite.expectedStringSlice, actualResult)
+	})
+	suite.Run("should not panic with empty slice", func() {
+		clixml := &clixml{
+			XML: []string{},
+		}
+		actualResult := clixml.stringSlice()
+		suite.Require().NotPanics(func() { clixml.stringSlice() })
+		suite.Equal([]string{}, actualResult)
+	})
+	suite.Run("should not panic with empty string inside slice", func() {
+		clixml := &clixml{
+			XML: []string{"", ""},
+		}
+		actualResult := clixml.stringSlice()
+		suite.Require().NotPanics(func() { clixml.stringSlice() })
+		suite.Equal([]string{"", ""}, actualResult)
 	})
 }
 
 func (suite *CLIXMLUnitTestSuite) TestDecodeCLIXML() {
 	suite.T().Parallel()
 
-	suite.Run("Should be expected result", func() {
+	suite.Run("should return expected result", func() {
 		actualResult, err := DecodeCLIXML(suite.cliXMLError)
 		suite.Require().NoError(err)
 		suite.Equal(suite.expectedString, actualResult)
+	})
+	suite.Run("should return error if not a clixml string", func() {
+		actualResult, err := DecodeCLIXML("")
+		suite.Error(err)
+		suite.Equal("", actualResult)
 	})
 }

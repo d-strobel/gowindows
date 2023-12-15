@@ -49,7 +49,7 @@ func DecodeCLIXML(xmldoc string) (string, error) {
 
 		// Unmarshal to XML
 		if err := clixml.unmarshal(xmldoc); err != nil {
-			return xmldoc, err
+			return "", err
 		}
 
 		// Convert to stringslice
