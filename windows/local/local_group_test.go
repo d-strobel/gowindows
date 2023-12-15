@@ -5,21 +5,60 @@ import (
 	"testing"
 
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/gowindows/parser"
-	"github.com/d-strobel/gowindows/windows/local/fixtures"
 	"github.com/stretchr/testify/suite"
 
 	mockConnection "github.com/d-strobel/gowindows/connection/mocks"
 )
 
-// Setup unit test suite
+// Unit test suite for all Group functions
 type GroupUnitTestSuite struct {
 	suite.Suite
+	// Fixtures
+	usersGroup         string
 	expectedUsersGroup Group
+	groupList          string
 	expectedGroupList  []Group
 }
 
 func (suite *GroupUnitTestSuite) SetupTest() {
+	// Fixtures
+	suite.usersGroup = `{
+    "Description":  "Users are prevented from making accidental or intentional system-wide changes and can run most applications",
+    "Name":  "Users",
+    "SID":  {
+                "BinaryLength":  16,
+                "AccountDomainSid":  null,
+                "Value":  "S-1-5-32-545"
+            },
+    "PrincipalSource":  1,
+    "ObjectClass":  "Group"
+}`
+
+	suite.groupList = `[
+    {
+        "Description":  "Administrators have complete and unrestricted access to the computer/domain",
+        "Name":  "Administrators",
+        "SID":  {
+                    "BinaryLength":  16,
+                    "AccountDomainSid":  null,
+                    "Value":  "S-1-5-32-544"
+                },
+        "PrincipalSource":  1,
+        "ObjectClass":  "Group"
+    },
+    {
+        "Description":  "Users are prevented from making accidental or intentional system-wide changes and can run most applications",
+        "Name":  "Users",
+        "SID":  {
+                    "BinaryLength":  16,
+                    "AccountDomainSid":  null,
+                    "Value":  "S-1-5-32-545"
+                },
+        "PrincipalSource":  1,
+        "ObjectClass":  "Group"
+    }
+]`
+
 	suite.expectedUsersGroup = Group{
 		Name:        "Users",
 		Description: "Users are prevented from making accidental or intentional system-wide changes and can run most applications",
@@ -50,7 +89,6 @@ func TestGroupUnitTestSuite(t *testing.T) {
 	suite.Run(t, &GroupUnitTestSuite{})
 }
 
-// Unit test functions
 func (suite *GroupUnitTestSuite) TestGroupRun() {
 	suite.T().Parallel()
 
@@ -60,14 +98,9 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
-			parser: parser.Parser{
-				DecodeCLIXML: func(xmlErr string) (string, error) {
-					return xmlErr, nil
-				},
-			},
 		}
 		mockConn.On("Run", ctx, "Get-LocalGroup -Name Users | ConvertTo-Json").Return(connection.CMDResult{
-			StdOut: fixtures.UsersGroup,
+			StdOut: suite.usersGroup,
 		}, nil)
 		var g Group
 		err := groupRun[Group](ctx, c, "Get-LocalGroup -Name Users | ConvertTo-Json", &g)
@@ -81,14 +114,9 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
-			parser: parser.Parser{
-				DecodeCLIXML: func(xmlErr string) (string, error) {
-					return xmlErr, nil
-				},
-			},
 		}
 		mockConn.On("Run", ctx, "Get-LocalGroup | ConvertTo-Json").Return(connection.CMDResult{
-			StdOut: fixtures.GroupList,
+			StdOut: suite.usersGroup,
 		}, nil)
 		var g []Group
 		err := groupRun[[]Group](ctx, c, "Get-LocalGroup | ConvertTo-Json", &g)
