@@ -10,8 +10,9 @@ import (
 type CLIXMLUnitTestSuite struct {
 	suite.Suite
 	// Fixtures
-	cliXMLError    string
-	expectedString string
+	cliXMLError               string
+	expectedString            string
+	expectedUnmarshaledCLIXML *clixml
 }
 
 func (suite *CLIXMLUnitTestSuite) SetupTest() {
@@ -47,10 +48,35 @@ func (suite *CLIXMLUnitTestSuite) SetupTest() {
                    ~~~~~
 CategoryInfo          : InvalidArgument: (:) [Set-ADOrganizationalUnit], ParameterBindingException
 FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.ActiveDirectory .Management.Commands.SetADOrganizationalUnit`
+
+	suite.expectedUnmarshaledCLIXML = &clixml{
+		XML: []string{
+			"Set-ADOrganizationalUnit : A parameter cannot be found that matches parameter _x000D__x000A_",
+			"name 'Path'._x000D__x000A_",
+			"At line:1 char:101_x000D__x000A_",
+			"+ ... e description\" -Path \"DC=yourdomain,DC=com\" _x000D__x000A_",
+			"-ProtectedFromAccidentalDeletion $tr ..._x000D__x000A_",
+			"+                    ~~~~~_x000D__x000A_",
+			"    + CategoryInfo          : InvalidArgument: (:) [Set-ADOrganizationalUnit], _x000D__x000A_",
+			"    ParameterBindingException_x000D__x000A_",
+			"    + FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.ActiveDirectory _x000D__x000A_",
+			"   .Management.Commands.SetADOrganizationalUnit_x000D__x000A_",
+			" _x000D__x000A_",
+		},
+	}
 }
 
 func TestCLIXMLUnitTestSuite(t *testing.T) {
 	suite.Run(t, &CLIXMLUnitTestSuite{})
+}
+
+func (suite *CLIXMLUnitTestSuite) TestUnmarshal() {
+	suite.Run("Should unmarshal correctly", func() {
+		actualResult := &clixml{}
+		err := actualResult.unmarshal(suite.cliXMLError)
+		suite.Require().NoError(err)
+		suite.Equal(suite.expectedUnmarshaledCLIXML, actualResult)
+	})
 }
 
 func (suite *CLIXMLUnitTestSuite) TestDecodeCLIXML() {
