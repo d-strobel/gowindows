@@ -3,6 +3,7 @@ package local
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -54,7 +55,7 @@ func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group,
 	cmds = append(cmds, "| ConvertTo-Json")
 	cmd := strings.Join(cmds, " ")
 
-	if err := groupRun(ctx, c, cmd, &g); err != nil {
+	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupRead: %s", err)
 	}
 
@@ -70,7 +71,7 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 	// Command
 	cmd := "Get-LocalGroup | ConvertTo-Json"
 
-	if err := groupRun(ctx, c, cmd, &g); err != nil {
+	if err := groupRun[[]Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupList: %s", err)
 	}
 
@@ -102,7 +103,7 @@ func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Grou
 	cmds = append(cmds, "| ConvertTo-Json")
 	cmd := strings.Join(cmds, " ")
 
-	if err := groupRun(ctx, c, cmd, &g); err != nil {
+	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupCreate: %s", err)
 	}
 
@@ -139,7 +140,7 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 	cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
 	cmd := strings.Join(cmds, " ")
 
-	if err := groupRun(ctx, c, cmd, &g); err != nil {
+	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return fmt.Errorf("windows.local.GroupUpdate: %s", err)
 	}
 
@@ -170,7 +171,7 @@ func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error
 
 	cmd := strings.Join(cmds, " ")
 
-	if err := groupRun(ctx, c, cmd, &g); err != nil {
+	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return fmt.Errorf("windows.local.GroupDelete:\n%s", err)
 	}
 
@@ -193,7 +194,7 @@ func groupRun[T groupType](ctx context.Context, c *LocalClient, cmd string, g *T
 			return err
 		}
 
-		return fmt.Errorf("%s", errXML)
+		return errors.New(errXML)
 	}
 
 	if result.StdOut == "" {
