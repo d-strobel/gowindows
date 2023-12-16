@@ -476,3 +476,99 @@ func (suite *GroupUnitTestSuite) TestGroupCreate() {
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 }
+
+func (suite *GroupUnitTestSuite) TestGroupUpdate() {
+
+	suite.Run("should run the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters GroupParams
+			expectedCMD     string
+		}{
+			{
+				"assert with Name and Desctiption parameter",
+				GroupParams{Name: "Test", Description: "Testing"},
+				"Set-LocalGroup -Name 'Test' -Description 'Testing'",
+			},
+			{
+				"assert with SID and Desctiption parameter",
+				GroupParams{SID: "S-12345", Description: "Testing"},
+				"Set-LocalGroup -SID S-12345 -Description 'Testing'",
+			},
+			{
+				"assert with Name, SID and Desctiption parameter",
+				GroupParams{Name: "Test", SID: "S-12345", Description: "Testing"},
+				"Set-LocalGroup -SID S-12345 -Description 'Testing'",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			err := c.GroupUpdate(ctx, tc.inputParameters)
+			suite.Require().NoError(err)
+			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+	})
+
+	suite.Run("should return specific errors", func() {
+		tcs := []struct {
+			description     string
+			inputParameters GroupParams
+			expectedErr     string
+		}{
+			{
+				"assert error with empty parameters",
+				GroupParams{},
+				"windows.local.GroupUpdate: group parameter 'Name' or 'SID' must be set",
+			},
+			{
+				"assert error with just the description parameter",
+				GroupParams{Description: "test"},
+				"windows.local.GroupUpdate: group parameter 'Name' or 'SID' must be set",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			err := c.GroupUpdate(ctx, tc.inputParameters)
+			suite.EqualError(err, tc.expectedErr)
+			mockConn.AssertNotCalled(suite.T(), "Run")
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+	})
+
+	suite.Run("should return error if run fails", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockParser := mockParser.NewMockParserInterface(suite.T())
+		c := &LocalClient{
+			Connection: mockConn,
+			parser:     mockParser,
+		}
+		expectedCMD := "Set-LocalGroup -Name 'Test' -Description 'Test'"
+		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
+		err := c.GroupUpdate(ctx, GroupParams{Name: "Test", Description: "Test"})
+		suite.EqualError(err, "windows.local.GroupUpdate: test-error")
+		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+	})
+}
