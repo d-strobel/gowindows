@@ -22,16 +22,16 @@ func New(conf *connection.Config) (*Client, error) {
 	c := &Client{}
 
 	// Store new connection to the Client
-	c.Connection, err = connection.New(conf)
+	c.Connection, err = connection.NewConnection(conf)
 	if err != nil {
 		return nil, err
 	}
 
-	// Init parser
-	c.parser = &parser.Parser{}
+	// Store parser to the client
+	c.parser = parser.NewParser()
 
 	// Build the client with the subpackages
-	c.Local = local.New(c.Connection, c.parser)
+	c.Local = local.NewLocalClient(c.Connection, c.parser)
 
 	return c, nil
 }

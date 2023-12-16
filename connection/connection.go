@@ -28,10 +28,10 @@ type CMDResult struct {
 	StdErr string
 }
 
-// New returns a Connection object.
+// NewConnection returns a Connection object.
 // If WinRMConfig is specified the Connection object contains a WinRM connection.
 // If SSHConfig is specified the Connection object contains a SSH connection.
-func New(conf *Config) (*Connection, error) {
+func NewConnection(conf *Config) (*Connection, error) {
 
 	// Assert WinRM and SSH configuration
 	if conf.WinRM == nil && conf.SSH == nil {

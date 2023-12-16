@@ -10,8 +10,8 @@ type LocalClient struct {
 	parser     parser.ParserInterface
 }
 
-// New returns a Client for the local package.
-func New(conn *connection.Connection, parser *parser.Parser) *LocalClient {
+// NewLocalClient returns a Client for the local package.
+func NewLocalClient(conn *connection.Connection, parser *parser.Parser) *LocalClient {
 	return &LocalClient{Connection: conn, parser: parser}
 }
 
