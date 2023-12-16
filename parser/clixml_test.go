@@ -130,12 +130,14 @@ func (suite *CLIXMLUnitTestSuite) TestDecodeCLIXML() {
 	suite.T().Parallel()
 
 	suite.Run("should return expected result", func() {
-		actualResult, err := DecodeCLIXML(suite.cliXMLError)
+		parser := &Parser{}
+		actualResult, err := parser.DecodeCLIXML(suite.cliXMLError)
 		suite.Require().NoError(err)
 		suite.Equal(suite.expectedString, actualResult)
 	})
 	suite.Run("should return error if not a clixml string", func() {
-		actualResult, err := DecodeCLIXML("")
+		parser := &Parser{}
+		actualResult, err := parser.DecodeCLIXML("")
 		suite.Error(err)
 		suite.Equal("", actualResult)
 	})

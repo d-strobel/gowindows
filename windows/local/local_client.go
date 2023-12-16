@@ -7,12 +7,12 @@ import (
 
 type LocalClient struct {
 	Connection connection.ConnectionInterface
-	parser     parser.Parser
+	parser     parser.ParserInterface
 }
 
 // New returns a Client for the local package.
-func New(conn *connection.Connection) *LocalClient {
-	return &LocalClient{Connection: conn, parser: parser.New()}
+func New(conn *connection.Connection, parser *parser.Parser) *LocalClient {
+	return &LocalClient{Connection: conn, parser: parser}
 }
 
 // SID is a common struct by all security principals.

@@ -1,11 +1,7 @@
 package parser
 
-type Parser struct {
-	DecodeCLIXML func(xmlErr string) (string, error)
-}
+type Parser struct{}
 
-func New() Parser {
-	return Parser{
-		DecodeCLIXML: DecodeCLIXML,
-	}
+type ParserInterface interface {
+	DecodeCLIXML(clixml string) (string, error)
 }

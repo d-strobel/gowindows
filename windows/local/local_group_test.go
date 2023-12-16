@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	mockConnection "github.com/d-strobel/gowindows/connection/mocks"
+	mockParser "github.com/d-strobel/gowindows/parser/mocks"
 )
 
 // Unit test suite for all Group functions
@@ -92,12 +93,14 @@ func TestGroupUnitTestSuite(t *testing.T) {
 func (suite *GroupUnitTestSuite) TestGroupRun() {
 	suite.T().Parallel()
 
-	suite.Run("Should return the user Group", func() {
+	suite.Run("should return the user group", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
+			parser:     mockParser,
 		}
 		mockConn.On("Run", ctx, "Get-LocalGroup -Name Users | ConvertTo-Json").Return(connection.CMDResult{
 			StdOut: suite.usersGroup,
@@ -106,21 +109,27 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		err := groupRun[Group](ctx, c, "Get-LocalGroup -Name Users | ConvertTo-Json", &g)
 		suite.NoError(err)
 		suite.Equal(suite.expectedUsersGroup, g)
+		mockConn.AssertCalled(suite.T(), "Run", ctx, "Get-LocalGroup -Name Users | ConvertTo-Json")
+		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 
-	suite.Run("Should return a slice of Groups", func() {
+	suite.Run("should return a slice of groups", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
+			parser:     mockParser,
 		}
 		mockConn.On("Run", ctx, "Get-LocalGroup | ConvertTo-Json").Return(connection.CMDResult{
-			StdOut: suite.usersGroup,
+			StdOut: suite.groupList,
 		}, nil)
 		var g []Group
 		err := groupRun[[]Group](ctx, c, "Get-LocalGroup | ConvertTo-Json", &g)
 		suite.NoError(err)
 		suite.Equal(suite.expectedGroupList, g)
+		mockConn.AssertCalled(suite.T(), "Run", ctx, "Get-LocalGroup | ConvertTo-Json")
+		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 }

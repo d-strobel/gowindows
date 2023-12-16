@@ -2,11 +2,13 @@ package gowindows
 
 import (
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parser"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
 type Client struct {
 	Connection *connection.Connection
+	parser     *parser.Parser
 	Local      *local.LocalClient
 }
 
@@ -25,8 +27,11 @@ func New(conf *connection.Config) (*Client, error) {
 		return nil, err
 	}
 
+	// Init parser
+	c.parser = &parser.Parser{}
+
 	// Build the client with the subpackages
-	c.Local = local.New(c.Connection)
+	c.Local = local.New(c.Connection, c.parser)
 
 	return c, nil
 }

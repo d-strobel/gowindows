@@ -43,7 +43,7 @@ func (x *clixml) stringSlice() []string {
 
 // DecodeCLIXML converts a CLIXML string to a
 // human readable powershell error message.
-func DecodeCLIXML(xmldoc string) (string, error) {
+func (p *Parser) DecodeCLIXML(xmldoc string) (string, error) {
 	if strings.Contains(xmldoc, "#< CLIXML") {
 		clixml := &clixml{}
 
