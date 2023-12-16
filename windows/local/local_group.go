@@ -51,10 +51,10 @@ func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group,
 		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
 	}
 
-	// JSON Output
-	cmds = append(cmds, "| ConvertTo-Json")
+	cmds = append(cmds, "| ConvertTo-Json -Compress")
 	cmd := strings.Join(cmds, " ")
 
+	// Run command
 	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupRead: %s", err)
 	}
@@ -71,6 +71,7 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 	// Command
 	cmd := "Get-LocalGroup | ConvertTo-Json"
 
+	// Run command
 	if err := groupRun[[]Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupList: %s", err)
 	}
@@ -99,10 +100,10 @@ func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Grou
 		cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
 	}
 
-	// JSON Output
 	cmds = append(cmds, "| ConvertTo-Json")
 	cmd := strings.Join(cmds, " ")
 
+	// Run command
 	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupCreate: %s", err)
 	}
@@ -140,6 +141,7 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 	cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
 	cmd := strings.Join(cmds, " ")
 
+	// Run command
 	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return fmt.Errorf("windows.local.GroupUpdate: %s", err)
 	}
@@ -171,6 +173,7 @@ func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error
 
 	cmd := strings.Join(cmds, " ")
 
+	// Run command
 	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
 		return fmt.Errorf("windows.local.GroupDelete:\n%s", err)
 	}
