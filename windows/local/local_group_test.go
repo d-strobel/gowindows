@@ -95,7 +95,6 @@ func TestGroupUnitTestSuite(t *testing.T) {
 }
 
 func (suite *GroupUnitTestSuite) TestGroupRun() {
-	suite.T().Parallel()
 
 	suite.Run("should return the user group", func() {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -258,5 +257,108 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		suite.Error(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, "Get-LocalGroup -name Users")
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+	})
+}
+
+func (suite *GroupUnitTestSuite) TestGroupRead() {
+
+	suite.Run("should return the correct group", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockParser := mockParser.NewMockParserInterface(suite.T())
+		c := &LocalClient{
+			Connection: mockConn,
+			parser:     mockParser,
+		}
+		expectedCMD := "Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress"
+		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+			StdOut: suite.usersGroupCompressed,
+		}, nil)
+		actualUsersGroup, err := c.GroupRead(ctx, GroupParams{Name: "Users"})
+		suite.Require().NoError(err)
+		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		suite.Equal(suite.expectedUsersGroup, actualUsersGroup)
+	})
+
+	suite.Run("should run the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters GroupParams
+			expectedCMD     string
+		}{
+			{
+				"assert users group by name",
+				GroupParams{Name: "Users"},
+				"Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress",
+			},
+			{
+				"assert users group by sid",
+				GroupParams{SID: "123456789"},
+				"Get-LocalGroup -SID 123456789 | ConvertTo-Json -Compress",
+			},
+			{
+				"assert users group by name and sid",
+				GroupParams{Name: "Users", SID: "123456789"},
+				"Get-LocalGroup -SID 123456789 | ConvertTo-Json -Compress",
+			},
+		}
+
+		for _, tc := range tcs {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			_, err := c.GroupRead(ctx, tc.inputParameters)
+			suite.Require().NoError(err)
+			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+	})
+
+	suite.Run("should return specific errors", func() {
+		tcs := []struct {
+			description     string
+			inputParameters GroupParams
+			expectedErr     string
+		}{
+			{
+				"assert error with empty parameters",
+				GroupParams{},
+				"windows.local.GroupRead: group parameter 'Name' or 'SID' must be set",
+			},
+			{
+				"assert error with just the description parameter",
+				GroupParams{Description: "test"},
+				"windows.local.GroupRead: group parameter 'Name' or 'SID' must be set",
+			},
+			{
+				"assert error when name contains wildcard",
+				GroupParams{Name: "Remote*"},
+				"windows.local.GroupRead: group parameter 'Name' does not allow wildcards",
+			},
+		}
+
+		for _, tc := range tcs {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			_, err := c.GroupRead(ctx, tc.inputParameters)
+			suite.EqualError(err, tc.expectedErr)
+			mockConn.AssertNotCalled(suite.T(), "Run")
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+
 	})
 }
