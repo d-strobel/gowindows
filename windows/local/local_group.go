@@ -69,7 +69,7 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 	var g []Group
 
 	// Command
-	cmd := "Get-LocalGroup | ConvertTo-Json"
+	cmd := "Get-LocalGroup | ConvertTo-Json -Compress"
 
 	// Run command
 	if err := groupRun[[]Group](ctx, c, cmd, &g); err != nil {
@@ -100,7 +100,7 @@ func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Grou
 		cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
 	}
 
-	cmds = append(cmds, "| ConvertTo-Json")
+	cmds = append(cmds, "| ConvertTo-Json -Compress")
 	cmd := strings.Join(cmds, " ")
 
 	// Run command
