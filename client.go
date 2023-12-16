@@ -12,9 +12,9 @@ type Client struct {
 	Local      *local.LocalClient
 }
 
-// New returns a Client object that contains the Connection and the Windows package.
+// NewClient returns a Client object that contains the Connection and the Windows package.
 // Use this Client to run the functions inside the Windows subpackages.
-func New(conf *connection.Config) (*Client, error) {
+func NewClient(conf *connection.Config) (*Client, error) {
 
 	var err error
 
