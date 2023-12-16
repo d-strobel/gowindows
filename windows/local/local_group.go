@@ -175,7 +175,7 @@ func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error
 
 	// Run command
 	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
-		return fmt.Errorf("windows.local.GroupDelete:\n%s", err)
+		return fmt.Errorf("windows.local.GroupDelete: %s", err)
 	}
 
 	return nil
