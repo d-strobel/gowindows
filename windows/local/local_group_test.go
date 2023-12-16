@@ -572,3 +572,99 @@ func (suite *GroupUnitTestSuite) TestGroupUpdate() {
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 }
+
+func (suite *GroupUnitTestSuite) TestGroupDelete() {
+
+	suite.Run("should run the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters GroupParams
+			expectedCMD     string
+		}{
+			{
+				"assert with Name parameter",
+				GroupParams{Name: "Test"},
+				"Remove-LocalGroup -Name 'Test'",
+			},
+			{
+				"assert with SID parameter",
+				GroupParams{SID: "S-12345"},
+				"Remove-LocalGroup -SID S-12345",
+			},
+			{
+				"assert with Name and SID parameter",
+				GroupParams{Name: "Test", SID: "S-12345"},
+				"Remove-LocalGroup -SID S-12345",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			err := c.GroupDelete(ctx, tc.inputParameters)
+			suite.Require().NoError(err)
+			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+	})
+
+	suite.Run("should return specific errors", func() {
+		tcs := []struct {
+			description     string
+			inputParameters GroupParams
+			expectedErr     string
+		}{
+			{
+				"assert error with empty parameters",
+				GroupParams{},
+				"windows.local.GroupDelete: group parameter 'Name' or 'SID' must be set",
+			},
+			{
+				"assert error with just the description parameter",
+				GroupParams{Description: "test"},
+				"windows.local.GroupDelete: group parameter 'Name' or 'SID' must be set",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			err := c.GroupDelete(ctx, tc.inputParameters)
+			suite.EqualError(err, tc.expectedErr)
+			mockConn.AssertNotCalled(suite.T(), "Run")
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+	})
+
+	suite.Run("should return error if run fails", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockParser := mockParser.NewMockParserInterface(suite.T())
+		c := &LocalClient{
+			Connection: mockConn,
+			parser:     mockParser,
+		}
+		expectedCMD := "Remove-LocalGroup -Name 'Test'"
+		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
+		err := c.GroupDelete(ctx, GroupParams{Name: "Test"})
+		suite.EqualError(err, "windows.local.GroupDelete: test-error")
+		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+	})
+}
