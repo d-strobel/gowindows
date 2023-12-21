@@ -16,7 +16,7 @@ type CLIXMLUnitTestSuite struct {
 	expectedStringSlice       []string
 }
 
-func (suite *CLIXMLUnitTestSuite) SetupTest() {
+func (suite *CLIXMLUnitTestSuite) SetupSuite() {
 	// Fixtures
 	suite.cliXMLError = `#< CLIXML
 	<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"><Obj S="progress" RefId="0">
