@@ -30,7 +30,7 @@ requirements:
 .PHONY: test
 test: dependencies
 	@printf "$(OK_COLOR)==> Run unit tests$(NO_COLOR)\n"
-	go test ./...
+	go test -short ./...
 
 # Acceptance tests
 .PHONY: testacc
