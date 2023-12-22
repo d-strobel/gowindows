@@ -86,8 +86,7 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 	}
 
 	// Run the command
-	err = s.Start(cmd)
-	if err != nil {
+	if err := s.Start(cmd); err != nil {
 		return "", "", err
 	}
 

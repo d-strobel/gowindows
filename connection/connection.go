@@ -70,8 +70,7 @@ func NewConnection(conf *Config) (*Connection, error) {
 // Close closes any open connection.
 func (c *Connection) Close() error {
 	if c.SSH != nil {
-		err := c.SSH.Close()
-		if err != nil {
+		if err := c.SSH.Close(); err != nil {
 			return fmt.Errorf("connection: %s", err)
 		}
 	}
