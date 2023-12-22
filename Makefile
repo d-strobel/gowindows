@@ -13,27 +13,35 @@ endif
 .PHONY: format
 format:
 	@printf "$(OK_COLOR)==> Format code$(NO_COLOR)\n"
-	go fmt ./...
+	@go fmt ./...
 
 # Download dependencies
 .PHONY: dependencies
 dependencies:
 	@printf "$(OK_COLOR)==> Install dependencies$(NO_COLOR)\n"
-	go get -d -v ./...
+	@go get -d -v ./...
 
-# Download requirements
+# Setup requirements
 .PHONY: requirements
 requirements:
-	@printf "$(OK_COLOR)==> Install requirements$(NO_COLOR)\n"
+	@printf "$(OK_COLOR)==> Setup requirements$(NO_COLOR)\n"
+	@$(MAKE) -C testing/environment vagrant-up
+
+# Remove requirements
+.PHONY: remove-requirements
+remove-requirements:
+	@printf "$(OK_COLOR)==> Remove requirements$(NO_COLOR)\n"
+	@$(MAKE) -C testing/environment vagrant-down
 
 # Unit tests
 .PHONY: test
 test: dependencies
 	@printf "$(OK_COLOR)==> Run unit tests$(NO_COLOR)\n"
-	go test -short ./...
+	@go test -short ./...
 
 # Acceptance tests
 .PHONY: testacc
 testacc: requirements dependencies
 	@printf "$(OK_COLOR)==> Run acceptance tests$(NO_COLOR)\n"
-	go test ./...
+	@go test ./...
+	@$(MAKE) remove-requirements
