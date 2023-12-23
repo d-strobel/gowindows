@@ -18,7 +18,7 @@ const (
 	testHost  = "127.0.0.1"
 	username  = "vagrant"
 	password  = "vagrant"
-	winRMPort = 15985
+	winRMPort = 15986
 	sshPort   = 1222
 )
 
@@ -28,14 +28,25 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 
 	// Connection configs
 	testConfigs := []connection.Config{
+		// WinRM
 		{
 			WinRM: &connection.WinRMConfig{
 				WinRMHost:     testHost,
 				WinRMUsername: username,
 				WinRMPassword: password,
-				WinRMUseTLS:   false,
+				WinRMUseTLS:   true,
 				WinRMInsecure: true,
 				WinRMPort:     winRMPort,
+			},
+		},
+		// SSH
+		{
+			SSH: &connection.SSHConfig{
+				SSHHost:                  testHost,
+				SSHPort:                  sshPort,
+				SSHUsername:              username,
+				SSHPassword:              password,
+				SSHInsecureIgnoreHostKey: true,
 			},
 		},
 	}
