@@ -7,12 +7,9 @@
 # gowindows
 Go library for configuring Windows-based systems.
 
-This library provides essential functions for the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows).
-
 ## Overview
-[gowindows] is designed to simplify the configuration of Windows-based systems by providing a set of functions that interact with Windows.<br>
+gowindows is designed to simplify the configuration of Windows-based systems by providing a set of functions that interact with Windows.<br>
 It is particularly useful when used in conjunction with the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows) for managing Windows resources.
-
 
 ## Usage
 ### Single Client with a WinRM Connection
@@ -114,7 +111,7 @@ func main() {
 
 ## Development
 ### Conventional Commits
-[gowindows] follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
+gowindows follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
 
 ### Testing
 ### Unit tests
@@ -156,5 +153,5 @@ This project is licensed under the [Mozilla Public License Version 2.0] - see th
 [build badge]: https://github.com/d-strobel/gowindows/actions/workflows/build.yml/badge.svg
 [build page]: https://github.com/d-strobel/gowindows/actions/workflows/build.yml
 
-[convention badge]: https://conventionalcommits.org
-[convention page]: https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white
+[convention badge]: https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white
+[convention page]: https://conventionalcommits.org
