@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/ssh/knownhosts"
 )
 
+// SSHConfig represents the configuration details for establishing an SSH connection.
 type SSHConfig struct {
 	SSHHost                  string
 	SSHPort                  int
@@ -22,12 +23,13 @@ type SSHConfig struct {
 	SSHInsecureIgnoreHostKey bool
 }
 
+// Default values for SSH configuration.
 const (
-	// SSH default values
 	defaultSSHPort        int    = 22
 	defaultKnownHostsPath string = ".ssh/known_hosts"
 )
 
+// newSSHClient creates a new SSH client based on the provided configuration.
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
@@ -66,6 +68,7 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	return client, nil
 }
 
+// runSSH runs a command on the SSH connection and returns the stdout and stderr.
 func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, error) {
 
 	// Open a new SSH session
@@ -127,6 +130,7 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 	return string(stdoutBytes), "", nil
 }
 
+// knownHostCallback generates a host key callback based on the SSH configuration.
 func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
 
 	// Ignore host key
@@ -155,6 +159,7 @@ func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
 	return callback, nil
 }
 
+// authenticationMethod generates authentication methods based on the SSH configuration.
 func authenticationMethod(config *SSHConfig) ([]ssh.AuthMethod, error) {
 	var authMethod []ssh.AuthMethod = []ssh.AuthMethod{}
 

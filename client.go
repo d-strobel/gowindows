@@ -1,3 +1,5 @@
+// Package gowindows provides a Go library for interacting with Windows-based systems.
+// It is designed to be used in conjunction with a Terraform provider but it's usage can be extended.
 package gowindows
 
 import (
@@ -6,28 +8,28 @@ import (
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
+// Client represents a client object for interacting with Windows systems.
 type Client struct {
 	Connection *connection.Connection
 	parser     *parser.Parser
 	Local      *local.LocalClient
 }
 
-// NewClient returns a client object that contains the connection and the windows package.
-// Use this client to run the functions inside the windows subpackages.
+// NewClient returns a new instance of the Client object, initialized with the provided configuration.
+// Use this client to execute functions within the Windows subpackages.
 func NewClient(conf *connection.Config) (*Client, error) {
-
 	var err error
 
-	// Init new client
+	// Initialize a new client
 	c := &Client{}
 
-	// Store new connection to the client
+	// Store a new connection in the client
 	c.Connection, err = connection.NewConnection(conf)
 	if err != nil {
 		return nil, err
 	}
 
-	// Store parser to the client
+	// Store a parser in the client
 	c.parser = parser.NewParser()
 
 	// Build the client with the subpackages
@@ -37,8 +39,8 @@ func NewClient(conf *connection.Config) (*Client, error) {
 }
 
 // Close closes any open connection.
-// For now only ssh connections will be terminated.
-// To avoid surprises in the future, this should always be called in a defer statement.
+// Currently, only SSH connections will be terminated.
+// To avoid surprises in the future, this should always be called using a defer statement.
 func (c *Client) Close() error {
 	return c.Connection.Close()
 }

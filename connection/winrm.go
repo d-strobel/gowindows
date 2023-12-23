@@ -2,10 +2,12 @@ package connection
 
 import (
 	"fmt"
-	"github.com/d-strobel/winrm"
 	"time"
+
+	"github.com/d-strobel/winrm"
 )
 
+// WinRMConfig represents the configuration details for establishing a WinRM connection.
 type WinRMConfig struct {
 	WinRMUsername string
 	WinRMPassword string
@@ -17,8 +19,8 @@ type WinRMConfig struct {
 	WinRMKerberos *KerberosConfig
 }
 
+// Default values for WinRM configuration.
 const (
-	// WinRM default values
 	defaultWinRMPort     int           = 5985
 	defaultWinRMPortTLS  int           = 5986
 	defaultWinRMUseTLS   bool          = false
@@ -26,6 +28,7 @@ const (
 	defaultWinRMTimeout  time.Duration = 0
 )
 
+// newWinRMClient creates a new WinRM client based on the provided configuration.
 func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 
 	// Assert

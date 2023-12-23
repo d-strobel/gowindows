@@ -1,3 +1,4 @@
+// Package connection provides a Go library for handling connections to Windows-based systems using WinRM and SSH protocols.
 package connection
 
 import (
@@ -8,29 +9,32 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// Connection represents a connection object that can be used to interact with a Windows system.
 type Connection struct {
 	WinRM *winrm.Client
 	SSH   *ssh.Client
 }
 
+// ConnectionInterface defines the interface for a connection, specifying methods like Run and Close.
 type ConnectionInterface interface {
 	Run(ctx context.Context, cmd string) (CMDResult, error)
 	Close() error
 }
 
+// Config contains configuration details for creating a Connection object.
 type Config struct {
 	WinRM *WinRMConfig
 	SSH   *SSHConfig
 }
 
+// CMDResult represents the result of executing a command, including stdout and stderr.
 type CMDResult struct {
 	StdOut string
 	StdErr string
 }
 
-// NewConnection returns a Connection object.
-// If WinRMConfig is specified the Connection object contains a WinRM connection.
-// If SSHConfig is specified the Connection object contains a SSH connection.
+// NewConnection returns a Connection object based on the provided configuration.
+// The returned Connection object may contain either a WinRM or SSH connection.
 func NewConnection(conf *Config) (*Connection, error) {
 
 	// Assert WinRM and SSH configuration
@@ -67,7 +71,7 @@ func NewConnection(conf *Config) (*Connection, error) {
 	return c, nil
 }
 
-// Close closes any open connection.
+// Close closes any open connection, whether it's WinRM or SSH.
 func (c *Connection) Close() error {
 	if c.SSH != nil {
 		if err := c.SSH.Close(); err != nil {
@@ -78,8 +82,8 @@ func (c *Connection) Close() error {
 	return nil
 }
 
-// Run runs a command with a connection and context.
-// It returns stdout and stderr within a CMDResult object.
+// Run runs a command using the configured connection and context.
+// It returns the result of the command execution, including stdout and stderr.
 func (c *Connection) Run(ctx context.Context, cmd string) (CMDResult, error) {
 
 	var r CMDResult

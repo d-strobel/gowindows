@@ -4,18 +4,19 @@ import (
 	"github.com/d-strobel/winrm"
 )
 
+// KerberosConfig represents the configuration details for Kerberos authentication.
 type KerberosConfig struct {
 	Realm         string
 	KrbConfigFile string
 }
 
+// Default kerberos values.
 const (
-	// Default kerberos values
 	defaultKerberosProtocol = "http"
 )
 
-// winRMKerberosParams returns the neccessary parameters
-// to pass into the kerberos winrm connection
+// winRMKerberosParams returns the necessary parameters
+// to pass into the Kerberos WinRM connection.
 func winRMKerberosParams(config *WinRMConfig) *winrm.Parameters {
 
 	// Init default parameters

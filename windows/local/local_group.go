@@ -8,23 +8,26 @@ import (
 	"strings"
 )
 
+// Group represents a Windows local group with its properties.
 type Group struct {
 	Name        string `json:"Name"`
 	Description string `json:"Description"`
 	SID         SID    `json:"SID"`
 }
 
+// GroupParams represents parameters for interacting with local groups, including creation, updating, and deletion.
 type GroupParams struct {
 	Name        string
 	Description string
 	SID         string
 }
 
+// groupType is an interface for either a single Group or a slice of Group.
 type groupType interface {
 	Group | []Group
 }
 
-// GroupRead gets a group by a SID or Name and returns a Group object.
+// GroupRead gets a local group by SID or Name and returns a Group object.
 func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
@@ -62,7 +65,7 @@ func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group,
 	return g, nil
 }
 
-// GroupList returns all groups.
+// GroupList returns a list of all local groups.
 func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 
 	// Declare slice of Group object
@@ -79,7 +82,7 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 	return g, nil
 }
 
-// GroupCreate creates a new group and returns the Group object.
+// GroupCreate creates a new local group and returns the Group object.
 func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
@@ -111,8 +114,7 @@ func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Grou
 	return g, nil
 }
 
-// GroupUpdate updates a group.
-// Currently only the description parameter can be changed.
+// GroupUpdate updates a local group. Currently, only the description parameter can be changed.
 func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error {
 
 	// Satisfy groupType interface
@@ -149,7 +151,7 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 	return nil
 }
 
-// GroupDelete removes a group by a SID or Name.
+// GroupDelete removes a local group by SID or Name.
 func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	// Satisfy groupType interface
@@ -181,7 +183,8 @@ func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error
 	return nil
 }
 
-// groupRun runs a powershell command against a system.
+// groupRun runs a PowerShell command against a Windows system, handles the command results,
+// and unmarshals the output into a Group object or a slice of Group objects.
 func groupRun[T groupType](ctx context.Context, c *LocalClient, cmd string, g *T) error {
 
 	// Run the command
