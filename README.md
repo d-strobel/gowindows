@@ -31,8 +31,9 @@ make test
 ```
 
 ### Acceptance test
-This is not present yet!<br>
-In the future I would like to spawn a system with all needed requirements to do an integration test.
+The following prerequisites are needed:
+* Hashicorp Vagrant
+* Oracle VirtualBox
 
 To run the acceptance test run the following command:
 ```bash
