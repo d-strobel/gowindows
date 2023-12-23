@@ -2,6 +2,7 @@
 [![Build][build badge]][build page]
 [![GoDoc][godoc badge]][godoc page]
 [![GoReport][goreport badge]][goreport page]
+[![Conventional Commits][convention badge]][convention page]
 
 # gowindows
 
@@ -53,3 +54,6 @@ make testacc
 
 [build badge]: https://github.com/d-strobel/gowindows/actions/workflows/build.yml/badge.svg
 [build page]: https://github.com/d-strobel/gowindows/actions/workflows/build.yml
+
+[convention badge]: https://conventionalcommits.org
+[convention page]: https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white
