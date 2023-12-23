@@ -122,9 +122,10 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 		return "", string(stderrBytes), nil
 	}
 
-	// Return error when stdout and stderr have no values
+	// Some Powershell functions does not provide any output.
+	// In that case we return empty strings.
 	if len(stdoutBytes) == 0 && len(stderrBytes) == 0 {
-		return "", "", fmt.Errorf("ssh session: stdout and stderr are empty")
+		return "", "", nil
 	}
 
 	return string(stdoutBytes), "", nil
