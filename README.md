@@ -41,7 +41,7 @@ func main() {
 		WinRM: winRMconfig,
 	}
 
-	// Createl client for the local package
+	// Create client for the local package
 	c, err := local.NewClient(conf)
 	if err != nil {
 		panic(err)
@@ -90,7 +90,7 @@ func main() {
 		SSH: sshConfig,
 	}
 
-	// Createl client for the local package
+	// Create client for the local package
 	c, err := gowindows.NewClient(conf)
 	if err != nil {
 		panic(err)
