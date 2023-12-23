@@ -7,11 +7,11 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/d-strobel/gowindows/winerror"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
 
+// SSHConfig represents the configuration details for establishing an SSH connection.
 type SSHConfig struct {
 	SSHHost                  string
 	SSHPort                  int
@@ -23,17 +23,18 @@ type SSHConfig struct {
 	SSHInsecureIgnoreHostKey bool
 }
 
+// Default values for SSH configuration.
 const (
-	// SSH default values
 	defaultSSHPort        int    = 22
 	defaultKnownHostsPath string = ".ssh/known_hosts"
 )
 
+// newSSHClient creates a new SSH client based on the provided configuration.
 func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
 	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
-		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
+		return nil, fmt.Errorf("ssh: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
 	}
 
 	// Parse SSH host string
@@ -42,13 +43,13 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	// Check known host key callback
 	knownHostCallback, err := knownHostCallback(config)
 	if err != nil {
-		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: known host callback failed with error: %s", err)
+		return nil, fmt.Errorf("ssh: known host callback failed with error: %s", err)
 	}
 
 	// Authentication method
 	authMethod, err := authenticationMethod(config)
 	if err != nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "ssh client: %s", err)
+		return nil, fmt.Errorf("ssh: %s", err)
 	}
 
 	// Configuration
@@ -61,12 +62,13 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	// Connect to the remote server and perform the SSH handshake
 	client, err := ssh.Dial("tcp", sshHost, sshConfig)
 	if err != nil {
-		return nil, winerror.Errorf(winerror.ConnectionError, "ssh client: %s", err)
+		return nil, fmt.Errorf("ssh: %s", err)
 	}
 
 	return client, nil
 }
 
+// runSSH runs a command on the SSH connection and returns the stdout and stderr.
 func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, error) {
 
 	// Open a new SSH session
@@ -87,8 +89,7 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 	}
 
 	// Run the command
-	err = s.Start(cmd)
-	if err != nil {
+	if err := s.Start(cmd); err != nil {
 		return "", "", err
 	}
 
@@ -121,14 +122,16 @@ func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, er
 		return "", string(stderrBytes), nil
 	}
 
-	// Return error when stdout and stderr have no values
+	// Some Powershell functions does not provide any output.
+	// In that case we return empty strings.
 	if len(stdoutBytes) == 0 && len(stderrBytes) == 0 {
-		return "", "", winerror.Errorf(winerror.WindowsError, "ssh session: stdout and stderr are empty")
+		return "", "", nil
 	}
 
 	return string(stdoutBytes), "", nil
 }
 
+// knownHostCallback generates a host key callback based on the SSH configuration.
 func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
 
 	// Ignore host key
@@ -157,6 +160,7 @@ func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
 	return callback, nil
 }
 
+// authenticationMethod generates authentication methods based on the SSH configuration.
 func authenticationMethod(config *SSHConfig) ([]ssh.AuthMethod, error) {
 	var authMethod []ssh.AuthMethod = []ssh.AuthMethod{}
 

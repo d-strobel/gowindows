@@ -1,43 +1,52 @@
+// Package connection provides a Go library for handling connections to Windows-based systems using WinRM and SSH protocols.
 package connection
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/d-strobel/gowindows/winerror"
-	"github.com/masterzen/winrm"
+	"github.com/d-strobel/winrm"
 	"golang.org/x/crypto/ssh"
 )
 
+// Connection represents a connection object that can be used to interact with a Windows system.
 type Connection struct {
 	WinRM *winrm.Client
 	SSH   *ssh.Client
 }
 
+// ConnectionInterface defines the interface for a connection, specifying methods like Run and Close.
+type ConnectionInterface interface {
+	Run(ctx context.Context, cmd string) (CMDResult, error)
+	Close() error
+}
+
+// Config contains configuration details for creating a Connection object.
 type Config struct {
 	WinRM *WinRMConfig
 	SSH   *SSHConfig
 }
 
+// CMDResult represents the result of executing a command, including stdout and stderr.
 type CMDResult struct {
 	StdOut string
 	StdErr string
 }
 
-// New returns a Connection object.
-// If WinRMConfig is specified the Connection object contains a WinRM connection.
-// If SSHConfig is specified the Connection object contains a SSH connection.
-func New(conf *Config) (*Connection, error) {
+// NewConnection returns a Connection object based on the provided configuration.
+// The returned Connection object may contain either a WinRM or SSH connection.
+func NewConnection(conf *Config) (*Connection, error) {
 
 	// Assert WinRM and SSH configuration
 	if conf.WinRM == nil && conf.SSH == nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "connection client: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
+		return nil, fmt.Errorf("connection: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
 	}
 	if conf.WinRM != nil && conf.SSH != nil {
-		return nil, winerror.Errorf(winerror.ConfigError, "connection client: Connection object must only contain 'WinRMConfig' or 'SSHConfig'")
+		return nil, fmt.Errorf("connection: Connection object must only contain 'WinRMConfig' or 'SSHConfig'")
 	}
 
-	// Allocate a new Connection
-	c := new(Connection)
+	// Init a new Connection
+	c := &Connection{}
 
 	// WinRM configuration
 	if conf.WinRM != nil {
@@ -46,9 +55,7 @@ func New(conf *Config) (*Connection, error) {
 			return nil, err
 		}
 
-		c = &Connection{
-			WinRM: winRMClient,
-		}
+		c.WinRM = winRMClient
 	}
 
 	// SSH configuration
@@ -58,41 +65,42 @@ func New(conf *Config) (*Connection, error) {
 			return nil, err
 		}
 
-		c = &Connection{
-			SSH: sshClient,
-		}
+		c.SSH = sshClient
 	}
 
 	return c, nil
 }
 
-// Close closes any open connection.
+// Close closes any open connection, whether it's WinRM or SSH.
 func (c *Connection) Close() error {
 	if c.SSH != nil {
-		err := c.SSH.Close()
-		if err != nil {
-			return winerror.Errorf(winerror.ConnectionError, "connection client: %s", err)
+		if err := c.SSH.Close(); err != nil {
+			return fmt.Errorf("connection: %s", err)
 		}
 	}
 
 	return nil
 }
 
-// Run runs a command with a connection and context
-// It returns stdout and stderr within a CMDResult object
-func (c *Connection) Run(ctx context.Context, cmd string) (*CMDResult, error) {
+// Run runs a command using the configured connection and context.
+// It returns the result of the command execution, including stdout and stderr.
+func (c *Connection) Run(ctx context.Context, cmd string) (CMDResult, error) {
+
+	var r CMDResult
+
+	// Assert configuration
+	if c.WinRM == nil && c.SSH == nil {
+		return r, fmt.Errorf("connection: Connection object 'WinRMConfig' or 'SSHConfig' must be set")
+	}
 
 	// Prepare base64 encoded powershell command to pass into the run functions
 	pwshCmd := winrm.Powershell(cmd)
-
-	// Allocate CMDResult
-	r := new(CMDResult)
 
 	// WinRM execution
 	if c.WinRM != nil {
 		stdout, stderr, _, err := c.WinRM.RunWithContextWithString(ctx, pwshCmd, "")
 		if err != nil {
-			return nil, err
+			return r, err
 		}
 		if stderr != "" {
 			r.StdErr = stderr

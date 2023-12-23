@@ -4,17 +4,15 @@ import (
 	"testing"
 
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parser"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	// Create a mock connection for testing
+func TestNewLocalClient(t *testing.T) {
 	mockConn := &connection.Connection{}
+	mockParser := &parser.Parser{}
+	actualLocalClient := NewLocalClient(mockConn, mockParser)
+	expectedLocalClient := &LocalClient{Connection: mockConn, parser: mockParser}
 
-	// Call the New function with the mock connection
-	client := New(mockConn)
-
-	// Check if the Connection field in the returned Client is the same as the mockConn
-	if client.Connection != mockConn {
-		t.Errorf("New function did not set Connection field correctly")
-	}
+	assert.Equal(t, expectedLocalClient, actualLocalClient)
 }

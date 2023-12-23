@@ -1,20 +1,25 @@
+// Package local provides a Go library for handling local Windows functions.
 package local
 
 import (
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parser"
 )
 
-type Client struct {
-	Connection *connection.Connection
+// LocalClient represents a client for handling local Windows functions.
+type LocalClient struct {
+	Connection connection.ConnectionInterface
+	parser     parser.ParserInterface
 }
 
-// New returns a Client for the local package
-func New(conn *connection.Connection) *Client {
-	return &Client{Connection: conn}
+// NewLocalClient returns a new instance of the LocalClient.
+// It requires a connection and parser as input parameters.
+func NewLocalClient(conn *connection.Connection, parser *parser.Parser) *LocalClient {
+	return &LocalClient{Connection: conn, parser: parser}
 }
 
-// SID is a common struct by all security principals
-// The structure we get from powershell contains more fields, but we're only interested in the Value.
+// SID represents the Security Identifier (SID) of a security principal.
+// The Value field contains the actual SID value.
 type SID struct {
 	Value string `json:"Value"`
 }
