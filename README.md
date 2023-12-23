@@ -135,13 +135,13 @@ make testacc
 ```
 
 ## Third-Party libraries
-* For this project I made a fork of [masterzen/winrm](https://github.com/masterzen/winrm) -> [d-strobel/winrm](https://github.com/d-strobel/winrm).<br>
+* For this project I made a fork of [masterzen/winrm](https://github.com/masterzen/winrm).<br>
 If the original library gets more maintanence I will think about switching back.
 
 ## Inspirations
 * [hashicorp - terraform-provider-ad](https://github.com/hashicorp/terraform-provider-ad):<br>
 Hashicorp made a great start with the terraform-provider-ad. Currently it seems that the provider is not actively maintained.<br>
-Beyond that my goal was to split that provider into a library and a provder and extend its functionality with non Active-Directoy systems.
+Beyond that my goal was to split that provider into a library and a provder and extend its functionality with non Active-Directory systems.
 
 ## License
 This project is licensed under the [Mozilla Public License Version 2.0] - see the [LICENSE](LICENSE) file for details.
