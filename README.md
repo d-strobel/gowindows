@@ -5,46 +5,146 @@
 [![Conventional Commits][convention badge]][convention page]
 
 # gowindows
+Go library for configuring Windows-based systems.
 
-Go library to configure Windows based systems.
+This library provides essential functions for the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows).
 
-This package mainly focuses on providing the neccessary functions for the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows).
+## Overview
+[gowindows] is designed to simplify the configuration of Windows-based systems by providing a set of functions that interact with Windows.<br>
+It is particularly useful when used in conjunction with the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows) for managing Windows resources.
 
-⚠️ This project has just started and is not yet production ready!
+
+## Usage
+### Single Client with a WinRM Connection
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/windows/local"
+)
+
+func main() {
+	// WinRM configuration parameter
+	winRMconfig := &connection.WinRMConfig{
+		WinRMUsername: "vagrant",
+		WinRMPassword: "vagrant",
+		WinRMHost:     "winsrv",
+		WinRMInsecure: true, // Ignore invalid certificates
+	}
+
+	// Connection configuration parameter
+	conf := &connection.Config{
+		WinRM: winRMconfig,
+	}
+
+	// Createl client for the local package
+	c, err := local.NewClient(conf)
+	if err != nil {
+		panic(err)
+	}
+	defer c.Close()
+
+	// Create context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Run the GroupRead function to retrieve a local Windows group
+	group, err := c.GroupRead(ctx, local.GroupParams{Name: "Users"})
+	if err != nil {
+		panic(err)
+	}
+
+	// Print the users group description
+	fmt.Printf("Users Group Description: %s", group.Description)
+}
+```
+### Multi Client with an SSH Connection
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/d-strobel/gowindows"
+	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/windows/local"
+)
+
+func main() {
+	// SSH configuration parameter
+	sshConfig := &connection.SSHConfig{
+		SSHHost:                  "winsrv",
+		SSHPort:                  22,
+		SSHUsername:              "vagrant",
+		SSHPassword:              "vagrant",
+		SSHInsecureIgnoreHostKey: true, // Ignore unknown or invalid host keys
+	}
+
+	// Connection configuration parameter
+	conf := &connection.Config{
+		SSH: sshConfig,
+	}
+
+	// Createl client for the local package
+	c, err := gowindows.NewClient(conf)
+	if err != nil {
+		panic(err)
+	}
+	defer c.Close()
+
+	// Create context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Run the GroupRead function to retrieve a local Windows group
+	group, err := c.Local.GroupRead(ctx, local.GroupParams{Name: "Users"})
+	if err != nil {
+		panic(err)
+	}
+
+	// Print the users group description
+	fmt.Printf("Users Group Description: %s", group.Description)
+}
+```
 
 ## Development
-
 ### Conventional Commits
-
-Commit messages must follow the conventional commit guidelines.<br>
-For further information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
+[gowindows] follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
 
 ### Testing
-
 ### Unit tests
-The unit tests can run without external systems. All functions that relies on external systems are mocked.
-
-Just run the following command:<br>
+Run unit tests without external systems:<br>
 It will download the go dependencies and run the unit tests.
 ```bash
 make test
 ```
 
 ### Acceptance test
-The following prerequisites are needed:
-* Hashicorp Vagrant
-* Oracle VirtualBox
+Prerequisites:
+* [Hashicorp Vagrant](https://www.vagrantup.com/)
+* [Oracle VirtualBox](https://www.virtualbox.org/)
 
-To run the acceptance test run the following command:
+Run acceptance tests:
 ```bash
 make testacc
 ```
 
 ## Third-Party libraries
-* [masterzen/winrm](https://github.com/masterzen/winrm)
+* For this project I made a fork of [masterzen/winrm](https://github.com/masterzen/winrm) -> [d-strobel/winrm](https://github.com/d-strobel/winrm).<br>
+If the original library gets more maintanence I will think about switching back.
 
 ## Inspirations
-* [hashicorp - terraform-provider-ad](https://github.com/hashicorp/terraform-provider-ad)
+* [hashicorp - terraform-provider-ad](https://github.com/hashicorp/terraform-provider-ad):<br>
+Hashicorp made a great start with the terraform-provider-ad. Currently it seems that the provider is not actively maintained.<br>
+Beyond that my goal was to split that provider into a library and a provder and extend its functionality with non Active-Directoy systems.
+
+## License
+This project is licensed under the [Mozilla Public License Version 2.0] - see the [LICENSE](LICENSE) file for details.
 
 <!-- Badges -->
 [godoc badge]: https://pkg.go.dev/badge/github.com/d-strobel/gowindows
