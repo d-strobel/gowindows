@@ -8,7 +8,7 @@
 Go library for configuring Windows-based systems.
 
 ## Overview
-gowindows is designed to simplify the configuration of Windows-based systems by providing a set of functions that interact with Windows.<br>
+**gowindows** is designed to simplify the configuration of Windows-based systems by providing a set of functions that interact with Windows.<br>
 It is particularly useful when used in conjunction with the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows) for managing Windows resources.
 
 ## Usage
@@ -111,7 +111,7 @@ func main() {
 
 ## Development
 ### Conventional Commits
-gowindows follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
+**gowindows** follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
 
 ### Testing
 ### Unit tests
