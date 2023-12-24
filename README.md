@@ -115,8 +115,7 @@ gowindows follows the conventional commit guidelines. For more information, see 
 
 ### Testing
 ### Unit tests
-Run unit tests without external systems:<br>
-It will download the go dependencies and run the unit tests.
+Run unit tests:
 ```bash
 make test
 ```
