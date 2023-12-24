@@ -195,12 +195,12 @@ func groupRun[T groupType](ctx context.Context, c *LocalClient, cmd string, g *T
 
 	// Handle stderr
 	if result.StdErr != "" {
-		errXML, err := c.parser.DecodeCLIXML(result.StdErr)
+		stderr, err := c.parser.DecodeCLIXML(result.StdErr)
 		if err != nil {
 			return err
 		}
 
-		return errors.New(errXML)
+		return errors.New(stderr)
 	}
 
 	if result.StdOut == "" {
