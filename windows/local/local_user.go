@@ -26,7 +26,7 @@ type User struct {
 	SID                    SID            `json:"SID"`
 }
 
-// GroupParams represents parameters for interacting with local users, including creation, updating, and deletion.
+// UserParams represents parameters for interacting with local users, including creation, updating, and deletion.
 type UserParams struct {
 	Name        string
 	Description string
@@ -71,6 +71,23 @@ func (c *LocalClient) UserRead(ctx context.Context, params UserParams) (User, er
 	// Run command
 	if err := userRun[User](ctx, c, cmd, &u); err != nil {
 		return u, fmt.Errorf("windows.local.UserRead: %s", err)
+	}
+
+	return u, nil
+}
+
+// UserList returns a list of all local user.
+func (c *LocalClient) UserList(ctx context.Context) ([]User, error) {
+
+	// Declare slice of User
+	var u []User
+
+	// Command
+	cmd := "Get-LocalUser | ConvertTo-Json -Compress"
+
+	// Run command
+	if err := userRun[[]User](ctx, c, cmd, &u); err != nil {
+		return u, fmt.Errorf("windows.local.UserList: %s", err)
 	}
 
 	return u, nil
