@@ -24,7 +24,7 @@ const timestampPattern = `\d+`
 // It parses a JSON-encoded dotnet JSON datetime string and converts it into a WinTime object.
 // The input byte slice is expected to represent a dotnet JSON datetime string in the format "\"/Date(timestamp)/\"".
 func (t *WinTime) UnmarshalJSON(b []byte) error {
-	// Ignore null, like in the main JSON package.
+	// Ignore null, like in the main JSON package
 	if string(b) == "null" || string(b) == `""` {
 		return nil
 	}
