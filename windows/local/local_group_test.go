@@ -3,41 +3,29 @@ package local
 import (
 	"context"
 	"errors"
-	"testing"
 
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/stretchr/testify/suite"
 
 	mockConnection "github.com/d-strobel/gowindows/connection/mocks"
 	mockParser "github.com/d-strobel/gowindows/parser/mocks"
 )
 
-// Unit test suite for all Group functions
-type GroupUnitTestSuite struct {
-	suite.Suite
-	// Fixtures
-	usersGroup         string
-	expectedUsersGroup Group
-	groupList          string
-	expectedGroupList  []Group
-	testGroup          string
-	expectedTestGroup  Group
-}
+// Fixtures
+const (
+	usersGroup = `{"Description":"Users are prevented from making accidental or intentional system-wide changes and can run most applications","Name":"Users","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-1-5-32-545"},"PrincipalSource":1,"ObjectClass":"Group"}`
+	groupList  = `[{"Description":"Users are prevented from making accidental or intentional system-wide changes and can run most applications","Name":"Users","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-1-5-32-545"},"PrincipalSource":1,"ObjectClass":"Group"},{"Description":"Administrators have complete and unrestricted access to the computer/domain","Name":"Administrators","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-1-5-32-544"},"PrincipalSource":1,"ObjectClass":"Group"}]`
+	testGroup  = `{"Description":"Test group","Name":"Test","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-123456789"},"PrincipalSource":1,"ObjectClass":"Group"}`
+)
 
-func (suite *GroupUnitTestSuite) SetupSuite() {
-	// Fixtures
-	suite.usersGroup = `{"Description":"Users are prevented from making accidental or intentional system-wide changes and can run most applications","Name":"Users","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-1-5-32-545"},"PrincipalSource":1,"ObjectClass":"Group"}`
-	suite.groupList = `[{"Description":"Users are prevented from making accidental or intentional system-wide changes and can run most applications","Name":"Users","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-1-5-32-545"},"PrincipalSource":1,"ObjectClass":"Group"},{"Description":"Administrators have complete and unrestricted access to the computer/domain","Name":"Administrators","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-1-5-32-544"},"PrincipalSource":1,"ObjectClass":"Group"}]`
-	suite.testGroup = `{"Description":"Test group","Name":"Test","SID":{"BinaryLength":16,"AccountDomainSid":null,"Value":"S-123456789"},"PrincipalSource":1,"ObjectClass":"Group"}`
-
-	suite.expectedUsersGroup = Group{
+var (
+	expectedUsersGroup = Group{
 		Name:        "Users",
 		Description: "Users are prevented from making accidental or intentional system-wide changes and can run most applications",
 		SID: SID{
 			Value: "S-1-5-32-545",
 		},
 	}
-	suite.expectedGroupList = []Group{
+	expectedGroupList = []Group{
 		{
 			Name:        "Users",
 			Description: "Users are prevented from making accidental or intentional system-wide changes and can run most applications",
@@ -53,20 +41,16 @@ func (suite *GroupUnitTestSuite) SetupSuite() {
 			},
 		},
 	}
-	suite.expectedTestGroup = Group{
+	expectedTestGroup = Group{
 		Name:        "Test",
 		Description: "Test group",
 		SID: SID{
 			Value: "S-123456789",
 		},
 	}
-}
+)
 
-func TestGroupUnitTestSuite(t *testing.T) {
-	suite.Run(t, &GroupUnitTestSuite{})
-}
-
-func (suite *GroupUnitTestSuite) TestGroupRun() {
+func (suite *LocalUnitTestSuite) TestGroupRun() {
 
 	suite.Run("should return the user group", func() {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -79,12 +63,12 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		}
 		expectedCMD := "Get-LocalGroup -Name Users | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: suite.usersGroup,
+			StdOut: usersGroup,
 		}, nil)
 		var g Group
 		err := groupRun[Group](ctx, c, expectedCMD, &g)
 		suite.NoError(err)
-		suite.Equal(suite.expectedUsersGroup, g)
+		suite.Equal(expectedUsersGroup, g)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
@@ -100,12 +84,12 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		}
 		expectedCMD := "Get-LocalGroup | ConvertTo-Json"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: suite.groupList,
+			StdOut: groupList,
 		}, nil)
 		var g []Group
 		err := groupRun[[]Group](ctx, c, expectedCMD, &g)
 		suite.NoError(err)
-		suite.Equal(suite.expectedGroupList, g)
+		suite.Equal(expectedGroupList, g)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
@@ -121,12 +105,12 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		}
 		expectedCMD := "Get-LocalGroup -Name Users | ConvertTo-Json -compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: suite.usersGroup,
+			StdOut: usersGroup,
 		}, nil)
 		var g Group
 		err := groupRun[Group](ctx, c, expectedCMD, &g)
 		suite.NoError(err)
-		suite.Equal(suite.expectedUsersGroup, g)
+		suite.Equal(expectedUsersGroup, g)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
@@ -230,7 +214,7 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 		}
 		expectedCMD := "Get-LocalGroup -name Users"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: suite.groupList,
+			StdOut: groupList,
 		}, nil)
 		var g Group
 		err := groupRun[Group](ctx, c, expectedCMD, &g)
@@ -240,7 +224,7 @@ func (suite *GroupUnitTestSuite) TestGroupRun() {
 	})
 }
 
-func (suite *GroupUnitTestSuite) TestGroupRead() {
+func (suite *LocalUnitTestSuite) TestGroupRead() {
 
 	suite.Run("should return the correct group", func() {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -253,13 +237,13 @@ func (suite *GroupUnitTestSuite) TestGroupRead() {
 		}
 		expectedCMD := "Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: suite.usersGroup,
+			StdOut: usersGroup,
 		}, nil)
 		actualUsersGroup, err := c.GroupRead(ctx, GroupParams{Name: "Users"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
-		suite.Equal(suite.expectedUsersGroup, actualUsersGroup)
+		suite.Equal(expectedUsersGroup, actualUsersGroup)
 	})
 
 	suite.Run("should run the correct command", func() {
@@ -361,7 +345,7 @@ func (suite *GroupUnitTestSuite) TestGroupRead() {
 	})
 }
 
-func (suite *GroupUnitTestSuite) TestGroupList() {
+func (suite *LocalUnitTestSuite) TestGroupList() {
 
 	suite.Run("should return the correct list of groups", func() {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -374,13 +358,13 @@ func (suite *GroupUnitTestSuite) TestGroupList() {
 		}
 		expectedCMD := "Get-LocalGroup | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: suite.groupList,
+			StdOut: groupList,
 		}, nil)
 		actualGroupList, err := c.GroupList(ctx)
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
-		suite.Equal(suite.expectedGroupList, actualGroupList)
+		suite.Equal(expectedGroupList, actualGroupList)
 	})
 
 	suite.Run("should return error if run fails", func() {
@@ -401,7 +385,7 @@ func (suite *GroupUnitTestSuite) TestGroupList() {
 	})
 }
 
-func (suite *GroupUnitTestSuite) TestGroupCreate() {
+func (suite *LocalUnitTestSuite) TestGroupCreate() {
 
 	suite.Run("should return the correct group", func() {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -414,13 +398,13 @@ func (suite *GroupUnitTestSuite) TestGroupCreate() {
 		}
 		expectedCMD := "New-LocalGroup -Name 'Test' -Description 'Test group' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: suite.testGroup,
+			StdOut: testGroup,
 		}, nil)
 		actualTestGroup, err := c.GroupCreate(ctx, GroupParams{Name: "Test", Description: "Test group"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
-		suite.Equal(suite.expectedTestGroup, actualTestGroup)
+		suite.Equal(expectedTestGroup, actualTestGroup)
 	})
 
 	suite.Run("should run the correct command", func() {
@@ -477,7 +461,7 @@ func (suite *GroupUnitTestSuite) TestGroupCreate() {
 	})
 }
 
-func (suite *GroupUnitTestSuite) TestGroupUpdate() {
+func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
@@ -573,7 +557,7 @@ func (suite *GroupUnitTestSuite) TestGroupUpdate() {
 	})
 }
 
-func (suite *GroupUnitTestSuite) TestGroupDelete() {
+func (suite *LocalUnitTestSuite) TestGroupDelete() {
 
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
