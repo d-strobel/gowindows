@@ -90,7 +90,7 @@ var (
 
 func (suite *LocalUnitTestSuite) TestUserRead() {
 
-	suite.Run("should return the correct group", func() {
+	suite.Run("should return the correct user", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
@@ -99,37 +99,37 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			Connection: mockConn,
 			parser:     mockParser,
 		}
-		expectedCMD := "Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress"
+		expectedCMD := "Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
-			StdOut: usersGroup,
+			StdOut: adminUser,
 		}, nil)
-		actualUsersGroup, err := c.GroupRead(ctx, GroupParams{Name: "Users"})
+		actualAdminUser, err := c.UserRead(ctx, UserParams{Name: "Administrator"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
-		suite.Equal(expectedUsersGroup, actualUsersGroup)
+		suite.Equal(expectedAdminUser, actualAdminUser)
 	})
 
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters UserParams
 			expectedCMD     string
 		}{
 			{
-				"assert users group by name",
-				GroupParams{Name: "Users"},
-				"Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress",
+				"assert user by name",
+				UserParams{Name: "Administrator"},
+				"Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress",
 			},
 			{
-				"assert users group by sid",
-				GroupParams{SID: "123456789"},
-				"Get-LocalGroup -SID 123456789 | ConvertTo-Json -Compress",
+				"assert users by sid",
+				UserParams{SID: "123456789"},
+				"Get-LocalUser -SID 123456789 | ConvertTo-Json -Compress",
 			},
 			{
-				"assert users group by name and sid",
-				GroupParams{Name: "Users", SID: "123456789"},
-				"Get-LocalGroup -SID 123456789 | ConvertTo-Json -Compress",
+				"assert users by name and sid",
+				UserParams{Name: "Users", SID: "123456789"},
+				"Get-LocalUser -SID 123456789 | ConvertTo-Json -Compress",
 			},
 		}
 
@@ -144,7 +144,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 				parser:     mockParser,
 			}
 			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
-			_, err := c.GroupRead(ctx, tc.inputParameters)
+			_, err := c.UserRead(ctx, tc.inputParameters)
 			suite.Require().NoError(err)
 			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
 			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -154,23 +154,23 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 	suite.Run("should return specific errors", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters UserParams
 			expectedErr     string
 		}{
 			{
 				"assert error with empty parameters",
-				GroupParams{},
-				"windows.local.GroupRead: group parameter 'Name' or 'SID' must be set",
+				UserParams{},
+				"windows.local.UserRead: user parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error with just the description parameter",
-				GroupParams{Description: "test"},
-				"windows.local.GroupRead: group parameter 'Name' or 'SID' must be set",
+				UserParams{Description: "test"},
+				"windows.local.UserRead: user parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error when name contains wildcard",
-				GroupParams{Name: "Remote*"},
-				"windows.local.GroupRead: group parameter 'Name' does not allow wildcards",
+				UserParams{Name: "Remote*"},
+				"windows.local.UserRead: user parameter 'Name' does not allow wildcards",
 			},
 		}
 
@@ -184,7 +184,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 				Connection: mockConn,
 				parser:     mockParser,
 			}
-			_, err := c.GroupRead(ctx, tc.inputParameters)
+			_, err := c.UserRead(ctx, tc.inputParameters)
 			suite.EqualError(err, tc.expectedErr)
 			mockConn.AssertNotCalled(suite.T(), "Run")
 			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -200,10 +200,10 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			Connection: mockConn,
 			parser:     mockParser,
 		}
-		expectedCMD := "Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress"
+		expectedCMD := "Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		_, err := c.GroupRead(ctx, GroupParams{Name: "Users"})
-		suite.EqualError(err, "windows.local.GroupRead: test-error")
+		_, err := c.UserRead(ctx, UserParams{Name: "Administrator"})
+		suite.EqualError(err, "windows.local.UserRead: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
