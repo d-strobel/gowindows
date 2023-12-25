@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+// Acceptance test suite for all local functions
 type LocalAccTestSuite struct {
 	suite.Suite
 	clients []local.LocalClient
