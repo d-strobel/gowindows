@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// Connection parameters for acceptance test
+// Connection parameters for acceptance test.
 const (
 	testHost  = "127.0.0.1"
 	username  = "vagrant"
@@ -18,13 +18,14 @@ const (
 	sshPort   = 1222
 )
 
-// Acceptance test suite for all local functions
+// Acceptance test suite for all local functions.
 type LocalAccTestSuite struct {
 	suite.Suite
 	clients []local.LocalClient
 }
 
-// Setup acceptance test suite for all local functions
+// Setup acceptance test suite for all local functions.
+// We ensure that all commands return the same output with WinRM and SSH.
 func (suite *LocalAccTestSuite) SetupSuite() {
 	parser := parser.NewParser()
 
