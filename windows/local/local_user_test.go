@@ -208,3 +208,43 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 }
+
+func (suite *LocalUnitTestSuite) TestUserList() {
+
+	suite.Run("should return the correct list of user", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockParser := mockParser.NewMockParserInterface(suite.T())
+		c := &LocalClient{
+			Connection: mockConn,
+			parser:     mockParser,
+		}
+		expectedCMD := "Get-LocalUser | ConvertTo-Json -Compress"
+		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+			StdOut: userList,
+		}, nil)
+		actualUserList, err := c.UserList(ctx)
+		suite.Require().NoError(err)
+		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		suite.Equal(expectedUserList, actualUserList)
+	})
+
+	suite.Run("should return error if run fails", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockParser := mockParser.NewMockParserInterface(suite.T())
+		c := &LocalClient{
+			Connection: mockConn,
+			parser:     mockParser,
+		}
+		expectedCMD := "Get-LocalUser | ConvertTo-Json -Compress"
+		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
+		_, err := c.UserList(ctx)
+		suite.EqualError(err, "windows.local.UserList: test-error")
+		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+	})
+}
