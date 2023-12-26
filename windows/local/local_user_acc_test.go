@@ -107,3 +107,21 @@ func (suite *LocalAccTestSuite) TestUser3Create() {
 		suite.Equal(local.User{Enabled: true}.Enabled, g.Enabled)
 	}
 }
+
+func (suite *LocalAccTestSuite) TestUser4Update() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	for i, c := range suite.clients {
+		params := local.UserParams{
+			Name:           fmt.Sprintf("Test-User-%d", i),
+			Description:    "Updated - This is a test user",
+			FullName:       fmt.Sprintf("Updated-Full-Test-User-%d", i),
+			Password:       "Start123!!!3",
+			AccountExpires: time.Date(2026, time.November, 10, 16, 0, 0, 0, time.UTC),
+			Enabled:        false,
+		}
+		err := c.UserUpdate(ctx, params)
+		suite.NoError(err)
+	}
+}
