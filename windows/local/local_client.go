@@ -16,9 +16,9 @@ type LocalClient struct {
 	parser     parser.ParserInterface
 }
 
-// typeType is an interface for local types.
+// localType is an interface for local types.
 type localType interface {
-	Group | []Group | User | []User
+	Group | []Group | User | []User | GroupMember | []GroupMember
 }
 
 // NewLocalClient returns a new instance of the LocalClient.
