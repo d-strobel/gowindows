@@ -248,3 +248,35 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 
 	return nil
 }
+
+// UserDelete removes a local user by SID or Name.
+func (c *LocalClient) UserDelete(ctx context.Context, params UserParams) error {
+
+	// Satisfy localType interface
+	var u User
+
+	// Assert needed parameters
+	if params.Name == "" && params.SID == "" {
+		return fmt.Errorf("windows.local.UserDelete: user parameter 'Name' or 'SID' must be set")
+	}
+
+	// Base command
+	cmds := []string{"Remove-LocalUser"}
+
+	// Add parameters
+	// Prefer SID over Name to identifiy group
+	if params.SID != "" {
+		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	cmd := strings.Join(cmds, " ")
+
+	// Run command
+	if err := localRun[User](ctx, c, cmd, &u); err != nil {
+		return fmt.Errorf("windows.local.UserDelete: %s", err)
+	}
+
+	return nil
+}
