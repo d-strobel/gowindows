@@ -193,19 +193,19 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 	cmds2 := []string{}
 
 	if params.Enabled {
-		cmds2 = append(cmds, "Enable-LocalUser")
+		cmds2 = append(cmds2, "Enable-LocalUser")
 	} else {
-		cmds2 = append(cmds, "Disable-LocalUser")
+		cmds2 = append(cmds2, "Disable-LocalUser")
 	}
 
 	// Add parameters
 	// Prefer SID over Name to identifiy group
 	if params.SID != "" {
 		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-		cmds2 = append(cmds, fmt.Sprintf("-SID %s", params.SID))
+		cmds2 = append(cmds2, fmt.Sprintf("-SID %s", params.SID))
 	} else if params.Name != "" {
 		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-		cmds2 = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
+		cmds2 = append(cmds2, fmt.Sprintf("-Name '%s'", params.Name))
 	}
 
 	if params.AccountExpires.Compare(time.Now()) == 1 {
