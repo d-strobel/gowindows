@@ -138,10 +138,6 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 		return fmt.Errorf("windows.local.GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	}
 
-	if params.Description == "" {
-		return fmt.Errorf("windows.local.GroupUpdate: group parameter 'Description' must be set")
-	}
-
 	// Base command
 	cmds := []string{"Set-LocalGroup"}
 

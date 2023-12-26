@@ -350,27 +350,27 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			{
 				"assert user with Name",
 				UserParams{Name: "Tester"},
-				"Set-LocalUser -Name 'Tester' ;Disable-LocalUser -Name 'Tester'",
+				"Set-LocalUser -Name 'Tester' -Description '' -FullName '' ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + Enabled",
 				UserParams{Name: "Tester", Enabled: true},
-				"Set-LocalUser -Name 'Tester' ;Enable-LocalUser -Name 'Tester'",
+				"Set-LocalUser -Name 'Tester' -Description '' -FullName '' ;Enable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with SID + Enabled",
 				UserParams{SID: "S-1000", Enabled: true},
-				"Set-LocalUser -SID S-1000 ;Enable-LocalUser -SID S-1000",
+				"Set-LocalUser -SID S-1000 -Description '' -FullName '' ;Enable-LocalUser -SID S-1000",
 			},
 			{
 				"assert user with Name + AccountExpires",
 				UserParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') ;Disable-LocalUser -Name 'Tester'",
+				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Description '' -FullName '' ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + AccountNeverExpires",
 				UserParams{Name: "Tester", AccountNeverExpires: true},
-				"Set-LocalUser -Name 'Tester' -AccountNeverExpires ;Disable-LocalUser -Name 'Tester'",
+				"Set-LocalUser -Name 'Tester' -AccountNeverExpires -Description '' -FullName '' ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + Description + FullName",
@@ -380,7 +380,7 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			{
 				"assert user with Name + Password + PasswordNeverExpires + UserMayChangePassword",
 				UserParams{Name: "Tester", Password: "Start123!!!", PasswordNeverExpires: true, UserMayChangePassword: true},
-				"Set-LocalUser -Name 'Tester' -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -PasswordNeverExpires -UserMayChangePassword ;Disable-LocalUser -Name 'Tester'",
+				"Set-LocalUser -Name 'Tester' -Description '' -FullName '' -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -PasswordNeverExpires -UserMayChangePassword ;Disable-LocalUser -Name 'Tester'",
 			},
 		}
 

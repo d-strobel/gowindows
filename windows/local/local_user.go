@@ -252,13 +252,9 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 		cmds = append(cmds, "-AccountNeverExpires")
 	}
 
-	if params.Description != "" {
-		cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
-	}
-
-	if params.FullName != "" {
-		cmds = append(cmds, fmt.Sprintf("-FullName '%s'", params.FullName))
-	}
+	// Always set Description and FullName to allow removal of these parameters
+	cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
+	cmds = append(cmds, fmt.Sprintf("-FullName '%s'", params.FullName))
 
 	if params.Password != "" {
 		cmds = append(cmds, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))

@@ -310,6 +310,11 @@ func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 				GroupParams{Name: "Test", SID: "S-12345", Description: "Testing"},
 				"Set-LocalGroup -SID S-12345 -Description 'Testing'",
 			},
+			{
+				"assert with Name parameter",
+				GroupParams{Name: "Test"},
+				"Set-LocalGroup -Name 'Test' -Description ''",
+			},
 		}
 
 		for _, tc := range tcs {
