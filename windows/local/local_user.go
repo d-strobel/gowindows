@@ -62,6 +62,10 @@ type UserParams struct {
 }
 
 // UserRead gets a local user by SID or Name and returns a User object.
+//
+// Accepted user parameters:
+//   - Name
+//   - SID
 func (c *LocalClient) UserRead(ctx context.Context, params UserParams) (User, error) {
 
 	// Declare User object
@@ -117,6 +121,16 @@ func (c *LocalClient) UserList(ctx context.Context) ([]User, error) {
 }
 
 // UserCreate creates a local user and returns a User object.
+//
+// Accepted user parameters:
+//   - Name
+//   - Description
+//   - AccountExpires
+//   - Enabled
+//   - FullName
+//   - Password
+//   - PasswordNeverExpires
+//   - UserMayChangePassword
 func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, error) {
 
 	// Declare User object
@@ -182,6 +196,18 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, 
 }
 
 // UserUpdate updates a local user.
+//
+// Accepted user parameters:
+//   - Name
+//   - SID
+//   - Description
+//   - AccountExpires
+//   - AccountNeverExpires
+//   - Enabled
+//   - FullName
+//   - Password
+//   - PasswordNeverExpires
+//   - UserMayChangePassword
 func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 
 	// Satisfy localType interface
@@ -259,6 +285,10 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 }
 
 // UserDelete removes a local user by SID or Name.
+//
+// Accepted user parameters:
+//   - Name
+//   - SID
 func (c *LocalClient) UserDelete(ctx context.Context, params UserParams) error {
 
 	// Satisfy localType interface

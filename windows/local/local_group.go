@@ -28,6 +28,10 @@ type GroupParams struct {
 }
 
 // GroupRead gets a local group by SID or Name and returns a Group object.
+//
+// Accepted group parameters:
+//   - Name
+//   - SID
 func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
@@ -83,6 +87,10 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 }
 
 // GroupCreate creates a new local group and returns the Group object.
+//
+// Accepted group parameters:
+//   - Name
+//   - Description
 func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
@@ -114,7 +122,12 @@ func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Grou
 	return g, nil
 }
 
-// GroupUpdate updates a local group. Currently, only the description parameter can be changed.
+// GroupUpdate updates a local group.
+//
+// Accepted group parameters:
+//   - Name
+//   - SID
+//   - Description
 func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error {
 
 	// Satisfy groupType interface
@@ -152,6 +165,10 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 }
 
 // GroupDelete removes a local group by SID or Name.
+//
+// Accepted group parameters:
+//   - Name
+//   - SID
 func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	// Satisfy groupType interface
