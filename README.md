@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parser"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
@@ -38,12 +39,18 @@ func main() {
 		WinRM: winRMconfig,
 	}
 
-	// Create client for the local package
-	c, err := local.NewClient(conf)
+	// New connection
+	conn, err := connection.NewConnection(conf)
 	if err != nil {
 		panic(err)
 	}
-	defer c.Close()
+
+	// New parser
+	parser := parser.NewParser()
+
+	// Create client
+	c := local.NewLocalClient(conn, parser)
+	defer c.Connection.Close()
 
 	// Create context
 	ctx, cancel := context.WithCancel(context.Background())
@@ -55,8 +62,8 @@ func main() {
 		panic(err)
 	}
 
-	// Print the users group description
-	fmt.Printf("Users Group Description: %s", group.Description)
+	// Print the user group
+	fmt.Printf("User group: %+v", group)
 }
 ```
 ### Multi Client with an SSH Connection
@@ -104,8 +111,8 @@ func main() {
 		panic(err)
 	}
 
-	// Print the users group description
-	fmt.Printf("Users Group Description: %s", group.Description)
+	// Print the user group
+	fmt.Printf("User group: %+v", group)
 }
 ```
 
