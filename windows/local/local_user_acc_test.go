@@ -2,6 +2,7 @@ package local_test
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/d-strobel/gowindows/parser"
@@ -78,5 +79,28 @@ func (suite *LocalAccTestSuite) TestUser2List() {
 				Value: "S-1-5-21-153895498-367353507-3704405138-501",
 			},
 		})
+	}
+}
+
+func (suite *LocalAccTestSuite) TestUser3Create() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	for i, c := range suite.clients {
+		params := local.UserParams{
+			Name:                 fmt.Sprintf("Test-User-%d", i),
+			Description:          "This is a test user",
+			FullName:             fmt.Sprintf("Full-Test-User-%d", i),
+			Password:             "Start123!!!",
+			PasswordNeverExpires: true,
+			AccountExpires:       time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC),
+		}
+		g, err := c.UserCreate(ctx, params)
+		suite.NoError(err)
+		suite.Equal(local.User{Name: fmt.Sprintf("Test-User-%d", i)}.Name, g.Name)
+		suite.Equal(local.User{Description: "This is a test user"}.Description, g.Description)
+		suite.Equal(local.User{FullName: fmt.Sprintf("Full-Test-User-%d", i)}.FullName, g.FullName)
+		suite.Equal(local.User{PasswordExpires: parser.WinTime{}}.PasswordExpires, g.PasswordExpires)
+		suite.Equal(local.User{AccountExpires: parser.WinTime{Time: time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC)}}.AccountExpires, g.AccountExpires)
 	}
 }
