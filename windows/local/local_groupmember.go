@@ -21,6 +21,11 @@ type GroupMemberParams struct {
 }
 
 // GroupMemberRead retrieves information about a specific member in a local Windows group.
+//
+// Accepted GroupMemberParams:
+//   - Name
+//   - SID
+//   - Member
 func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberParams) (GroupMember, error) {
 	// Declare GroupMember
 	var gm GroupMember
@@ -58,6 +63,10 @@ func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberPar
 }
 
 // GroupMemberList returns a list of members for a specific local Windows group.
+//
+// Accepted GroupMemberParams:
+//   - Name
+//   - SID
 func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberParams) ([]GroupMember, error) {
 	// Declare slice of GroupMember
 	var gm []GroupMember
@@ -91,6 +100,11 @@ func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberPar
 }
 
 // GroupMemberCreate adds a new member to a local Windows group.
+//
+// Accepted GroupMemberParams:
+//   - Name
+//   - SID
+//   - Member
 func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberParams) error {
 	// Satisfy the localType interface
 	var gm GroupMember
@@ -127,6 +141,11 @@ func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberP
 }
 
 // GroupMemberDelete removes a member from a local Windows group.
+//
+// Accepted GroupMemberParams:
+//   - Name
+//   - SID
+//   - Member
 func (c *LocalClient) GroupMemberDelete(ctx context.Context, params GroupMemberParams) error {
 	// Satisfy the localType interface
 	var gm GroupMember
