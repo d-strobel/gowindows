@@ -94,6 +94,7 @@ func (suite *LocalAccTestSuite) TestUser3Create() {
 			Password:             "Start123!!!",
 			PasswordNeverExpires: true,
 			AccountExpires:       time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC),
+			Enabled:              true,
 		}
 		g, err := c.UserCreate(ctx, params)
 		suite.NoError(err)
@@ -102,5 +103,7 @@ func (suite *LocalAccTestSuite) TestUser3Create() {
 		suite.Equal(local.User{FullName: fmt.Sprintf("Full-Test-User-%d", i)}.FullName, g.FullName)
 		suite.Equal(local.User{PasswordExpires: parser.WinTime{}}.PasswordExpires, g.PasswordExpires)
 		suite.Equal(local.User{AccountExpires: parser.WinTime{Time: time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC)}}.AccountExpires, g.AccountExpires)
+		suite.Equal(local.User{UserMayChangePassword: false}.UserMayChangePassword, g.UserMayChangePassword)
+		suite.Equal(local.User{Enabled: true}.Enabled, g.Enabled)
 	}
 }

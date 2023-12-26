@@ -16,7 +16,7 @@ import (
 const (
 	adminUser = `{"AccountExpires":null,"Description":"Built-in account for administering the computer/domain","Enabled":true,"FullName":"","PasswordChangeableDate":"\/Date(1701379505092)\/","PasswordExpires":null,"UserMayChangePassword":true,"PasswordRequired":true,"PasswordLastSet":"\/Date(1701379505092)\/","LastLogon":null,"Name":"Administrator","SID":{"BinaryLength":28,"AccountDomainSid":{"BinaryLength":24,"AccountDomainSid":"S-1-5-21-153895498-367353507-3704405138","Value":"S-1-5-21-153895498-367353507-3704405138"},"Value":"S-1-5-21-153895498-367353507-3704405138-500"},"PrincipalSource":1,"ObjectClass":"User"}`
 	userList  = `[{"AccountExpires":null,"Description":"Built-in account for administering the computer/domain","Enabled":true,"FullName":"","PasswordChangeableDate":"\/Date(1701379505092)\/","PasswordExpires":null,"UserMayChangePassword":true,"PasswordRequired":true,"PasswordLastSet":"\/Date(1701379505092)\/","LastLogon":null,"Name":"Administrator","SID":{"BinaryLength":28,"AccountDomainSid":"S-1-5-21-153895498-367353507-3704405138","Value":"S-1-5-21-153895498-367353507-3704405138-500"},"PrincipalSource":1,"ObjectClass":"User"},{"AccountExpires":null,"Description":"Built-in account for guest access to the computer/domain","Enabled":false,"FullName":"","PasswordChangeableDate":null,"PasswordExpires":null,"UserMayChangePassword":false,"PasswordRequired":false,"PasswordLastSet":null,"LastLogon":null,"Name":"Guest","SID":{"BinaryLength":28,"AccountDomainSid":"S-1-5-21-153895498-367353507-3704405138","Value":"S-1-5-21-153895498-367353507-3704405138-501"},"PrincipalSource":1,"ObjectClass":"User"}]`
-	testUser  = `{"AccountExpires":"\/Date(1762790400000)\/","Description":"This is a test user","Enabled":true,"FullName":"Full-Test-User","PasswordChangeableDate":null,"PasswordExpires":null,"UserMayChangePassword":false,"PasswordRequired":false,"PasswordLastSet":null,"LastLogon":null,"Name":"Test-User","SID":{"BinaryLength":28,"AccountDomainSid":{"BinaryLength":24,"AccountDomainSid":"S-1-5-21-153895498-367353507-3704405138","Value":"S-1-5-21-153895498-367353507-3704405138"},"Value":"S-1-5-21-153895498-367353507-3704405138-1016"},"PrincipalSource":1,"ObjectClass":"User"}`
+	testUser  = `{"AccountExpires":"\/Date(1762790400000)\/","Description":"This is a test user","Enabled":true,"FullName":"Full-Test-User","PasswordChangeableDate":null,"PasswordExpires":null,"UserMayChangePassword":true,"PasswordRequired":false,"PasswordLastSet":null,"LastLogon":null,"Name":"Test-User","SID":{"BinaryLength":28,"AccountDomainSid":{"BinaryLength":24,"AccountDomainSid":"S-1-5-21-153895498-367353507-3704405138","Value":"S-1-5-21-153895498-367353507-3704405138"},"Value":"S-1-5-21-153895498-367353507-3704405138-1016"},"PrincipalSource":1,"ObjectClass":"User"}`
 )
 
 var (
@@ -77,7 +77,7 @@ var (
 		FullName:               "Full-Test-User",
 		PasswordChangeableDate: parser.WinTime{},
 		PasswordExpires:        parser.WinTime{},
-		UserMayChangePassword:  false,
+		UserMayChangePassword:  true,
 		PasswordRequired:       false,
 		PasswordLastSet:        parser.WinTime{},
 		LastLogon:              parser.WinTime{},
@@ -260,16 +260,17 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			Connection: mockConn,
 			parser:     mockParser,
 		}
-		expectedCMD := "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -FullName 'Full-Test-User' -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress"
+		expectedCMD := "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -UserMayNotChangePassword:$false | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: testUser,
 		}, nil)
 		actualTestUser, err := c.UserCreate(ctx, UserParams{
-			Name:                     "Test-User",
-			Description:              "This is a test user",
-			FullName:                 "Full-Test-User",
-			UserMayNotChangePassword: true,
-			AccountExpires:           time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC),
+			Name:                  "Test-User",
+			Description:           "This is a test user",
+			FullName:              "Full-Test-User",
+			Enabled:               true,
+			UserMayChangePassword: true,
+			AccountExpires:        time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC),
 		})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
@@ -286,37 +287,37 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			{
 				"assert user with Name",
 				UserParams{Name: "Tester"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -NoPassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Description",
 				UserParams{Name: "Tester", Description: "This is a test user"},
-				"New-LocalUser -Name 'Tester' -Description 'This is a test user' -AccountNeverExpires -NoPassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -Description 'This is a test user' -AccountNeverExpires -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + AccountExpires",
 				UserParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -NoPassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
-				"assert user with Name + Disabled",
-				UserParams{Name: "Tester", Disabled: true},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword | ConvertTo-Json -Compress",
+				"assert user with Name + Enabled",
+				UserParams{Name: "Tester", Enabled: true},
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled:$false -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + FullName",
 				UserParams{Name: "Tester", FullName: "Tester1"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -FullName 'Tester1' -NoPassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -FullName 'Tester1' -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Password",
 				UserParams{Name: "Tester", Password: "Start123!!!"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + PasswordNeverExpires + UserMayNotChangePassword",
-				UserParams{Name: "Tester", PasswordNeverExpires: true, UserMayNotChangePassword: true},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -NoPassword -PasswordNeverExpires -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserParams{Name: "Tester", PasswordNeverExpires: true, UserMayChangePassword: true},
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires -UserMayNotChangePassword:$false | ConvertTo-Json -Compress",
 			},
 		}
 

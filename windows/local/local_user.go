@@ -37,8 +37,10 @@ type UserParams struct {
 	// Specifies when the user account expires.
 	// If you don't specify this parameter, the account doesn't expire.
 	AccountExpires time.Time
-	// Indicates wheter the account is disabled.
-	Disabled bool
+	// Indicates that the account does not expire.
+	AccountNeverExpires bool
+	// Indicates wheter the account is enabled.
+	Enabled bool
 	// Specifies the full name for the user account.
 	// The full name differs from the user name of the user account.
 	FullName string
@@ -46,8 +48,8 @@ type UserParams struct {
 	Password string
 	// Indicates whether the new user's password expires.
 	PasswordNeverExpires bool
-	// Indicates that the user can't change the password on the user account.
-	UserMayNotChangePassword bool
+	// Indicates that the user can change the password on the user account.
+	UserMayChangePassword bool
 }
 
 // UserRead gets a local user by SID or Name and returns a User object.
@@ -133,7 +135,9 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, 
 		cmds = append(cmds, "-AccountNeverExpires")
 	}
 
-	if params.Disabled {
+	if params.Enabled {
+		cmds = append(cmds, "-Disabled:$false")
+	} else {
 		cmds = append(cmds, "-Disabled")
 	}
 
@@ -151,7 +155,9 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, 
 		cmds = append(cmds, "-PasswordNeverExpires")
 	}
 
-	if params.UserMayNotChangePassword {
+	if params.UserMayChangePassword {
+		cmds = append(cmds, "-UserMayNotChangePassword:$false")
+	} else {
 		cmds = append(cmds, "-UserMayNotChangePassword")
 	}
 
@@ -164,4 +170,81 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, 
 	}
 
 	return u, nil
+}
+
+// UserUpdate updates a local user.
+func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
+
+	// Satisfy localType interface
+	var u User
+
+	// Assert needed parameters
+	if params.Name == "" && params.SID == "" {
+		return fmt.Errorf("windows.local.UserUpdate: user parameter 'Name' or 'SID' must be set")
+	}
+
+	// Assert parameters cannot be set together
+	if params.AccountExpires.Compare(time.Now()) == 1 && params.AccountNeverExpires {
+		return fmt.Errorf("windows.local.UserUpdate: user parameter 'AccountExpires' and 'AccountNeverExpires' cannot be set together")
+	}
+
+	// Base command
+	cmds := []string{"Set-LocalUser"}
+	cmds2 := []string{}
+
+	if params.Enabled {
+		cmds2 = append(cmds, "Enable-LocalUser")
+	} else {
+		cmds2 = append(cmds, "Disable-LocalUser")
+	}
+
+	// Add parameters
+	// Prefer SID over Name to identifiy group
+	if params.SID != "" {
+		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
+		cmds2 = append(cmds, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
+		cmds2 = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	if params.AccountExpires.Compare(time.Now()) == 1 {
+		accountExpires := params.AccountExpires.Format(time.DateTime)
+		cmds = append(cmds, fmt.Sprintf("-AccountExpires $(Get-Date '%s')", accountExpires))
+	}
+
+	if params.AccountNeverExpires {
+		cmds = append(cmds, "-AccountNeverExpires")
+	}
+
+	if params.Description != "" {
+		cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
+	}
+
+	if params.FullName != "" {
+		cmds = append(cmds, fmt.Sprintf("-FullName '%s'", params.FullName))
+	}
+
+	if params.Password != "" {
+		cmds = append(cmds, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))
+	}
+
+	if params.PasswordNeverExpires {
+		cmds = append(cmds, "-PasswordNeverExpires")
+	}
+
+	if params.UserMayChangePassword {
+		cmds = append(cmds, "-UserMayChangePassword")
+	}
+
+	// Append second command with a semicolon
+	cmds = append(cmds, fmt.Sprintf(";%s", strings.Join(cmds2, " ")))
+	cmd := strings.Join(cmds, " ")
+
+	// Run command
+	if err := localRun[User](ctx, c, cmd, &u); err != nil {
+		return fmt.Errorf("windows.local.UserUpdate: %s", err)
+	}
+
+	return nil
 }
