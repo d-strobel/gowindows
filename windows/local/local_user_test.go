@@ -339,3 +339,66 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 		}
 	})
 }
+
+func (suite *LocalUnitTestSuite) TestUserUpdate() {
+	suite.Run("should run the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters UserParams
+			expectedCMD     string
+		}{
+			{
+				"assert user with Name",
+				UserParams{Name: "Tester"},
+				"Set-LocalUser -Name 'Tester' ;Disable-LocalUser -Name 'Tester'",
+			},
+			{
+				"assert user with Name + Enabled",
+				UserParams{Name: "Tester", Enabled: true},
+				"Set-LocalUser -Name 'Tester' ;Enable-LocalUser -Name 'Tester'",
+			},
+			{
+				"assert user with SID + Enabled",
+				UserParams{SID: "S-1000", Enabled: true},
+				"Set-LocalUser -SID S-1000 ;Enable-LocalUser -SID S-1000",
+			},
+			{
+				"assert user with Name + AccountExpires",
+				UserParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
+				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') ;Disable-LocalUser -Name 'Tester'",
+			},
+			{
+				"assert user with Name + AccountNeverExpires",
+				UserParams{Name: "Tester", AccountNeverExpires: true},
+				"Set-LocalUser -Name 'Tester' -AccountNeverExpires ;Disable-LocalUser -Name 'Tester'",
+			},
+			{
+				"assert user with Name + Description + FullName",
+				UserParams{Name: "Tester", Description: "test-description", FullName: "Full-Tester"},
+				"Set-LocalUser -Name 'Tester' -Description 'test-description' -FullName 'Full-Tester' ;Disable-LocalUser -Name 'Tester'",
+			},
+			{
+				"assert user with Name + Password + PasswordNeverExpires + UserMayChangePassword",
+				UserParams{Name: "Tester", Password: "Start123!!!", PasswordNeverExpires: true, UserMayChangePassword: true},
+				"Set-LocalUser -Name 'Tester' -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -PasswordNeverExpires -UserMayChangePassword ;Disable-LocalUser -Name 'Tester'",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			err := c.UserUpdate(ctx, tc.inputParameters)
+			suite.Require().NoError(err)
+			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+	})
+}
