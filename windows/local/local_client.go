@@ -10,15 +10,15 @@ import (
 	"github.com/d-strobel/gowindows/parser"
 )
 
+// localType is a type constraint for the localRun function, ensuring it works with specific types.
+type localType interface {
+	Group | []Group | User | []User | GroupMember | []GroupMember
+}
+
 // LocalClient represents a client for handling local Windows functions.
 type LocalClient struct {
 	Connection connection.ConnectionInterface
 	parser     parser.ParserInterface
-}
-
-// localType is an interface for local types.
-type localType interface {
-	Group | []Group | User | []User | GroupMember | []GroupMember
 }
 
 // NewLocalClient returns a new instance of the LocalClient.
