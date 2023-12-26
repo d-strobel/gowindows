@@ -125,3 +125,16 @@ func (suite *LocalAccTestSuite) TestUser4Update() {
 		suite.NoError(err)
 	}
 }
+
+func (suite *LocalAccTestSuite) TestUser5Delete() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	for i, c := range suite.clients {
+		params := local.UserParams{
+			Name: fmt.Sprintf("Test-User-%d", i),
+		}
+		err := c.UserDelete(ctx, params)
+		suite.NoError(err)
+	}
+}
