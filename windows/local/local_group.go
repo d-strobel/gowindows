@@ -2,8 +2,6 @@ package local
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -17,17 +15,23 @@ type Group struct {
 
 // GroupParams represents parameters for interacting with local groups, including creation, updating, and deletion.
 type GroupParams struct {
-	Name        string
-	Description string
-	SID         string
-}
+	// Specifies a name for the group.
+	// The maximum length is 256 characters.
+	Name string
 
-// groupType is an interface for either a single Group or a slice of Group.
-type groupType interface {
-	Group | []Group
+	// Specifies a comment for the group.
+	// The maximum length is 48 characters.
+	Description string
+
+	// Specifies the security ID (SID) of the security group.
+	SID string
 }
 
 // GroupRead gets a local group by SID or Name and returns a Group object.
+//
+// Accepted group parameters:
+//   - Name
+//   - SID
 func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
@@ -58,7 +62,7 @@ func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group,
 	cmd := strings.Join(cmds, " ")
 
 	// Run command
-	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
+	if err := localRun[Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupRead: %s", err)
 	}
 
@@ -75,7 +79,7 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 	cmd := "Get-LocalGroup | ConvertTo-Json -Compress"
 
 	// Run command
-	if err := groupRun[[]Group](ctx, c, cmd, &g); err != nil {
+	if err := localRun[[]Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupList: %s", err)
 	}
 
@@ -83,6 +87,10 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 }
 
 // GroupCreate creates a new local group and returns the Group object.
+//
+// Accepted group parameters:
+//   - Name
+//   - Description
 func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Group, error) {
 
 	// Declare Group object
@@ -107,14 +115,19 @@ func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Grou
 	cmd := strings.Join(cmds, " ")
 
 	// Run command
-	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
+	if err := localRun[Group](ctx, c, cmd, &g); err != nil {
 		return g, fmt.Errorf("windows.local.GroupCreate: %s", err)
 	}
 
 	return g, nil
 }
 
-// GroupUpdate updates a local group. Currently, only the description parameter can be changed.
+// GroupUpdate updates a local group.
+//
+// Accepted group parameters:
+//   - Name
+//   - SID
+//   - Description
 func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error {
 
 	// Satisfy groupType interface
@@ -123,10 +136,6 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
 		return fmt.Errorf("windows.local.GroupUpdate: group parameter 'Name' or 'SID' must be set")
-	}
-
-	if params.Description == "" {
-		return fmt.Errorf("windows.local.GroupUpdate: group parameter 'Description' must be set")
 	}
 
 	// Base command
@@ -144,7 +153,7 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 	cmd := strings.Join(cmds, " ")
 
 	// Run command
-	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
+	if err := localRun[Group](ctx, c, cmd, &g); err != nil {
 		return fmt.Errorf("windows.local.GroupUpdate: %s", err)
 	}
 
@@ -152,6 +161,10 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 }
 
 // GroupDelete removes a local group by SID or Name.
+//
+// Accepted group parameters:
+//   - Name
+//   - SID
 func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error {
 
 	// Satisfy groupType interface
@@ -176,40 +189,8 @@ func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error
 	cmd := strings.Join(cmds, " ")
 
 	// Run command
-	if err := groupRun[Group](ctx, c, cmd, &g); err != nil {
+	if err := localRun[Group](ctx, c, cmd, &g); err != nil {
 		return fmt.Errorf("windows.local.GroupDelete: %s", err)
-	}
-
-	return nil
-}
-
-// groupRun runs a PowerShell command against a Windows system, handles the command results,
-// and unmarshals the output into a Group object or a slice of Group objects.
-func groupRun[T groupType](ctx context.Context, c *LocalClient, cmd string, g *T) error {
-
-	// Run the command
-	result, err := c.Connection.Run(ctx, cmd)
-	if err != nil {
-		return err
-	}
-
-	// Handle stderr
-	if result.StdErr != "" {
-		errXML, err := c.parser.DecodeCLIXML(result.StdErr)
-		if err != nil {
-			return err
-		}
-
-		return errors.New(errXML)
-	}
-
-	if result.StdOut == "" {
-		return nil
-	}
-
-	// Unmarshal stdout
-	if err = json.Unmarshal([]byte(result.StdOut), &g); err != nil {
-		return err
 	}
 
 	return nil

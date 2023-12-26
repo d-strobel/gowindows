@@ -2,6 +2,10 @@
 package local
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
+
 	"github.com/d-strobel/gowindows/connection"
 	"github.com/d-strobel/gowindows/parser"
 )
@@ -10,6 +14,11 @@ import (
 type LocalClient struct {
 	Connection connection.ConnectionInterface
 	parser     parser.ParserInterface
+}
+
+// typeType is an interface for local types.
+type localType interface {
+	Group | []Group | User | []User
 }
 
 // NewLocalClient returns a new instance of the LocalClient.
@@ -22,4 +31,36 @@ func NewLocalClient(conn *connection.Connection, parser *parser.Parser) *LocalCl
 // The Value field contains the actual SID value.
 type SID struct {
 	Value string `json:"Value"`
+}
+
+// localRun runs a PowerShell command against a Windows system, handles the command results,
+// and unmarshals the output into a local object type.
+func localRun[T localType](ctx context.Context, c *LocalClient, cmd string, l *T) error {
+
+	// Run the command
+	result, err := c.Connection.Run(ctx, cmd)
+	if err != nil {
+		return err
+	}
+
+	// Handle stderr
+	if result.StdErr != "" {
+		stderr, err := c.parser.DecodeCLIXML(result.StdErr)
+		if err != nil {
+			return err
+		}
+
+		return errors.New(stderr)
+	}
+
+	if result.StdOut == "" {
+		return nil
+	}
+
+	// Unmarshal stdout
+	if err = json.Unmarshal([]byte(result.StdOut), &l); err != nil {
+		return err
+	}
+
+	return nil
 }

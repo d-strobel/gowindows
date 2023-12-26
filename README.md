@@ -8,7 +8,7 @@
 Go library for configuring Windows-based systems.
 
 ## Overview
-gowindows is designed to simplify the configuration of Windows-based systems by providing a set of functions that interact with Windows.<br>
+**gowindows** is designed to simplify the configuration of Windows-based systems by providing a set of functions that interact with Windows.<br>
 It is particularly useful when used in conjunction with the [terraform-provider-windows](https://github.com/d-strobel/terraform-provider-windows) for managing Windows resources.
 
 ## Usage
@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parser"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
@@ -38,12 +39,18 @@ func main() {
 		WinRM: winRMconfig,
 	}
 
-	// Create client for the local package
-	c, err := local.NewClient(conf)
+	// New connection
+	conn, err := connection.NewConnection(conf)
 	if err != nil {
 		panic(err)
 	}
-	defer c.Close()
+
+	// New parser
+	parser := parser.NewParser()
+
+	// Create client
+	c := local.NewLocalClient(conn, parser)
+	defer c.Connection.Close()
 
 	// Create context
 	ctx, cancel := context.WithCancel(context.Background())
@@ -55,8 +62,8 @@ func main() {
 		panic(err)
 	}
 
-	// Print the users group description
-	fmt.Printf("Users Group Description: %s", group.Description)
+	// Print the user group
+	fmt.Printf("User group: %+v", group)
 }
 ```
 ### Multi Client with an SSH Connection
@@ -104,19 +111,18 @@ func main() {
 		panic(err)
 	}
 
-	// Print the users group description
-	fmt.Printf("Users Group Description: %s", group.Description)
+	// Print the user group
+	fmt.Printf("User group: %+v", group)
 }
 ```
 
 ## Development
 ### Conventional Commits
-gowindows follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
+**gowindows** follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
 
 ### Testing
 ### Unit tests
-Run unit tests without external systems:<br>
-It will download the go dependencies and run the unit tests.
+Run unit tests:
 ```bash
 make test
 ```
