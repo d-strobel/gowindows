@@ -29,25 +29,34 @@ type User struct {
 type UserParams struct {
 	// Specifies the user name for the user account.
 	Name string
+
 	// Specifies a comment for the user account.
 	// The maximum length is 48 characters.
 	Description string
+
 	// Specifies a security ID (SID) of user account.
 	SID string
+
 	// Specifies when the user account expires.
 	// If you don't specify this parameter, the account doesn't expire.
 	AccountExpires time.Time
+
 	// Indicates that the account does not expire.
 	AccountNeverExpires bool
+
 	// Indicates wheter the account is enabled.
 	Enabled bool
+
 	// Specifies the full name for the user account.
 	// The full name differs from the user name of the user account.
 	FullName string
+
 	// Specifies a password for the user account.
 	Password string
+
 	// Indicates whether the new user's password expires.
 	PasswordNeverExpires bool
+
 	// Indicates that the user can change the password on the user account.
 	UserMayChangePassword bool
 }
