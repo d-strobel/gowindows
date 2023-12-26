@@ -15,9 +15,16 @@ type Group struct {
 
 // GroupParams represents parameters for interacting with local groups, including creation, updating, and deletion.
 type GroupParams struct {
-	Name        string
+	// Specifies a name for the group.
+	// The maximum length is 256 characters.
+	Name string
+
+	// Specifies a comment for the group.
+	// The maximum length is 48 characters.
 	Description string
-	SID         string
+
+	// Specifies the security ID (SID) of the security group.
+	SID string
 }
 
 // GroupRead gets a local group by SID or Name and returns a Group object.
