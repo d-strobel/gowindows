@@ -402,3 +402,41 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 		}
 	})
 }
+
+func (suite *LocalUnitTestSuite) TestUserDelete() {
+	suite.Run("should run the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters UserParams
+			expectedCMD     string
+		}{
+			{
+				"assert user with Name",
+				UserParams{Name: "Tester"},
+				"Remove-LocalUser -Name 'Tester'",
+			},
+			{
+				"assert user with SID",
+				UserParams{SID: "S-1000"},
+				"Remove-LocalUser -SID S-1000",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockParser := mockParser.NewMockParserInterface(suite.T())
+			c := &LocalClient{
+				Connection: mockConn,
+				parser:     mockParser,
+			}
+			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			err := c.UserDelete(ctx, tc.inputParameters)
+			suite.Require().NoError(err)
+			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
+		}
+	})
+}
