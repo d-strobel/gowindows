@@ -1,5 +1,4 @@
-// Package gowindows provides a Go library for interacting with Windows-based systems.
-// It is designed to be used in conjunction with a Terraform provider but it's usage can be extended.
+// Package gowindows provides a Go library for interacting remotely with Windows-based systems.
 package gowindows
 
 import (
