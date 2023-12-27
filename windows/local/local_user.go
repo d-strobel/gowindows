@@ -63,7 +63,7 @@ type UserParams struct {
 
 // UserRead gets a local user by SID or Name and returns a User object.
 //
-// Accepted user parameters:
+// Accepted UserParams:
 //   - Name
 //   - SID
 func (c *LocalClient) UserRead(ctx context.Context, params UserParams) (User, error) {
@@ -122,7 +122,7 @@ func (c *LocalClient) UserList(ctx context.Context) ([]User, error) {
 
 // UserCreate creates a local user and returns a User object.
 //
-// Accepted user parameters:
+// Accepted UserParams:
 //   - Name
 //   - Description
 //   - AccountExpires
@@ -197,7 +197,7 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, 
 
 // UserUpdate updates a local user.
 //
-// Accepted user parameters:
+// Accepted UserParams:
 //   - Name
 //   - SID
 //   - Description
@@ -282,7 +282,7 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 
 // UserDelete removes a local user by SID or Name.
 //
-// Accepted user parameters:
+// Accepted UserParams:
 //   - Name
 //   - SID
 func (c *LocalClient) UserDelete(ctx context.Context, params UserParams) error {
