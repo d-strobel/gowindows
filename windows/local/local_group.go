@@ -13,26 +13,17 @@ type Group struct {
 	SID         SID    `json:"SID"`
 }
 
-// GroupParams represents parameters for interacting with local groups, including creation, updating, and deletion.
-type GroupParams struct {
-	// Specifies a name for the group.
-	// The maximum length is 256 characters.
+// GroupReadParams represents parameters for the GroupRead function.
+type GroupReadParams struct {
+	// Specifies the name of the group.
 	Name string
-
-	// Specifies a comment for the group.
-	// The maximum length is 48 characters.
-	Description string
 
 	// Specifies the security ID (SID) of the security group.
 	SID string
 }
 
 // GroupRead gets a local group by SID or Name and returns a Group object.
-//
-// Accepted GroupParams:
-//   - Name
-//   - SID
-func (c *LocalClient) GroupRead(ctx context.Context, params GroupParams) (Group, error) {
+func (c *LocalClient) GroupRead(ctx context.Context, params GroupReadParams) (Group, error) {
 
 	// Declare Group object
 	var g Group
@@ -86,12 +77,19 @@ func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
 	return g, nil
 }
 
+// GroupCreateParams represents parameters for the GroupCreate function.
+type GroupCreateParams struct {
+	// Specifies a name for the group.
+	// The maximum length is 256 characters.
+	Name string
+
+	// Specifies a comment for the group.
+	// The maximum length is 48 characters.
+	Description string
+}
+
 // GroupCreate creates a new local group and returns the Group object.
-//
-// Accepted GroupParams:
-//   - Name
-//   - Description
-func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Group, error) {
+func (c *LocalClient) GroupCreate(ctx context.Context, params GroupCreateParams) (Group, error) {
 
 	// Declare Group object
 	var g Group
@@ -122,13 +120,20 @@ func (c *LocalClient) GroupCreate(ctx context.Context, params GroupParams) (Grou
 	return g, nil
 }
 
+// GroupUpdateParams represents parameters for the GroupUpdate function.
+type GroupUpdateParams struct {
+	// Specifies the name of the group.
+	Name string
+
+	// Specifies a comment for the group.
+	Description string
+
+	// Specifies the security ID (SID) of the security group.
+	SID string
+}
+
 // GroupUpdate updates a local group.
-//
-// Accepted GroupParams:
-//   - Name
-//   - SID
-//   - Description
-func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error {
+func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupUpdateParams) error {
 
 	// Satisfy groupType interface
 	var g Group
@@ -160,12 +165,17 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupParams) error
 	return nil
 }
 
+// GroupDeleteParams represents parameters for the GroupDelete function.
+type GroupDeleteParams struct {
+	// Specifies the name of the group.
+	Name string
+
+	// Specifies the security ID (SID) of the security group.
+	SID string
+}
+
 // GroupDelete removes a local group by SID or Name.
-//
-// Accepted GroupParams:
-//   - Name
-//   - SID
-func (c *LocalClient) GroupDelete(ctx context.Context, params GroupParams) error {
+func (c *LocalClient) GroupDelete(ctx context.Context, params GroupDeleteParams) error {
 
 	// Satisfy groupType interface
 	var g Group
