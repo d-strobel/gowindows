@@ -1,13 +1,15 @@
+# gowindows
 <!-- Badges -->
 [![Build][build badge]][build page]
 [![GoDoc][godoc badge]][godoc page]
 [![GoReport][goreport badge]][goreport page]
 [![Conventional Commits][convention badge]][convention page]
 
-# gowindows
-**gowindows** is a Go library designed for remotely configuring and managing Windows-based systems.
+![logo](images/logo/gowindows-icon_250.png)
 
 ## Overview
+**gowindows** is a Go library designed for remotely configuring and managing Windows-based systems.
+
 Leveraging WinRM and SSH connections, gowindows provides a comprehensive set of functions to execute PowerShell commands, making it easy to automate tasks, manage users, groups, and more on remote Windows servers.
 
 This library is especially useful when combined with tools like Terraform, enabling seamless integration into infrastructure as code workflows for Windows environments.
