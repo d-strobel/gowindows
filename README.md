@@ -60,7 +60,7 @@ func main() {
 	defer cancel()
 
 	// Run the GroupRead function to retrieve a local Windows group
-	group, err := c.GroupRead(ctx, local.GroupParams{Name: "Users"})
+	group, err := c.GroupRead(ctx, local.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
@@ -109,7 +109,7 @@ func main() {
 	defer cancel()
 
 	// Run the GroupRead function to retrieve a local Windows group
-	group, err := c.Local.GroupRead(ctx, local.GroupParams{Name: "Users"})
+	group, err := c.Local.GroupRead(ctx, local.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
