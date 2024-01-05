@@ -57,7 +57,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: groupMemberRead,
 		}, nil)
-		actualGroupMemberRead, err := c.GroupMemberRead(ctx, GroupMemberParams{Name: "Administrators", Member: "Administrator"})
+		actualGroupMemberRead, err := c.GroupMemberRead(ctx, GroupMemberReadParams{Name: "Administrators", Member: "Administrator"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -67,22 +67,22 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupMemberParams
+			inputParameters GroupMemberReadParams
 			expectedCMD     string
 		}{
 			{
 				"assert user by name",
-				GroupMemberParams{Name: "Administrators", Member: "Administrator"},
+				GroupMemberReadParams{Name: "Administrators", Member: "Administrator"},
 				"Get-LocalGroupMember -Name 'Administrators' -Member 'Administrator' | ConvertTo-Json -Compress",
 			},
 			{
 				"assert users by sid",
-				GroupMemberParams{SID: "123456789", Member: "Test"},
+				GroupMemberReadParams{SID: "123456789", Member: "Test"},
 				"Get-LocalGroupMember -SID 123456789 -Member 'Test' | ConvertTo-Json -Compress",
 			},
 			{
 				"assert users by name and sid",
-				GroupMemberParams{Name: "Users", SID: "123456789", Member: "Test"},
+				GroupMemberReadParams{Name: "Users", SID: "123456789", Member: "Test"},
 				"Get-LocalGroupMember -SID 123456789 -Member 'Test' | ConvertTo-Json -Compress",
 			},
 		}
@@ -108,17 +108,17 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 	suite.Run("should return specific errors", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupMemberParams
+			inputParameters GroupMemberReadParams
 			expectedErr     string
 		}{
 			{
 				"assert error with empty parameters",
-				GroupMemberParams{},
+				GroupMemberReadParams{},
 				"windows.local.GroupMemberRead: group member parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert no member",
-				GroupMemberParams{Name: "Administrators"},
+				GroupMemberReadParams{Name: "Administrators"},
 				"windows.local.GroupMemberRead: group member parameter 'Member' must be set",
 			},
 		}
@@ -151,7 +151,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 		}
 		expectedCMD := "Get-LocalGroupMember -Name 'Administrator' -Member 'Test' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		_, err := c.GroupMemberRead(ctx, GroupMemberParams{Name: "Administrator", Member: "Test"})
+		_, err := c.GroupMemberRead(ctx, GroupMemberReadParams{Name: "Administrator", Member: "Test"})
 		suite.EqualError(err, "windows.local.GroupMemberRead: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -173,7 +173,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberList() {
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: groupMemberList,
 		}, nil)
-		actualGroupMemberList, err := c.GroupMemberList(ctx, GroupMemberParams{Name: "Administrators"})
+		actualGroupMemberList, err := c.GroupMemberList(ctx, GroupMemberListParams{Name: "Administrators"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -191,7 +191,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberList() {
 		}
 		expectedCMD := "$gm=Get-LocalGroupMember -Name 'Administrators' ;if($gm.Count -eq 1){ConvertTo-Json @($gm) -Compress}else{ConvertTo-Json $gm -Compress}"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		_, err := c.GroupMemberList(ctx, GroupMemberParams{Name: "Administrators"})
+		_, err := c.GroupMemberList(ctx, GroupMemberListParams{Name: "Administrators"})
 		suite.EqualError(err, "windows.local.GroupMemberList: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -202,17 +202,17 @@ func (suite *LocalUnitTestSuite) TestGroupMemberCreate() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupMemberParams
+			inputParameters GroupMemberCreateParams
 			expectedCMD     string
 		}{
 			{
 				"assert user with Name + Member",
-				GroupMemberParams{Name: "Administrators", Member: "TestUser"},
+				GroupMemberCreateParams{Name: "Administrators", Member: "TestUser"},
 				"Add-LocalGroupMember -Name 'Administrators' -Member 'TestUser'",
 			},
 			{
 				"assert user with Name + SID + Member",
-				GroupMemberParams{Name: "Administrators", SID: "123456", Member: "TestUser"},
+				GroupMemberCreateParams{Name: "Administrators", SID: "123456", Member: "TestUser"},
 				"Add-LocalGroupMember -SID 123456 -Member 'TestUser'",
 			},
 		}
@@ -240,17 +240,17 @@ func (suite *LocalUnitTestSuite) TestGroupMemberDelete() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupMemberParams
+			inputParameters GroupMemberDeleteParams
 			expectedCMD     string
 		}{
 			{
 				"assert user with Name",
-				GroupMemberParams{Name: "Administrators", Member: "TestUser"},
+				GroupMemberDeleteParams{Name: "Administrators", Member: "TestUser"},
 				"Remove-LocalGroupMember -Name 'Administrators' -Member 'TestUser'",
 			},
 			{
 				"assert user with Name + SID + Member",
-				GroupMemberParams{Name: "Administrators", SID: "123456", Member: "TestUser"},
+				GroupMemberDeleteParams{Name: "Administrators", SID: "123456", Member: "TestUser"},
 				"Remove-LocalGroupMember -SID 123456 -Member 'TestUser'",
 			},
 		}
