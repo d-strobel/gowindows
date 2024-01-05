@@ -13,7 +13,7 @@ type GroupMember struct {
 	ObjectClass string `json:"ObjectClass"`
 }
 
-// GroupMemberReadParams contains the parameters required for the GroupMemberRead function.
+// GroupMemberReadParams represent parameters for the GroupMemberRead function.
 type GroupMemberReadParams struct {
 	Name   string
 	SID    string
@@ -57,7 +57,7 @@ func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberRea
 	return gm, nil
 }
 
-// GroupMemberListParams contains the parameters required for the GroupMemberList function.
+// GroupMemberListParams represent parameters for the GroupMemberList function.
 type GroupMemberListParams struct {
 	Name string
 	SID  string
@@ -96,7 +96,7 @@ func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberLis
 	return gm, nil
 }
 
-// GroupMemberCreateParams contains the parameters required for the GroupMemberCreate function.
+// GroupMemberCreateParams represent parameters for the GroupMemberCreate function.
 type GroupMemberCreateParams struct {
 	Name   string
 	SID    string
@@ -139,7 +139,7 @@ func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberC
 	return nil
 }
 
-// GroupMemberDeleteParams contains the parameters required for the GroupMemberDelete function.
+// GroupMemberDeleteParams represent parameters for the GroupMemberDelete function.
 type GroupMemberDeleteParams struct {
 	Name   string
 	SID    string
