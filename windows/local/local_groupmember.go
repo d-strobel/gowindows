@@ -15,8 +15,13 @@ type GroupMember struct {
 
 // GroupMemberReadParams represent parameters for the GroupMemberRead function.
 type GroupMemberReadParams struct {
-	Name   string
-	SID    string
+	// Specifies the name of the security group.
+	Name string
+
+	// Specifies the security ID of the security group.
+	SID string
+
+	// Specifies a user or group of the security group.
 	Member string
 }
 
@@ -59,8 +64,11 @@ func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberRea
 
 // GroupMemberListParams represent parameters for the GroupMemberList function.
 type GroupMemberListParams struct {
+	// Specifies the name of the security group.
 	Name string
-	SID  string
+
+	// Specifies the security ID of the security group.
+	SID string
 }
 
 // GroupMemberList returns a list of members for a specific local Windows group.
@@ -98,8 +106,13 @@ func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberLis
 
 // GroupMemberCreateParams represent parameters for the GroupMemberCreate function.
 type GroupMemberCreateParams struct {
-	Name   string
-	SID    string
+	// Specifies the name of the security group.
+	Name string
+
+	// Specifies the security ID of the security group.
+	SID string
+
+	// Specifies a new user or group for the security group.
 	Member string
 }
 
@@ -141,8 +154,13 @@ func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberC
 
 // GroupMemberDeleteParams represent parameters for the GroupMemberDelete function.
 type GroupMemberDeleteParams struct {
-	Name   string
-	SID    string
+	// Specifies the name of the security group.
+	Name string
+
+	// Specifies the security ID of the security group.
+	SID string
+
+	// Specifies a user or group of the security group.
 	Member string
 }
 
