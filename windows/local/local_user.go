@@ -25,48 +25,17 @@ type User struct {
 	SID                    SID            `json:"SID"`
 }
 
-// UserParams represents parameters for interacting with local users, including creation, updating, and deletion.
-type UserParams struct {
-	// Specifies the user name for the user account.
+// UserReadParams represents parameters for the UserRead function.
+type UserReadParams struct {
+	// Specifies the user name of the user account.
 	Name string
-
-	// Specifies a comment for the user account.
-	// The maximum length is 48 characters.
-	Description string
 
 	// Specifies a security ID (SID) of user account.
 	SID string
-
-	// Specifies when the user account expires.
-	// If you don't specify this parameter, the account doesn't expire.
-	AccountExpires time.Time
-
-	// Indicates that the account does not expire.
-	AccountNeverExpires bool
-
-	// Indicates wheter the account is enabled.
-	Enabled bool
-
-	// Specifies the full name for the user account.
-	// The full name differs from the user name of the user account.
-	FullName string
-
-	// Specifies a password for the user account.
-	Password string
-
-	// Indicates whether the new user's password expires.
-	PasswordNeverExpires bool
-
-	// Indicates that the user can change the password on the user account.
-	UserMayChangePassword bool
 }
 
 // UserRead gets a local user by SID or Name and returns a User object.
-//
-// Accepted UserParams:
-//   - Name
-//   - SID
-func (c *LocalClient) UserRead(ctx context.Context, params UserParams) (User, error) {
+func (c *LocalClient) UserRead(ctx context.Context, params UserReadParams) (User, error) {
 
 	// Declare User object
 	var u User
@@ -120,18 +89,38 @@ func (c *LocalClient) UserList(ctx context.Context) ([]User, error) {
 	return u, nil
 }
 
+// UserCreateParams represents parameters for the UserCreate function.
+type UserCreateParams struct {
+	// Specifies the user name for the user account.
+	Name string
+
+	// Specifies a comment for the user account.
+	// The maximum length is 48 characters.
+	Description string
+
+	// Specifies when the user account expires.
+	// If you don't specify this parameter, the account doesn't expire.
+	AccountExpires time.Time
+
+	// Indicates wheter the account is enabled.
+	Enabled bool
+
+	// Specifies the full name for the user account.
+	// The full name differs from the user name of the user account.
+	FullName string
+
+	// Specifies a password for the user account.
+	Password string
+
+	// Indicates whether the new user's password expires.
+	PasswordNeverExpires bool
+
+	// Indicates that the user can change the password on the user account.
+	UserMayChangePassword bool
+}
+
 // UserCreate creates a local user and returns a User object.
-//
-// Accepted UserParams:
-//   - Name
-//   - Description
-//   - AccountExpires
-//   - Enabled
-//   - FullName
-//   - Password
-//   - PasswordNeverExpires
-//   - UserMayChangePassword
-func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, error) {
+func (c *LocalClient) UserCreate(ctx context.Context, params UserCreateParams) (User, error) {
 
 	// Declare User object
 	var u User
@@ -174,9 +163,7 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, 
 		cmds = append(cmds, "-NoPassword")
 	}
 
-	if params.PasswordNeverExpires {
-		cmds = append(cmds, "-PasswordNeverExpires")
-	}
+	cmds = append(cmds, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
 
 	if params.UserMayChangePassword {
 		cmds = append(cmds, "-UserMayNotChangePassword:$false")
@@ -195,20 +182,41 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserParams) (User, 
 	return u, nil
 }
 
+// UserUpdateParams represents parameters for the UserUpdate function.
+type UserUpdateParams struct {
+	// Specifies the user name for the user account.
+	Name string
+
+	// Specifies a comment for the user account.
+	// The maximum length is 48 characters.
+	Description string
+
+	// Specifies a security ID (SID) of user account.
+	SID string
+
+	// Specifies when the user account expires.
+	// If you don't specify this parameter, the account doesn't expire.
+	AccountExpires time.Time
+
+	// Indicates whether the account is enabled.
+	Enabled bool
+
+	// Specifies the full name for the user account.
+	// The full name differs from the user name of the user account.
+	FullName string
+
+	// Specifies a password for the user account.
+	Password string
+
+	// Indicates whether the new user's password expires.
+	PasswordNeverExpires bool
+
+	// Indicates that the user can change the password on the user account.
+	UserMayChangePassword bool
+}
+
 // UserUpdate updates a local user.
-//
-// Accepted UserParams:
-//   - Name
-//   - SID
-//   - Description
-//   - AccountExpires
-//   - AccountNeverExpires
-//   - Enabled
-//   - FullName
-//   - Password
-//   - PasswordNeverExpires
-//   - UserMayChangePassword
-func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
+func (c *LocalClient) UserUpdate(ctx context.Context, params UserUpdateParams) error {
 
 	// Satisfy localType interface
 	var u User
@@ -216,11 +224,6 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
 		return fmt.Errorf("windows.local.UserUpdate: user parameter 'Name' or 'SID' must be set")
-	}
-
-	// Assert parameters cannot be set together
-	if params.AccountExpires.Compare(time.Now()) == 1 && params.AccountNeverExpires {
-		return fmt.Errorf("windows.local.UserUpdate: user parameter 'AccountExpires' and 'AccountNeverExpires' cannot be set together")
 	}
 
 	// Base command
@@ -234,7 +237,7 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 	}
 
 	// Add parameters
-	// Prefer SID over Name to identifiy group
+	// Prefer SID over Name to identify group
 	if params.SID != "" {
 		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
 		cmds2 = append(cmds2, fmt.Sprintf("-SID %s", params.SID))
@@ -246,9 +249,7 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 	if params.AccountExpires.Compare(time.Now()) == 1 {
 		accountExpires := params.AccountExpires.Format(time.DateTime)
 		cmds = append(cmds, fmt.Sprintf("-AccountExpires $(Get-Date '%s')", accountExpires))
-	}
-
-	if params.AccountNeverExpires {
+	} else {
 		cmds = append(cmds, "-AccountNeverExpires")
 	}
 
@@ -260,13 +261,8 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 		cmds = append(cmds, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))
 	}
 
-	if params.PasswordNeverExpires {
-		cmds = append(cmds, "-PasswordNeverExpires")
-	}
-
-	if params.UserMayChangePassword {
-		cmds = append(cmds, "-UserMayChangePassword")
-	}
+	cmds = append(cmds, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
+	cmds = append(cmds, fmt.Sprintf("-UserMayChangePassword:$%t", params.UserMayChangePassword))
 
 	// Append second command with a semicolon
 	cmds = append(cmds, fmt.Sprintf(";%s", strings.Join(cmds2, " ")))
@@ -280,12 +276,17 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserParams) error {
 	return nil
 }
 
+// UserDeleteParams represents parameters for the UserDelete function.
+type UserDeleteParams struct {
+	// Specifies the user name of the user account.
+	Name string
+
+	// Specifies a security ID (SID) of user account.
+	SID string
+}
+
 // UserDelete removes a local user by SID or Name.
-//
-// Accepted UserParams:
-//   - Name
-//   - SID
-func (c *LocalClient) UserDelete(ctx context.Context, params UserParams) error {
+func (c *LocalClient) UserDelete(ctx context.Context, params UserDeleteParams) error {
 
 	// Satisfy localType interface
 	var u User

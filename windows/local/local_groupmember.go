@@ -13,20 +13,20 @@ type GroupMember struct {
 	ObjectClass string `json:"ObjectClass"`
 }
 
-// GroupMemberParams contains the parameters required for working with local Windows group members.
-type GroupMemberParams struct {
-	Name   string
-	SID    string
+// GroupMemberReadParams represent parameters for the GroupMemberRead function.
+type GroupMemberReadParams struct {
+	// Specifies the name of the security group.
+	Name string
+
+	// Specifies the security ID of the security group.
+	SID string
+
+	// Specifies a user or group of the security group.
 	Member string
 }
 
 // GroupMemberRead retrieves information about a specific member in a local Windows group.
-//
-// Accepted GroupMemberParams:
-//   - Name
-//   - SID
-//   - Member
-func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberParams) (GroupMember, error) {
+func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberReadParams) (GroupMember, error) {
 	// Declare GroupMember
 	var gm GroupMember
 
@@ -62,12 +62,17 @@ func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberPar
 	return gm, nil
 }
 
+// GroupMemberListParams represent parameters for the GroupMemberList function.
+type GroupMemberListParams struct {
+	// Specifies the name of the security group.
+	Name string
+
+	// Specifies the security ID of the security group.
+	SID string
+}
+
 // GroupMemberList returns a list of members for a specific local Windows group.
-//
-// Accepted GroupMemberParams:
-//   - Name
-//   - SID
-func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberParams) ([]GroupMember, error) {
+func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberListParams) ([]GroupMember, error) {
 	// Declare slice of GroupMember
 	var gm []GroupMember
 
@@ -99,13 +104,20 @@ func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberPar
 	return gm, nil
 }
 
+// GroupMemberCreateParams represent parameters for the GroupMemberCreate function.
+type GroupMemberCreateParams struct {
+	// Specifies the name of the security group.
+	Name string
+
+	// Specifies the security ID of the security group.
+	SID string
+
+	// Specifies a new user or group for the security group.
+	Member string
+}
+
 // GroupMemberCreate adds a new member to a local Windows group.
-//
-// Accepted GroupMemberParams:
-//   - Name
-//   - SID
-//   - Member
-func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberParams) error {
+func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberCreateParams) error {
 	// Satisfy the localType interface
 	var gm GroupMember
 
@@ -140,13 +152,20 @@ func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberP
 	return nil
 }
 
+// GroupMemberDeleteParams represent parameters for the GroupMemberDelete function.
+type GroupMemberDeleteParams struct {
+	// Specifies the name of the security group.
+	Name string
+
+	// Specifies the security ID of the security group.
+	SID string
+
+	// Specifies a user or group of the security group.
+	Member string
+}
+
 // GroupMemberDelete removes a member from a local Windows group.
-//
-// Accepted GroupMemberParams:
-//   - Name
-//   - SID
-//   - Member
-func (c *LocalClient) GroupMemberDelete(ctx context.Context, params GroupMemberParams) error {
+func (c *LocalClient) GroupMemberDelete(ctx context.Context, params GroupMemberDeleteParams) error {
 	// Satisfy the localType interface
 	var gm GroupMember
 

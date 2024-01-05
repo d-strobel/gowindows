@@ -65,7 +65,7 @@ func (suite *LocalUnitTestSuite) TestGroupRead() {
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: usersGroup,
 		}, nil)
-		actualUsersGroup, err := c.GroupRead(ctx, GroupParams{Name: "Users"})
+		actualUsersGroup, err := c.GroupRead(ctx, GroupReadParams{Name: "Users"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -75,22 +75,22 @@ func (suite *LocalUnitTestSuite) TestGroupRead() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters GroupReadParams
 			expectedCMD     string
 		}{
 			{
 				"assert users group by name",
-				GroupParams{Name: "Users"},
+				GroupReadParams{Name: "Users"},
 				"Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress",
 			},
 			{
 				"assert users group by sid",
-				GroupParams{SID: "123456789"},
+				GroupReadParams{SID: "123456789"},
 				"Get-LocalGroup -SID 123456789 | ConvertTo-Json -Compress",
 			},
 			{
 				"assert users group by name and sid",
-				GroupParams{Name: "Users", SID: "123456789"},
+				GroupReadParams{Name: "Users", SID: "123456789"},
 				"Get-LocalGroup -SID 123456789 | ConvertTo-Json -Compress",
 			},
 		}
@@ -116,22 +116,17 @@ func (suite *LocalUnitTestSuite) TestGroupRead() {
 	suite.Run("should return specific errors", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters GroupReadParams
 			expectedErr     string
 		}{
 			{
 				"assert error with empty parameters",
-				GroupParams{},
-				"windows.local.GroupRead: group parameter 'Name' or 'SID' must be set",
-			},
-			{
-				"assert error with just the description parameter",
-				GroupParams{Description: "test"},
+				GroupReadParams{},
 				"windows.local.GroupRead: group parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error when name contains wildcard",
-				GroupParams{Name: "Remote*"},
+				GroupReadParams{Name: "Remote*"},
 				"windows.local.GroupRead: group parameter 'Name' does not allow wildcards",
 			},
 		}
@@ -164,7 +159,7 @@ func (suite *LocalUnitTestSuite) TestGroupRead() {
 		}
 		expectedCMD := "Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		_, err := c.GroupRead(ctx, GroupParams{Name: "Users"})
+		_, err := c.GroupRead(ctx, GroupReadParams{Name: "Users"})
 		suite.EqualError(err, "windows.local.GroupRead: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -226,7 +221,7 @@ func (suite *LocalUnitTestSuite) TestGroupCreate() {
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: testGroup,
 		}, nil)
-		actualTestGroup, err := c.GroupCreate(ctx, GroupParams{Name: "Test", Description: "Test group"})
+		actualTestGroup, err := c.GroupCreate(ctx, GroupCreateParams{Name: "Test", Description: "Test group"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -236,17 +231,17 @@ func (suite *LocalUnitTestSuite) TestGroupCreate() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters GroupCreateParams
 			expectedCMD     string
 		}{
 			{
 				"assert without description parameter",
-				GroupParams{Name: "Test"},
+				GroupCreateParams{Name: "Test"},
 				"New-LocalGroup -Name 'Test' | ConvertTo-Json -Compress",
 			},
 			{
 				"assert with name and description parameter",
-				GroupParams{Name: "Test", Description: "Test group"},
+				GroupCreateParams{Name: "Test", Description: "Test group"},
 				"New-LocalGroup -Name 'Test' -Description 'Test group' | ConvertTo-Json -Compress",
 			},
 		}
@@ -280,7 +275,7 @@ func (suite *LocalUnitTestSuite) TestGroupCreate() {
 		}
 		expectedCMD := "New-LocalGroup -Name 'Test' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		_, err := c.GroupCreate(ctx, GroupParams{Name: "Test"})
+		_, err := c.GroupCreate(ctx, GroupCreateParams{Name: "Test"})
 		suite.EqualError(err, "windows.local.GroupCreate: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -292,27 +287,27 @@ func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters GroupUpdateParams
 			expectedCMD     string
 		}{
 			{
 				"assert with Name and Desctiption parameter",
-				GroupParams{Name: "Test", Description: "Testing"},
+				GroupUpdateParams{Name: "Test", Description: "Testing"},
 				"Set-LocalGroup -Name 'Test' -Description 'Testing'",
 			},
 			{
 				"assert with SID and Desctiption parameter",
-				GroupParams{SID: "S-12345", Description: "Testing"},
+				GroupUpdateParams{SID: "S-12345", Description: "Testing"},
 				"Set-LocalGroup -SID S-12345 -Description 'Testing'",
 			},
 			{
 				"assert with Name, SID and Desctiption parameter",
-				GroupParams{Name: "Test", SID: "S-12345", Description: "Testing"},
+				GroupUpdateParams{Name: "Test", SID: "S-12345", Description: "Testing"},
 				"Set-LocalGroup -SID S-12345 -Description 'Testing'",
 			},
 			{
 				"assert with Name parameter",
-				GroupParams{Name: "Test"},
+				GroupUpdateParams{Name: "Test"},
 				"Set-LocalGroup -Name 'Test' -Description ''",
 			},
 		}
@@ -338,17 +333,17 @@ func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 	suite.Run("should return specific errors", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters GroupUpdateParams
 			expectedErr     string
 		}{
 			{
 				"assert error with empty parameters",
-				GroupParams{},
+				GroupUpdateParams{},
 				"windows.local.GroupUpdate: group parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error with just the description parameter",
-				GroupParams{Description: "test"},
+				GroupUpdateParams{Description: "test"},
 				"windows.local.GroupUpdate: group parameter 'Name' or 'SID' must be set",
 			},
 		}
@@ -381,7 +376,7 @@ func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 		}
 		expectedCMD := "Set-LocalGroup -Name 'Test' -Description 'Test'"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		err := c.GroupUpdate(ctx, GroupParams{Name: "Test", Description: "Test"})
+		err := c.GroupUpdate(ctx, GroupUpdateParams{Name: "Test", Description: "Test"})
 		suite.EqualError(err, "windows.local.GroupUpdate: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -393,22 +388,22 @@ func (suite *LocalUnitTestSuite) TestGroupDelete() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters GroupDeleteParams
 			expectedCMD     string
 		}{
 			{
 				"assert with Name parameter",
-				GroupParams{Name: "Test"},
+				GroupDeleteParams{Name: "Test"},
 				"Remove-LocalGroup -Name 'Test'",
 			},
 			{
 				"assert with SID parameter",
-				GroupParams{SID: "S-12345"},
+				GroupDeleteParams{SID: "S-12345"},
 				"Remove-LocalGroup -SID S-12345",
 			},
 			{
 				"assert with Name and SID parameter",
-				GroupParams{Name: "Test", SID: "S-12345"},
+				GroupDeleteParams{Name: "Test", SID: "S-12345"},
 				"Remove-LocalGroup -SID S-12345",
 			},
 		}
@@ -434,17 +429,12 @@ func (suite *LocalUnitTestSuite) TestGroupDelete() {
 	suite.Run("should return specific errors", func() {
 		tcs := []struct {
 			description     string
-			inputParameters GroupParams
+			inputParameters GroupDeleteParams
 			expectedErr     string
 		}{
 			{
 				"assert error with empty parameters",
-				GroupParams{},
-				"windows.local.GroupDelete: group parameter 'Name' or 'SID' must be set",
-			},
-			{
-				"assert error with just the description parameter",
-				GroupParams{Description: "test"},
+				GroupDeleteParams{},
 				"windows.local.GroupDelete: group parameter 'Name' or 'SID' must be set",
 			},
 		}
@@ -477,7 +467,7 @@ func (suite *LocalUnitTestSuite) TestGroupDelete() {
 		}
 		expectedCMD := "Remove-LocalGroup -Name 'Test'"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		err := c.GroupDelete(ctx, GroupParams{Name: "Test"})
+		err := c.GroupDelete(ctx, GroupDeleteParams{Name: "Test"})
 		suite.EqualError(err, "windows.local.GroupDelete: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")

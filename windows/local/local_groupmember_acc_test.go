@@ -18,7 +18,7 @@ func (suite *LocalAccTestSuite) TestGroupMember1Read() {
 	defer cancel()
 
 	for _, c := range suite.clients {
-		params := local.GroupMemberParams{
+		params := local.GroupMemberReadParams{
 			Name:   "Administrators",
 			Member: "Administrator",
 		}
@@ -39,7 +39,7 @@ func (suite *LocalAccTestSuite) TestGroupMember2List() {
 	defer cancel()
 
 	for _, c := range suite.clients {
-		u, err := c.GroupMemberList(ctx, local.GroupMemberParams{
+		u, err := c.GroupMemberList(ctx, local.GroupMemberListParams{
 			Name: "Administrators",
 		})
 		suite.Require().NoError(err)
@@ -65,7 +65,7 @@ func (suite *LocalAccTestSuite) TestGroupMember3Create() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.GroupMemberParams{
+		params := local.GroupMemberCreateParams{
 			Name:   "Administrators",
 			Member: groupMemberTestCases[i],
 		}
@@ -74,12 +74,12 @@ func (suite *LocalAccTestSuite) TestGroupMember3Create() {
 	}
 }
 
-func (suite *LocalAccTestSuite) TestGroupMember4Remove() {
+func (suite *LocalAccTestSuite) TestGroupMember4Delete() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.GroupMemberParams{
+		params := local.GroupMemberDeleteParams{
 			Name:   "Administrators",
 			Member: groupMemberTestCases[i],
 		}

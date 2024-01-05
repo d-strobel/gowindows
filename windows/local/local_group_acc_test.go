@@ -14,7 +14,7 @@ func (suite *LocalAccTestSuite) TestGroup1Read() {
 	defer cancel()
 
 	for _, c := range suite.clients {
-		params := local.GroupParams{
+		params := local.GroupReadParams{
 			Name: "Users",
 		}
 		g, err := c.GroupRead(ctx, params)
@@ -58,7 +58,7 @@ func (suite *LocalAccTestSuite) TestGroup3Create() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.GroupParams{
+		params := local.GroupCreateParams{
 			Name:        fmt.Sprintf("Test-Group-%d", i),
 			Description: "This is a test group",
 		}
@@ -74,7 +74,7 @@ func (suite *LocalAccTestSuite) TestGroup4Update() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.GroupParams{
+		params := local.GroupUpdateParams{
 			Name:        fmt.Sprintf("Test-Group-%d", i),
 			Description: "This is a test group updated",
 		}
@@ -88,7 +88,7 @@ func (suite *LocalAccTestSuite) TestGroup5Delete() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.GroupParams{
+		params := local.GroupDeleteParams{
 			Name: fmt.Sprintf("Test-Group-%d", i),
 		}
 		err := c.GroupDelete(ctx, params)
