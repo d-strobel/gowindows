@@ -103,7 +103,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: adminUser,
 		}, nil)
-		actualAdminUser, err := c.UserRead(ctx, UserParams{Name: "Administrator"})
+		actualAdminUser, err := c.UserRead(ctx, UserReadParams{Name: "Administrator"})
 		suite.Require().NoError(err)
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -113,22 +113,22 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters UserParams
+			inputParameters UserReadParams
 			expectedCMD     string
 		}{
 			{
 				"assert user by name",
-				UserParams{Name: "Administrator"},
+				UserReadParams{Name: "Administrator"},
 				"Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress",
 			},
 			{
 				"assert users by sid",
-				UserParams{SID: "123456789"},
+				UserReadParams{SID: "123456789"},
 				"Get-LocalUser -SID 123456789 | ConvertTo-Json -Compress",
 			},
 			{
 				"assert users by name and sid",
-				UserParams{Name: "Users", SID: "123456789"},
+				UserReadParams{Name: "Users", SID: "123456789"},
 				"Get-LocalUser -SID 123456789 | ConvertTo-Json -Compress",
 			},
 		}
@@ -154,22 +154,17 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 	suite.Run("should return specific errors", func() {
 		tcs := []struct {
 			description     string
-			inputParameters UserParams
+			inputParameters UserReadParams
 			expectedErr     string
 		}{
 			{
 				"assert error with empty parameters",
-				UserParams{},
-				"windows.local.UserRead: user parameter 'Name' or 'SID' must be set",
-			},
-			{
-				"assert error with just the description parameter",
-				UserParams{Description: "test"},
+				UserReadParams{},
 				"windows.local.UserRead: user parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error when name contains wildcard",
-				UserParams{Name: "Remote*"},
+				UserReadParams{Name: "Remote*"},
 				"windows.local.UserRead: user parameter 'Name' does not allow wildcards",
 			},
 		}
@@ -202,7 +197,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 		}
 		expectedCMD := "Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
-		_, err := c.UserRead(ctx, UserParams{Name: "Administrator"})
+		_, err := c.UserRead(ctx, UserReadParams{Name: "Administrator"})
 		suite.EqualError(err, "windows.local.UserRead: test-error")
 		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
@@ -260,11 +255,11 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			Connection: mockConn,
 			parser:     mockParser,
 		}
-		expectedCMD := "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -UserMayNotChangePassword:$false | ConvertTo-Json -Compress"
+		expectedCMD := "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword:$false | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: testUser,
 		}, nil)
-		actualTestUser, err := c.UserCreate(ctx, UserParams{
+		actualTestUser, err := c.UserCreate(ctx, UserCreateParams{
 			Name:                  "Test-User",
 			Description:           "This is a test user",
 			FullName:              "Full-Test-User",
@@ -281,43 +276,43 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters UserParams
+			inputParameters UserCreateParams
 			expectedCMD     string
 		}{
 			{
 				"assert user with Name",
-				UserParams{Name: "Tester"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester"},
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Description",
-				UserParams{Name: "Tester", Description: "This is a test user"},
-				"New-LocalUser -Name 'Tester' -Description 'This is a test user' -AccountNeverExpires -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", Description: "This is a test user"},
+				"New-LocalUser -Name 'Tester' -Description 'This is a test user' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + AccountExpires",
-				UserParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
+				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Disabled -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Enabled",
-				UserParams{Name: "Tester", Enabled: true},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled:$false -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", Enabled: true},
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled:$false -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + FullName",
-				UserParams{Name: "Tester", FullName: "Tester1"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -FullName 'Tester1' -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", FullName: "Tester1"},
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -FullName 'Tester1' -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Password",
-				UserParams{Name: "Tester", Password: "Start123!!!"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", Password: "Start123!!!"},
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + PasswordNeverExpires + UserMayNotChangePassword",
-				UserParams{Name: "Tester", PasswordNeverExpires: true, UserMayChangePassword: true},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires -UserMayNotChangePassword:$false | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", PasswordNeverExpires: true, UserMayChangePassword: true},
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires:$true -UserMayNotChangePassword:$false | ConvertTo-Json -Compress",
 			},
 		}
 
@@ -344,43 +339,38 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters UserParams
+			inputParameters UserUpdateParams
 			expectedCMD     string
 		}{
 			{
 				"assert user with Name",
-				UserParams{Name: "Tester"},
-				"Set-LocalUser -Name 'Tester' -Description '' -FullName '' ;Disable-LocalUser -Name 'Tester'",
+				UserUpdateParams{Name: "Tester"},
+				"Set-LocalUser -Name 'Tester' -AccountNeverExpires -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + Enabled",
-				UserParams{Name: "Tester", Enabled: true},
-				"Set-LocalUser -Name 'Tester' -Description '' -FullName '' ;Enable-LocalUser -Name 'Tester'",
+				UserUpdateParams{Name: "Tester", Enabled: true},
+				"Set-LocalUser -Name 'Tester' -AccountNeverExpires -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Enable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with SID + Enabled",
-				UserParams{SID: "S-1000", Enabled: true},
-				"Set-LocalUser -SID S-1000 -Description '' -FullName '' ;Enable-LocalUser -SID S-1000",
+				UserUpdateParams{SID: "S-1000", Enabled: true},
+				"Set-LocalUser -SID S-1000 -AccountNeverExpires -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Enable-LocalUser -SID S-1000",
 			},
 			{
 				"assert user with Name + AccountExpires",
-				UserParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Description '' -FullName '' ;Disable-LocalUser -Name 'Tester'",
-			},
-			{
-				"assert user with Name + AccountNeverExpires",
-				UserParams{Name: "Tester", AccountNeverExpires: true},
-				"Set-LocalUser -Name 'Tester' -AccountNeverExpires -Description '' -FullName '' ;Disable-LocalUser -Name 'Tester'",
+				UserUpdateParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
+				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + Description + FullName",
-				UserParams{Name: "Tester", Description: "test-description", FullName: "Full-Tester"},
-				"Set-LocalUser -Name 'Tester' -Description 'test-description' -FullName 'Full-Tester' ;Disable-LocalUser -Name 'Tester'",
+				UserUpdateParams{Name: "Tester", Description: "test-description", FullName: "Full-Tester"},
+				"Set-LocalUser -Name 'Tester' -AccountNeverExpires -Description 'test-description' -FullName 'Full-Tester' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + Password + PasswordNeverExpires + UserMayChangePassword",
-				UserParams{Name: "Tester", Password: "Start123!!!", PasswordNeverExpires: true, UserMayChangePassword: true},
-				"Set-LocalUser -Name 'Tester' -Description '' -FullName '' -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -PasswordNeverExpires -UserMayChangePassword ;Disable-LocalUser -Name 'Tester'",
+				UserUpdateParams{Name: "Tester", Password: "Start123!!!", PasswordNeverExpires: true, UserMayChangePassword: true},
+				"Set-LocalUser -Name 'Tester' -AccountNeverExpires -Description '' -FullName '' -Password $(ConvertTo-SecureString -String 'Start123!!!' -AsPlainText -Force) -PasswordNeverExpires:$true -UserMayChangePassword:$true ;Disable-LocalUser -Name 'Tester'",
 			},
 		}
 
@@ -407,17 +397,17 @@ func (suite *LocalUnitTestSuite) TestUserDelete() {
 	suite.Run("should run the correct command", func() {
 		tcs := []struct {
 			description     string
-			inputParameters UserParams
+			inputParameters UserDeleteParams
 			expectedCMD     string
 		}{
 			{
 				"assert user with Name",
-				UserParams{Name: "Tester"},
+				UserDeleteParams{Name: "Tester"},
 				"Remove-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with SID",
-				UserParams{SID: "S-1000"},
+				UserDeleteParams{SID: "S-1000"},
 				"Remove-LocalUser -SID S-1000",
 			},
 		}

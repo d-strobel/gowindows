@@ -16,7 +16,7 @@ func (suite *LocalAccTestSuite) TestUser1Read() {
 	defer cancel()
 
 	for _, c := range suite.clients {
-		params := local.UserParams{
+		params := local.UserReadParams{
 			Name: "Administrator",
 		}
 		u, err := c.UserRead(ctx, params)
@@ -87,7 +87,7 @@ func (suite *LocalAccTestSuite) TestUser3Create() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.UserParams{
+		params := local.UserCreateParams{
 			Name:                 fmt.Sprintf("Test-User-%d", i),
 			Description:          "This is a test user",
 			FullName:             fmt.Sprintf("Full-Test-User-%d", i),
@@ -113,7 +113,7 @@ func (suite *LocalAccTestSuite) TestUser4Update() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.UserParams{
+		params := local.UserUpdateParams{
 			Name:           fmt.Sprintf("Test-User-%d", i),
 			Description:    "Updated - This is a test user",
 			FullName:       fmt.Sprintf("Updated-Full-Test-User-%d", i),
@@ -131,7 +131,7 @@ func (suite *LocalAccTestSuite) TestUser5Delete() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.UserParams{
+		params := local.UserDeleteParams{
 			Name: fmt.Sprintf("Test-User-%d", i),
 		}
 		err := c.UserDelete(ctx, params)
