@@ -308,7 +308,7 @@ func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 			{
 				"assert with Name parameter",
 				GroupUpdateParams{Name: "Test"},
-				"Set-LocalGroup -Name 'Test' -Description ''",
+				"Set-LocalGroup -Name 'Test' -Description ' '",
 			},
 		}
 

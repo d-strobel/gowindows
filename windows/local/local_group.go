@@ -154,7 +154,12 @@ func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupUpdateParams)
 		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
 	}
 
-	cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
+	if params.Description == "" {
+		cmds = append(cmds, "-Description ' '")
+	} else {
+		cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
+	}
+
 	cmd := strings.Join(cmds, " ")
 
 	// Run command
