@@ -153,7 +153,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 		}, nil)
 		mockParser.On("DecodeCLIXML", "clixml-error").Return("powershell-error", nil)
 		var g Group
-		expectedErr := errors.New("powershell-error")
+		expectedErr := errors.New("Command:\nGet-LocalGroup -name Userrs\n\nPowershell error:\npowershell-error")
 		err := localRun[Group](ctx, c, expectedCMD, &g)
 		suite.Error(err)
 		suite.Equal(expectedErr, err)

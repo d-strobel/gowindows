@@ -4,7 +4,7 @@ package local
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	"github.com/d-strobel/gowindows/connection"
 	"github.com/d-strobel/gowindows/parser"
@@ -50,7 +50,7 @@ func localRun[T localType](ctx context.Context, c *LocalClient, cmd string, l *T
 			return err
 		}
 
-		return errors.New(stderr)
+		return fmt.Errorf("Command:\n%s\n\nPowershell error:\n%s", cmd, stderr)
 	}
 
 	if result.StdOut == "" {
