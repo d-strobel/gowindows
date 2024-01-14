@@ -159,11 +159,10 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserCreateParams) (
 
 	if params.Password != "" {
 		cmds = append(cmds, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))
+		cmds = append(cmds, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
 	} else {
 		cmds = append(cmds, "-NoPassword")
 	}
-
-	cmds = append(cmds, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
 
 	if params.UserMayChangePassword {
 		cmds = append(cmds, "-UserMayNotChangePassword:$false")

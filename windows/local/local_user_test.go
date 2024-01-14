@@ -255,7 +255,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			Connection: mockConn,
 			parser:     mockParser,
 		}
-		expectedCMD := "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword:$false | ConvertTo-Json -Compress"
+		expectedCMD := "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -UserMayNotChangePassword:$false | ConvertTo-Json -Compress"
 		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: testUser,
 		}, nil)
@@ -282,27 +282,27 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			{
 				"assert user with Name",
 				UserCreateParams{Name: "Tester"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Description",
 				UserCreateParams{Name: "Tester", Description: "This is a test user"},
-				"New-LocalUser -Name 'Tester' -Description 'This is a test user' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -Description 'This is a test user' -AccountNeverExpires -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + AccountExpires",
 				UserCreateParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Disabled -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Enabled",
 				UserCreateParams{Name: "Tester", Enabled: true},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled:$false -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled:$false -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + FullName",
 				UserCreateParams{Name: "Tester", FullName: "Tester1"},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -FullName 'Tester1' -NoPassword -PasswordNeverExpires:$false -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -FullName 'Tester1' -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Password",
@@ -312,7 +312,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			{
 				"assert user with Name + PasswordNeverExpires + UserMayNotChangePassword",
 				UserCreateParams{Name: "Tester", PasswordNeverExpires: true, UserMayChangePassword: true},
-				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -PasswordNeverExpires:$true -UserMayNotChangePassword:$false | ConvertTo-Json -Compress",
+				"New-LocalUser -Name 'Tester' -AccountNeverExpires -Disabled -NoPassword -UserMayNotChangePassword:$false | ConvertTo-Json -Compress",
 			},
 		}
 
