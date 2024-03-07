@@ -6,7 +6,7 @@ toolchain go1.21.1
 
 require (
 	github.com/d-strobel/winrm v1.0.0
-	golang.org/x/crypto v0.19.0
+	golang.org/x/crypto v0.21.0
 )
 
 require (
@@ -34,7 +34,7 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
