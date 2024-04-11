@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -19,6 +20,10 @@ type WinRMConfig struct {
 	WinRMKerberos *KerberosConfig
 }
 
+type WinRMConnection struct {
+	Client *winrm.Client
+}
+
 // Default values for WinRM configuration.
 const (
 	defaultWinRMPort     int           = 5985
@@ -28,8 +33,8 @@ const (
 	defaultWinRMTimeout  time.Duration = 0
 )
 
-// newWinRMClient creates a new WinRM client based on the provided configuration.
-func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
+// NewWinRMClient creates a new WinRM client based on the provided configuration.
+func NewWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 
 	// Assert
 	if config.WinRMHost == "" || config.WinRMUsername == "" || config.WinRMPassword == "" {
@@ -76,4 +81,32 @@ func newWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 	}
 
 	return winrm.NewClient(winRMEndpoint, config.WinRMUsername, config.WinRMPassword)
+}
+
+// Close closes the WinRM connection.
+// Satisfies the Connection interface.
+func (c *WinRMConnection) Close() error {
+	return nil
+}
+
+// Run runs a command using the configured WinRM connection and context.
+// It returns the result of the command execution, including stdout and stderr.
+func (c *WinRMConnection) Run(ctx context.Context, cmd string) (CMDResult, error) {
+
+	var r CMDResult
+
+	// Prepare base64 encoded powershell command to pass into the run functions
+	pwshCmd := winrm.Powershell(cmd)
+
+	stdout, stderr, _, err := c.Client.RunWithContextWithString(ctx, pwshCmd, "")
+	if err != nil {
+		return r, err
+	}
+	if stderr != "" {
+		r.StdErr = stderr
+		return r, nil
+	}
+
+	r.StdOut = stdout
+	return r, nil
 }

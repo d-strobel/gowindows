@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/user"
 
+	"github.com/d-strobel/winrm"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
@@ -23,14 +24,18 @@ type SSHConfig struct {
 	SSHInsecureIgnoreHostKey bool
 }
 
+type SSHConnection struct {
+	Client *ssh.Client
+}
+
 // Default values for SSH configuration.
 const (
 	defaultSSHPort        int    = 22
 	defaultKnownHostsPath string = ".ssh/known_hosts"
 )
 
-// newSSHClient creates a new SSH client based on the provided configuration.
-func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
+// NewSSHClient creates a new SSH client based on the provided configuration.
+func NewSSHClient(config *SSHConfig) (*ssh.Client, error) {
 
 	// Assert
 	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
@@ -68,11 +73,39 @@ func newSSHClient(config *SSHConfig) (*ssh.Client, error) {
 	return client, nil
 }
 
+// Close closes the SSH connection.
+func (c *SSHConnection) Close() error {
+	return c.Client.Close()
+}
+
+// Run runs a command using the configured SSH connection and context.
+// It returns the result of the command execution, including stdout and stderr.
+func (c *SSHConnection) Run(ctx context.Context, cmd string) (CMDResult, error) {
+
+	var r CMDResult
+
+	// Prepare base64 encoded powershell command to pass into the run functions
+	pwshCmd := winrm.Powershell(cmd)
+
+	stdout, stderr, err := c.runSSH(ctx, pwshCmd)
+	if err != nil {
+		r.StdErr = stderr
+		return r, err
+	}
+	if stderr != "" {
+		r.StdErr = stderr
+		return r, nil
+	}
+
+	r.StdOut = stdout
+	return r, nil
+}
+
 // runSSH runs a command on the SSH connection and returns the stdout and stderr.
-func (c *Connection) runSSH(ctx context.Context, cmd string) (string, string, error) {
+func (c *SSHConnection) runSSH(ctx context.Context, cmd string) (string, string, error) {
 
 	// Open a new SSH session
-	s, err := c.SSH.NewSession()
+	s, err := c.Client.NewSession()
 	if err != nil {
 		return "", "", err
 	}
