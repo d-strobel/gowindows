@@ -24,6 +24,7 @@ type SSHConfig struct {
 	SSHInsecureIgnoreHostKey bool
 }
 
+// SSHConnection represents an SSH connection.
 type SSHConnection struct {
 	Client *ssh.Client
 }
@@ -34,13 +35,33 @@ const (
 	defaultKnownHostsPath string = ".ssh/known_hosts"
 )
 
-// NewSSHClient creates a new SSH client based on the provided configuration.
-func NewSSHClient(config *SSHConfig) (*ssh.Client, error) {
+// Validate validates the SSH configuration.
+func (config *SSHConfig) Validate() error {
 
-	// Assert
 	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
-		return nil, fmt.Errorf("ssh: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
+		return fmt.Errorf("ssh: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
 	}
+
+	return nil
+}
+
+// Defaults sets the default values for the SSH configuration.
+func (config *SSHConfig) Defaults() {
+	if config.SSHPort == 0 {
+		config.SSHPort = defaultSSHPort
+	}
+}
+
+// NewClient creates a new SSH client based on the provided configuration.
+func (config *SSHConfig) NewClient() (*ssh.Client, error) {
+
+	// Validate configuration
+	if err := config.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Set default values
+	config.Defaults()
 
 	// Parse SSH host string
 	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)

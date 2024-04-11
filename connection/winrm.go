@@ -20,6 +20,7 @@ type WinRMConfig struct {
 	WinRMKerberos *KerberosConfig
 }
 
+// WinRMConnection represents a WinRM connection.
 type WinRMConnection struct {
 	Client *winrm.Client
 }
@@ -33,18 +34,23 @@ const (
 	defaultWinRMTimeout  time.Duration = 0
 )
 
-// NewWinRMClient creates a new WinRM client based on the provided configuration.
-func NewWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
+// Validate validates the WinRM configuration.
+func (config *WinRMConfig) Validate() error {
 
-	// Assert
 	if config.WinRMHost == "" || config.WinRMUsername == "" || config.WinRMPassword == "" {
-		return nil, fmt.Errorf("winrm: WinRMConfig parameter 'WinRMHost', 'WinRMUsername', and 'WinRMPassword' must be set")
+		return fmt.Errorf("winrm: WinRMConfig parameter 'WinRMHost', 'WinRMUsername', and 'WinRMPassword' must be set")
 	}
 
-	// Set default values
+	return nil
+}
+
+// Defaults sets the default values for the WinRM configuration.
+func (config *WinRMConfig) Defaults() {
+
 	if !config.WinRMUseTLS {
 		config.WinRMUseTLS = defaultWinRMUseTLS
 	}
+
 	if config.WinRMPort == 0 {
 		config.WinRMPort = defaultWinRMPort
 
@@ -53,21 +59,33 @@ func NewWinRMClient(config *WinRMConfig) (*winrm.Client, error) {
 			config.WinRMPort = defaultWinRMPortTLS
 		}
 	}
+
 	if config.WinRMTimeout == 0 {
 		config.WinRMTimeout = defaultWinRMTimeout
 	}
 
-	winRMInsecure := defaultWinRMInsecure
-	if config.WinRMInsecure {
-		winRMInsecure = config.WinRMInsecure
+	if !config.WinRMInsecure {
+		config.WinRMInsecure = defaultWinRMInsecure
 	}
+}
+
+// NewClient creates a new WinRM client based on the provided configuration.
+func (config *WinRMConfig) NewClient() (*winrm.Client, error) {
+
+	// Validate configuration
+	if err := config.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Set default values
+	config.Defaults()
 
 	// WinRM connection
 	winRMEndpoint := winrm.NewEndpoint(
 		config.WinRMHost,
 		config.WinRMPort,
 		config.WinRMUseTLS,
-		winRMInsecure,
+		config.WinRMInsecure,
 		nil, // CA certificate
 		nil, // Client Certificate
 		nil, // Client Key
