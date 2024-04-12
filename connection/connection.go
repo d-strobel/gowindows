@@ -5,13 +5,15 @@ import (
 	"context"
 )
 
-// Configuration defines the interface for a connection configuration.
-type Configuration interface {
+// Config defines the interface for a connection configuration.
+type Config interface {
 	Validate() error
 	Defaults()
+	NewClient() (Connection, error)
 }
 
-// Connection defines the interface for a connection, specifying methods like Run and Close.
+// Connection defines the interface for a connection.
+// Every connection type must implement this interface.
 type Connection interface {
 	Run(ctx context.Context, cmd string) (CMDResult, error)
 	Close() error

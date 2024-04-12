@@ -70,12 +70,15 @@ func (config *WinRMConfig) Defaults() {
 }
 
 // NewClient creates a new WinRM client based on the provided configuration.
-func (config *WinRMConfig) NewClient() (*winrm.Client, error) {
+func (config *WinRMConfig) NewClient() (*WinRMConnection, error) {
 
 	// Validate configuration
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
+
+	// Initialize WinRMConnection object
+	conn := &WinRMConnection{}
 
 	// Set default values
 	config.Defaults()
@@ -95,10 +98,25 @@ func (config *WinRMConfig) NewClient() (*winrm.Client, error) {
 	// Kerberos transport
 	if config.WinRMKerberos != nil {
 		params := winRMKerberosParams(config)
-		return winrm.NewClientWithParameters(winRMEndpoint, config.WinRMUsername, config.WinRMPassword, params)
+
+		client, err := winrm.NewClientWithParameters(winRMEndpoint, config.WinRMUsername, config.WinRMPassword, params)
+		if err != nil {
+			return nil, err
+		}
+
+		conn.Client = client
+
+	} else {
+		client, err := winrm.NewClient(winRMEndpoint, config.WinRMUsername, config.WinRMPassword)
+
+		if err != nil {
+			return nil, err
+		}
+
+		conn.Client = client
 	}
 
-	return winrm.NewClient(winRMEndpoint, config.WinRMUsername, config.WinRMPassword)
+	return conn, nil
 }
 
 // Close closes the WinRM connection.

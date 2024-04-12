@@ -53,7 +53,7 @@ func (config *SSHConfig) Defaults() {
 }
 
 // NewClient creates a new SSH client based on the provided configuration.
-func (config *SSHConfig) NewClient() (*ssh.Client, error) {
+func (config *SSHConfig) NewClient() (*SSHConnection, error) {
 
 	// Validate configuration
 	if err := config.Validate(); err != nil {
@@ -91,7 +91,7 @@ func (config *SSHConfig) NewClient() (*ssh.Client, error) {
 		return nil, fmt.Errorf("ssh: %s", err)
 	}
 
-	return client, nil
+	return &SSHConnection{Client: client}, nil
 }
 
 // Close closes the SSH connection.
