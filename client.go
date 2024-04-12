@@ -9,30 +9,30 @@ import (
 
 // Client represents a client object for interacting with Windows systems.
 type Client struct {
-	Connection *connection.Connection
+	Connection connection.Connection
 	parser     *parser.Parser
 	Local      *local.LocalClient
 }
 
 // NewClient returns a new instance of the Client object, initialized with the provided configuration.
 // Use this client to execute functions within the Windows subpackages.
-func NewClient(conf *connection.Config) (*Client, error) {
+func NewClient(conf connection.Config) (*Client, error) {
 	var err error
 
 	// Initialize a new client
 	c := &Client{}
 
 	// Store a new connection in the client
-	c.Connection, err = connection.NewConnection(conf)
+	c.Connection, err = conf.NewClient()
 	if err != nil {
 		return nil, err
 	}
 
 	// Store a parser in the client
-	c.parser = parser.NewParser()
+	parser := parser.NewParser()
 
 	// Build the client with the subpackages
-	c.Local = local.NewLocalClient(c.Connection, c.parser)
+	c.Local = local.NewLocalClient(c.Connection, parser)
 
 	return c, nil
 }

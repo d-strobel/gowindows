@@ -17,13 +17,13 @@ type localType interface {
 
 // LocalClient represents a client for handling local Windows functions.
 type LocalClient struct {
-	Connection connection.ConnectionInterface
+	Connection connection.Connection
 	parser     parser.ParserInterface
 }
 
 // NewLocalClient returns a new instance of the LocalClient.
 // It requires a connection and parser as input parameters.
-func NewLocalClient(conn *connection.Connection, parser *parser.Parser) *LocalClient {
+func NewLocalClient(conn connection.Connection, parser *parser.Parser) *LocalClient {
 	return &LocalClient{Connection: conn, parser: parser}
 }
 
