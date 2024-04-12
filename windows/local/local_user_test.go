@@ -93,7 +93,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 	suite.Run("should return the correct user", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -137,7 +137,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -173,7 +173,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -189,7 +189,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 	suite.Run("should return error if run fails", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -209,7 +209,7 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 	suite.Run("should return the correct list of user", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -229,7 +229,7 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 	suite.Run("should return error if run fails", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -249,7 +249,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 	suite.Run("should return the correct new user", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -291,8 +291,8 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			},
 			{
 				"assert user with Name + AccountExpires",
-				UserCreateParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", AccountExpires: time.Date(3024, time.April, 10, 15, 0, 0, 0, time.UTC)},
+				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '3024-04-10 15:00:00') -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Enabled",
@@ -320,7 +320,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -359,8 +359,8 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			},
 			{
 				"assert user with Name + AccountExpires",
-				UserUpdateParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Disable-LocalUser -Name 'Tester'",
+				UserUpdateParams{Name: "Tester", AccountExpires: time.Date(3024, time.April, 10, 15, 0, 0, 0, time.UTC)},
+				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '3024-04-10 15:00:00') -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + Description + FullName",
@@ -378,7 +378,7 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -416,7 +416,7 @@ func (suite *LocalUnitTestSuite) TestUserDelete() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,

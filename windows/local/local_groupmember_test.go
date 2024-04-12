@@ -47,7 +47,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 	suite.Run("should return the correct GroupMember", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -91,7 +91,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -127,7 +127,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -143,7 +143,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 	suite.Run("should return error if run fails", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -163,7 +163,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberList() {
 	suite.Run("should return the correct list of group member", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -183,7 +183,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberList() {
 	suite.Run("should return error if run fails", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -221,7 +221,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberCreate() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -259,7 +259,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberDelete() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,

@@ -23,7 +23,7 @@ func TestLocalUnitTestSuite(t *testing.T) {
 }
 
 func (suite *LocalUnitTestSuite) TestNewLocalClient() {
-	mockConn := &connection.Connection{}
+	mockConn := mockConnection.NewMockConnection(suite.T())
 	mockParser := &parser.Parser{}
 	actualLocalClient := NewLocalClient(mockConn, mockParser)
 	expectedLocalClient := &LocalClient{Connection: mockConn, parser: mockParser}
@@ -36,7 +36,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should return the user group", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -57,7 +57,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should return a slice of groups", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -78,7 +78,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should return the user group with compressed json", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -99,7 +99,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should not error when no stdout is empty string", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -121,7 +121,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should error when connection run errors", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -141,7 +141,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should return powershell error", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -164,7 +164,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should return an error from parser", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
@@ -187,7 +187,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 	suite.Run("should return error from json unmarshal with incorrect json", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,

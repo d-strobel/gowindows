@@ -29,38 +29,30 @@ type LocalAccTestSuite struct {
 func (suite *LocalAccTestSuite) SetupSuite() {
 	parser := parser.NewParser()
 
-	// Connection configs
-	testConfigs := []connection.Config{
-		// WinRM
-		{
-			WinRM: &connection.WinRMConfig{
-				WinRMHost:     testHost,
-				WinRMUsername: username,
-				WinRMPassword: password,
-				WinRMUseTLS:   true,
-				WinRMInsecure: true,
-				WinRMPort:     winRMPort,
-			},
-		},
-		// SSH
-		{
-			SSH: &connection.SSHConfig{
-				SSHHost:                  testHost,
-				SSHPort:                  sshPort,
-				SSHUsername:              username,
-				SSHPassword:              password,
-				SSHInsecureIgnoreHostKey: true,
-			},
-		},
+	// Setup WinRM connection
+	winRMConfig := &connection.WinRMConfig{
+		WinRMHost:     testHost,
+		WinRMUsername: username,
+		WinRMPassword: password,
+		WinRMUseTLS:   true,
+		WinRMInsecure: true,
+		WinRMPort:     winRMPort,
 	}
+	winRMConn, err := winRMConfig.NewClient()
+	suite.Require().NoError(err)
+	suite.clients = append(suite.clients, *local.NewLocalClient(winRMConn, parser))
 
-	// Setup clients for tests
-	for _, conf := range testConfigs {
-		conn, err := connection.NewConnection(&conf)
-		suite.Require().NoError(err)
-
-		suite.clients = append(suite.clients, *local.NewLocalClient(conn, parser))
+	// Setup SSH connection
+	sshConfig := &connection.SSHConfig{
+		SSHHost:                  testHost,
+		SSHPort:                  sshPort,
+		SSHUsername:              username,
+		SSHPassword:              password,
+		SSHInsecureIgnoreHostKey: true,
 	}
+	sshConn, err := sshConfig.NewClient()
+	suite.Require().NoError(err)
+	suite.clients = append(suite.clients, *local.NewLocalClient(sshConn, parser))
 }
 
 func (suite *LocalAccTestSuite) TearDownSuite() {
