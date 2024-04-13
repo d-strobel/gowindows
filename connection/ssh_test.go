@@ -50,7 +50,7 @@ func (suite *ConnectionSSHUnitTestSuite) TestValidate() {
 
 		for _, tc := range tcs {
 			suite.T().Logf("test case: %s", tc.description)
-			err := tc.config.Validate()
+			err := tc.config.validate()
 			suite.Assertions.NoError(err)
 		}
 	})
@@ -91,8 +91,44 @@ func (suite *ConnectionSSHUnitTestSuite) TestValidate() {
 
 		for _, tc := range tcs {
 			suite.T().Logf("test case: %s", tc.description)
-			err := tc.config.Validate()
+			err := tc.config.validate()
 			suite.Assertions.Error(err)
 		}
+	})
+}
+
+func (suite *ConnectionSSHUnitTestSuite) TestDefaults() {
+
+	suite.Run("should set the default values", func() {
+		input := &SSHConfig{
+			SSHHost:     "test",
+			SSHUsername: "test",
+			SSHPassword: "test",
+		}
+		expected := &SSHConfig{
+			SSHHost:     "test",
+			SSHUsername: "test",
+			SSHPassword: "test",
+			SSHPort:     22,
+		}
+		input.defaults()
+		suite.Assertions.EqualValues(input, expected)
+	})
+
+	suite.Run("should not overwrite user input", func() {
+		input := &SSHConfig{
+			SSHHost:     "test",
+			SSHUsername: "test",
+			SSHPassword: "test",
+			SSHPort:     2222,
+		}
+		expected := &SSHConfig{
+			SSHHost:     "test",
+			SSHUsername: "test",
+			SSHPassword: "test",
+			SSHPort:     2222,
+		}
+		input.defaults()
+		suite.Assertions.EqualValues(input, expected)
 	})
 }
