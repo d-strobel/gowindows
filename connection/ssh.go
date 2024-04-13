@@ -81,13 +81,13 @@ func (config *SSHConfig) NewClient() (*SSHConnection, error) {
 	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)
 
 	// Check known host key callback
-	knownHostCallback, err := knownHostCallback(config)
+	knownHostCallback, err := config.knownHostCallback()
 	if err != nil {
 		return nil, fmt.Errorf("ssh: known host callback failed with error: %s", err)
 	}
 
 	// Authentication method
-	authMethod, err := authenticationMethod(config)
+	authMethod, err := config.authenticationMethod()
 	if err != nil {
 		return nil, fmt.Errorf("ssh: %s", err)
 	}
@@ -200,7 +200,7 @@ func (c *SSHConnection) runSSH(ctx context.Context, cmd string) (string, string,
 }
 
 // knownHostCallback generates a host key callback based on the SSH configuration.
-func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
+func (config *SSHConfig) knownHostCallback() (ssh.HostKeyCallback, error) {
 
 	// Ignore host key
 	if config.SSHInsecureIgnoreHostKey {
@@ -229,7 +229,7 @@ func knownHostCallback(config *SSHConfig) (ssh.HostKeyCallback, error) {
 }
 
 // authenticationMethod generates authentication methods based on the SSH configuration.
-func authenticationMethod(config *SSHConfig) ([]ssh.AuthMethod, error) {
+func (config *SSHConfig) authenticationMethod() ([]ssh.AuthMethod, error) {
 	var authMethod []ssh.AuthMethod = []ssh.AuthMethod{}
 
 	// Private key authentication
