@@ -20,38 +20,6 @@ func (_m *MockConfig) EXPECT() *MockConfig_Expecter {
 	return &MockConfig_Expecter{mock: &_m.Mock}
 }
 
-// Defaults provides a mock function with given fields:
-func (_m *MockConfig) Defaults() {
-	_m.Called()
-}
-
-// MockConfig_Defaults_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Defaults'
-type MockConfig_Defaults_Call struct {
-	*mock.Call
-}
-
-// Defaults is a helper method to define mock.On call
-func (_e *MockConfig_Expecter) Defaults() *MockConfig_Defaults_Call {
-	return &MockConfig_Defaults_Call{Call: _e.mock.On("Defaults")}
-}
-
-func (_c *MockConfig_Defaults_Call) Run(run func()) *MockConfig_Defaults_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockConfig_Defaults_Call) Return() *MockConfig_Defaults_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MockConfig_Defaults_Call) RunAndReturn(run func()) *MockConfig_Defaults_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // NewClient provides a mock function with given fields:
 func (_m *MockConfig) NewClient() (connection.Connection, error) {
 	ret := _m.Called()
@@ -109,12 +77,44 @@ func (_c *MockConfig_NewClient_Call) RunAndReturn(run func() (connection.Connect
 	return _c
 }
 
-// Validate provides a mock function with given fields:
-func (_m *MockConfig) Validate() error {
+// defaults provides a mock function with given fields:
+func (_m *MockConfig) defaults() {
+	_m.Called()
+}
+
+// MockConfig_defaults_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'defaults'
+type MockConfig_defaults_Call struct {
+	*mock.Call
+}
+
+// defaults is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) defaults() *MockConfig_defaults_Call {
+	return &MockConfig_defaults_Call{Call: _e.mock.On("defaults")}
+}
+
+func (_c *MockConfig_defaults_Call) Run(run func()) *MockConfig_defaults_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_defaults_Call) Return() *MockConfig_defaults_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockConfig_defaults_Call) RunAndReturn(run func()) *MockConfig_defaults_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// validate provides a mock function with given fields:
+func (_m *MockConfig) validate() error {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for Validate")
+		panic("no return value specified for validate")
 	}
 
 	var r0 error
@@ -127,29 +127,29 @@ func (_m *MockConfig) Validate() error {
 	return r0
 }
 
-// MockConfig_Validate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Validate'
-type MockConfig_Validate_Call struct {
+// MockConfig_validate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'validate'
+type MockConfig_validate_Call struct {
 	*mock.Call
 }
 
-// Validate is a helper method to define mock.On call
-func (_e *MockConfig_Expecter) Validate() *MockConfig_Validate_Call {
-	return &MockConfig_Validate_Call{Call: _e.mock.On("Validate")}
+// validate is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) validate() *MockConfig_validate_Call {
+	return &MockConfig_validate_Call{Call: _e.mock.On("validate")}
 }
 
-func (_c *MockConfig_Validate_Call) Run(run func()) *MockConfig_Validate_Call {
+func (_c *MockConfig_validate_Call) Run(run func()) *MockConfig_validate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *MockConfig_Validate_Call) Return(_a0 error) *MockConfig_Validate_Call {
+func (_c *MockConfig_validate_Call) Return(_a0 error) *MockConfig_validate_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockConfig_Validate_Call) RunAndReturn(run func() error) *MockConfig_Validate_Call {
+func (_c *MockConfig_validate_Call) RunAndReturn(run func() error) *MockConfig_validate_Call {
 	_c.Call.Return(run)
 	return _c
 }
