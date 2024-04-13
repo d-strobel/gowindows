@@ -122,7 +122,7 @@ func (c *SSHConnection) Run(ctx context.Context, cmd string) (CMDResult, error) 
 	// Prepare base64 encoded powershell command to pass into the run functions
 	pwshCmd := winrm.Powershell(cmd)
 
-	stdout, stderr, err := c.runSSH(ctx, pwshCmd)
+	stdout, stderr, err := c.execute(ctx, pwshCmd)
 	if err != nil {
 		r.StdErr = stderr
 		return r, err
@@ -136,8 +136,8 @@ func (c *SSHConnection) Run(ctx context.Context, cmd string) (CMDResult, error) 
 	return r, nil
 }
 
-// runSSH runs a command on the SSH connection and returns the stdout and stderr.
-func (c *SSHConnection) runSSH(ctx context.Context, cmd string) (string, string, error) {
+// execute runs a command on the SSH connection and returns the stdout and stderr.
+func (c *SSHConnection) execute(ctx context.Context, cmd string) (string, string, error) {
 
 	// Open a new SSH session
 	s, err := c.Client.NewSession()
