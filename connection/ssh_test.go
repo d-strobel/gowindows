@@ -1,6 +1,8 @@
 package connection
 
 import (
+	"fmt"
+	"os/user"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,10 +11,20 @@ import (
 // Unit test suite for all SSH functions.
 type ConnectionSSHUnitTestSuite struct {
 	suite.Suite
+
+	// Fixtures
+	currentUserHomeDir string
 }
 
 func TestConnectionSSHUnitTestSuite(t *testing.T) {
 	suite.Run(t, &ConnectionSSHUnitTestSuite{})
+}
+
+func (suite *ConnectionSSHUnitTestSuite) SetupSuite() {
+	// Get current user
+	user, err := user.Current()
+	suite.Require().NoError(err)
+	suite.currentUserHomeDir = user.HomeDir
 }
 
 func (suite *ConnectionSSHUnitTestSuite) TestValidate() {
@@ -106,10 +118,11 @@ func (suite *ConnectionSSHUnitTestSuite) TestDefaults() {
 			SSHPassword: "test",
 		}
 		expected := &SSHConfig{
-			SSHHost:     "test",
-			SSHUsername: "test",
-			SSHPassword: "test",
-			SSHPort:     22,
+			SSHHost:           "test",
+			SSHUsername:       "test",
+			SSHPassword:       "test",
+			SSHPort:           22,
+			SSHKnownHostsPath: fmt.Sprintf("%s/%s", suite.currentUserHomeDir, defaultKnownHostsPath),
 		}
 		err := input.defaults()
 		suite.Assertions.NoError(err)
@@ -118,16 +131,18 @@ func (suite *ConnectionSSHUnitTestSuite) TestDefaults() {
 
 	suite.Run("should not overwrite user input", func() {
 		input := &SSHConfig{
-			SSHHost:     "test",
-			SSHUsername: "test",
-			SSHPassword: "test",
-			SSHPort:     2222,
+			SSHHost:           "test",
+			SSHUsername:       "test",
+			SSHPassword:       "test",
+			SSHPort:           2222,
+			SSHKnownHostsPath: "/home/test/.ssh/known_hosts",
 		}
 		expected := &SSHConfig{
-			SSHHost:     "test",
-			SSHUsername: "test",
-			SSHPassword: "test",
-			SSHPort:     2222,
+			SSHHost:           "test",
+			SSHUsername:       "test",
+			SSHPassword:       "test",
+			SSHPort:           2222,
+			SSHKnownHostsPath: "/home/test/.ssh/known_hosts",
 		}
 		err := input.defaults()
 		suite.Assertions.NoError(err)
