@@ -35,7 +35,7 @@ const (
 )
 
 // Validate validates the WinRM configuration.
-func (config *WinRMConfig) Validate() error {
+func (config *WinRMConfig) validate() error {
 
 	if config.WinRMHost == "" || config.WinRMUsername == "" || config.WinRMPassword == "" {
 		return fmt.Errorf("winrm: WinRMConfig parameter 'WinRMHost', 'WinRMUsername', and 'WinRMPassword' must be set")
@@ -45,7 +45,7 @@ func (config *WinRMConfig) Validate() error {
 }
 
 // Defaults sets the default values for the WinRM configuration.
-func (config *WinRMConfig) Defaults() {
+func (config *WinRMConfig) defaults() {
 
 	if !config.WinRMUseTLS {
 		config.WinRMUseTLS = defaultWinRMUseTLS
@@ -73,7 +73,7 @@ func (config *WinRMConfig) Defaults() {
 func (config *WinRMConfig) NewClient() (*WinRMConnection, error) {
 
 	// Validate configuration
-	if err := config.Validate(); err != nil {
+	if err := config.validate(); err != nil {
 		return nil, err
 	}
 
@@ -81,7 +81,7 @@ func (config *WinRMConfig) NewClient() (*WinRMConnection, error) {
 	conn := &WinRMConnection{}
 
 	// Set default values
-	config.Defaults()
+	config.defaults()
 
 	// WinRM connection
 	winRMEndpoint := winrm.NewEndpoint(

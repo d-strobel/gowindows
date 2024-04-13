@@ -7,8 +7,8 @@ import (
 
 // Config defines the interface for a connection configuration.
 type Config interface {
-	Validate() error
-	Defaults()
+	validate() error
+	defaults()
 	NewClient() (Connection, error)
 }
 

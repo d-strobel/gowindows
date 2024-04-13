@@ -36,7 +36,7 @@ const (
 )
 
 // Validate validates the SSH configuration.
-func (config *SSHConfig) Validate() error {
+func (config *SSHConfig) validate() error {
 
 	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
 		return fmt.Errorf("ssh: SSHConfig parameter 'SSHHost', 'SSHUsername' and one of 'SSHPassword', 'SSHPrivateKey', 'SSHPrivateKeyPath' must be set")
@@ -46,7 +46,7 @@ func (config *SSHConfig) Validate() error {
 }
 
 // Defaults sets the default values for the SSH configuration.
-func (config *SSHConfig) Defaults() {
+func (config *SSHConfig) defaults() {
 	if config.SSHPort == 0 {
 		config.SSHPort = defaultSSHPort
 	}
@@ -56,12 +56,12 @@ func (config *SSHConfig) Defaults() {
 func (config *SSHConfig) NewClient() (*SSHConnection, error) {
 
 	// Validate configuration
-	if err := config.Validate(); err != nil {
+	if err := config.validate(); err != nil {
 		return nil, err
 	}
 
 	// Set default values
-	config.Defaults()
+	config.defaults()
 
 	// Parse SSH host string
 	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)
