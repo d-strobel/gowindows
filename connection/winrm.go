@@ -30,7 +30,7 @@ const (
 	defaultWinRMPort     int           = 5985
 	defaultWinRMPortTLS  int           = 5986
 	defaultWinRMUseTLS   bool          = false
-	defaultWinRMInsecure bool          = true
+	defaultWinRMInsecure bool          = false
 	defaultWinRMTimeout  time.Duration = 0
 )
 
