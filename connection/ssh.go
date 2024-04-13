@@ -35,7 +35,7 @@ const (
 	defaultKnownHostsPath string = ".ssh/known_hosts"
 )
 
-// Validate validates the SSH configuration.
+// validate validates the SSH configuration.
 func (config *SSHConfig) validate() error {
 
 	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
@@ -45,11 +45,23 @@ func (config *SSHConfig) validate() error {
 	return nil
 }
 
-// Defaults sets the default values for the SSH configuration.
-func (config *SSHConfig) defaults() {
+// defaults sets the default values for the SSH configuration.
+func (config *SSHConfig) defaults() error {
 	if config.SSHPort == 0 {
 		config.SSHPort = defaultSSHPort
 	}
+
+	// Get the current user from the system
+	user, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	if config.SSHKnownHostsPath != "" {
+		config.SSHKnownHostsPath = fmt.Sprintf("%s/%s", user.HomeDir, defaultKnownHostsPath)
+	}
+
+	return nil
 }
 
 // NewClient creates a new SSH client based on the provided configuration.
@@ -61,7 +73,9 @@ func (config *SSHConfig) NewClient() (*SSHConnection, error) {
 	}
 
 	// Set default values
-	config.defaults()
+	if err := config.defaults(); err != nil {
+		return nil, err
+	}
 
 	// Parse SSH host string
 	sshHost := fmt.Sprintf("%s:%d", config.SSHHost, config.SSHPort)

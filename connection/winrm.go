@@ -34,7 +34,7 @@ const (
 	defaultWinRMTimeout  time.Duration = 0
 )
 
-// Validate validates the WinRM configuration.
+// validate validates the WinRM configuration.
 func (config *WinRMConfig) validate() error {
 
 	if config.WinRMHost == "" || config.WinRMUsername == "" || config.WinRMPassword == "" {
@@ -44,8 +44,8 @@ func (config *WinRMConfig) validate() error {
 	return nil
 }
 
-// Defaults sets the default values for the WinRM configuration.
-func (config *WinRMConfig) defaults() {
+// defaults sets the default values for the WinRM configuration.
+func (config *WinRMConfig) defaults() error {
 
 	if !config.WinRMUseTLS {
 		config.WinRMUseTLS = defaultWinRMUseTLS
@@ -67,6 +67,8 @@ func (config *WinRMConfig) defaults() {
 	if !config.WinRMInsecure {
 		config.WinRMInsecure = defaultWinRMInsecure
 	}
+
+	return nil
 }
 
 // NewClient creates a new WinRM client based on the provided configuration.
@@ -77,11 +79,13 @@ func (config *WinRMConfig) NewClient() (*WinRMConnection, error) {
 		return nil, err
 	}
 
+	// Set default values
+	if err := config.defaults(); err != nil {
+		return nil, err
+	}
+
 	// Initialize WinRMConnection object
 	conn := &WinRMConnection{}
-
-	// Set default values
-	config.defaults()
 
 	// WinRM connection
 	winRMEndpoint := winrm.NewEndpoint(

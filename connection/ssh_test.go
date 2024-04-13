@@ -111,7 +111,8 @@ func (suite *ConnectionSSHUnitTestSuite) TestDefaults() {
 			SSHPassword: "test",
 			SSHPort:     22,
 		}
-		input.defaults()
+		err := input.defaults()
+		suite.Assertions.NoError(err)
 		suite.Assertions.EqualValues(input, expected)
 	})
 
@@ -128,7 +129,8 @@ func (suite *ConnectionSSHUnitTestSuite) TestDefaults() {
 			SSHPassword: "test",
 			SSHPort:     2222,
 		}
-		input.defaults()
+		err := input.defaults()
+		suite.Assertions.NoError(err)
 		suite.Assertions.EqualValues(input, expected)
 	})
 }

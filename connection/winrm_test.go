@@ -127,7 +127,8 @@ func (suite *ConnectionWinRMUnitTestSuite) TestDefaults() {
 
 		for _, tc := range tcs {
 			suite.T().Logf("test case: %s", tc.description)
-			tc.input.defaults()
+			err := tc.input.defaults()
+			suite.Assertions.NoError(err)
 			suite.Assertions.Equal(tc.expected, tc.input)
 		}
 	})
@@ -182,7 +183,8 @@ func (suite *ConnectionWinRMUnitTestSuite) TestDefaults() {
 
 		for _, tc := range tcs {
 			suite.T().Logf("test case: %s", tc.description)
-			tc.input.defaults()
+			err := tc.input.defaults()
+			suite.Assertions.NoError(err)
 			suite.Assertions.Equal(tc.expected, tc.input)
 		}
 	})
