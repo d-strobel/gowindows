@@ -37,13 +37,8 @@ func main() {
 		WinRMInsecure: true, // Ignore invalid certificates
 	}
 
-	// Connection configuration parameter
-	conf := &connection.Config{
-		WinRM: winRMconfig,
-	}
-
 	// New connection
-	conn, err := connection.NewConnection(conf)
+	conn, err := WinRMConfig.NewConnection()
 	if err != nil {
 		panic(err)
 	}
@@ -92,13 +87,8 @@ func main() {
 		SSHInsecureIgnoreHostKey: true, // Ignore unknown or invalid host keys
 	}
 
-	// Connection configuration parameter
-	conf := &connection.Config{
-		SSH: sshConfig,
-	}
-
 	// Create client for the local package
-	c, err := gowindows.NewClient(conf)
+	c, err := gowindows.NewClient(sshConfig)
 	if err != nil {
 		panic(err)
 	}
