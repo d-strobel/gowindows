@@ -57,7 +57,7 @@ func (config *SSHConfig) defaults() error {
 		return err
 	}
 
-	if config.SSHKnownHostsPath != "" {
+	if config.SSHKnownHostsPath == "" {
 		config.SSHKnownHostsPath = fmt.Sprintf("%s/%s", user.HomeDir, defaultKnownHostsPath)
 	}
 
