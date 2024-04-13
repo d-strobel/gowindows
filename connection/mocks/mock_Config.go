@@ -20,12 +20,12 @@ func (_m *MockConfig) EXPECT() *MockConfig_Expecter {
 	return &MockConfig_Expecter{mock: &_m.Mock}
 }
 
-// NewClient provides a mock function with given fields:
-func (_m *MockConfig) NewClient() (connection.Connection, error) {
+// NewConnection provides a mock function with given fields:
+func (_m *MockConfig) NewConnection() (connection.Connection, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for NewClient")
+		panic("no return value specified for NewConnection")
 	}
 
 	var r0 connection.Connection
@@ -50,36 +50,49 @@ func (_m *MockConfig) NewClient() (connection.Connection, error) {
 	return r0, r1
 }
 
-// MockConfig_NewClient_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewClient'
-type MockConfig_NewClient_Call struct {
+// MockConfig_NewConnection_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewConnection'
+type MockConfig_NewConnection_Call struct {
 	*mock.Call
 }
 
-// NewClient is a helper method to define mock.On call
-func (_e *MockConfig_Expecter) NewClient() *MockConfig_NewClient_Call {
-	return &MockConfig_NewClient_Call{Call: _e.mock.On("NewClient")}
+// NewConnection is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) NewConnection() *MockConfig_NewConnection_Call {
+	return &MockConfig_NewConnection_Call{Call: _e.mock.On("NewConnection")}
 }
 
-func (_c *MockConfig_NewClient_Call) Run(run func()) *MockConfig_NewClient_Call {
+func (_c *MockConfig_NewConnection_Call) Run(run func()) *MockConfig_NewConnection_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *MockConfig_NewClient_Call) Return(_a0 connection.Connection, _a1 error) *MockConfig_NewClient_Call {
+func (_c *MockConfig_NewConnection_Call) Return(_a0 connection.Connection, _a1 error) *MockConfig_NewConnection_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockConfig_NewClient_Call) RunAndReturn(run func() (connection.Connection, error)) *MockConfig_NewClient_Call {
+func (_c *MockConfig_NewConnection_Call) RunAndReturn(run func() (connection.Connection, error)) *MockConfig_NewConnection_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // defaults provides a mock function with given fields:
-func (_m *MockConfig) defaults() {
-	_m.Called()
+func (_m *MockConfig) defaults() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for defaults")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // MockConfig_defaults_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'defaults'
@@ -99,12 +112,12 @@ func (_c *MockConfig_defaults_Call) Run(run func()) *MockConfig_defaults_Call {
 	return _c
 }
 
-func (_c *MockConfig_defaults_Call) Return() *MockConfig_defaults_Call {
-	_c.Call.Return()
+func (_c *MockConfig_defaults_Call) Return(_a0 error) *MockConfig_defaults_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockConfig_defaults_Call) RunAndReturn(run func()) *MockConfig_defaults_Call {
+func (_c *MockConfig_defaults_Call) RunAndReturn(run func() error) *MockConfig_defaults_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -71,8 +71,8 @@ func (config *WinRMConfig) defaults() error {
 	return nil
 }
 
-// NewClient creates a new WinRM client based on the provided configuration.
-func (config *WinRMConfig) NewClient() (*WinRMConnection, error) {
+// NewConnection creates a new WinRM client based on the provided configuration.
+func (config *WinRMConfig) NewConnection() (*WinRMConnection, error) {
 
 	// Validate configuration
 	if err := config.validate(); err != nil {

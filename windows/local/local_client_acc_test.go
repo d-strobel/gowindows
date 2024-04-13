@@ -38,7 +38,7 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 		WinRMInsecure: true,
 		WinRMPort:     winRMPort,
 	}
-	winRMConn, err := winRMConfig.NewClient()
+	winRMConn, err := winRMConfig.NewConnection()
 	suite.Require().NoError(err)
 	suite.clients = append(suite.clients, *local.NewLocalClient(winRMConn, parser))
 
@@ -50,7 +50,7 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 		SSHPassword:              password,
 		SSHInsecureIgnoreHostKey: true,
 	}
-	sshConn, err := sshConfig.NewClient()
+	sshConn, err := sshConfig.NewConnection()
 	suite.Require().NoError(err)
 	suite.clients = append(suite.clients, *local.NewLocalClient(sshConn, parser))
 }

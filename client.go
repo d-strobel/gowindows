@@ -23,7 +23,7 @@ func NewClient(conf connection.Config) (*Client, error) {
 	c := &Client{}
 
 	// Store a new connection in the client
-	c.Connection, err = conf.NewClient()
+	c.Connection, err = conf.NewConnection()
 	if err != nil {
 		return nil, err
 	}
