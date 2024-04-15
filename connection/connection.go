@@ -5,13 +5,6 @@ import (
 	"context"
 )
 
-// Config defines the interface for a connection configuration.
-type Config interface {
-	NewConnection() (Connection, error)
-	validate() error
-	defaults() error
-}
-
 // Connection defines the interface for a connection.
 // Every connection type must implement this interface.
 type Connection interface {

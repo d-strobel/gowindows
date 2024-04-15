@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	// WinRM configuration parameter
+	// Define WinRM configuration parameters.
 	winRMconfig := &connection.WinRMConfig{
 		WinRMUsername: "vagrant",
 		WinRMPassword: "vagrant",
@@ -37,33 +37,31 @@ func main() {
 		WinRMInsecure: true, // Ignore invalid certificates
 	}
 
-	// New connection
-	conn, err := WinRMConfig.NewConnection()
+	// Create a new connection.
+	conn, err := NewConnectionWithWinRM(winRMconfig)
 	if err != nil {
 		panic(err)
 	}
 
-	// New parser
-	parser := parser.NewParser()
-
-	// Create client
-	c := local.NewLocalClient(conn, parser)
+	// Create a new client within the local package.
+	c := local.NewClient(conn)
 	defer c.Connection.Close()
 
-	// Create context
+	// Create context.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Run the GroupRead function to retrieve a local Windows group
+	// Run the GroupRead function to retrieve a local Windows group with the name "Users".
 	group, err := c.GroupRead(ctx, local.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
 
-	// Print the user group
+	// Print the user group to stdout.
 	fmt.Printf("User group: %+v", group)
 }
 ```
+
 ### Multi Client with an SSH Connection
 ```go
 package main
@@ -87,8 +85,14 @@ func main() {
 		SSHInsecureIgnoreHostKey: true, // Ignore unknown or invalid host keys
 	}
 
+	// Create a new connection.
+	conn, err := NewConnectionWithSSH(sshConfig)
+	if err != nil {
+		panic(err)
+	}
+
 	// Create client for the local package
-	c, err := gowindows.NewClient(sshConfig)
+	c, err := gowindows.NewClient(conn)
 	if err != nil {
 		panic(err)
 	}

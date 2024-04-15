@@ -22,10 +22,10 @@ func TestLocalUnitTestSuite(t *testing.T) {
 	suite.Run(t, &LocalUnitTestSuite{})
 }
 
-func (suite *LocalUnitTestSuite) TestNewLocalClient() {
+func (suite *LocalUnitTestSuite) TestNewClient() {
 	mockConn := mockConnection.NewMockConnection(suite.T())
 	mockParser := &parser.Parser{}
-	actualLocalClient := NewLocalClient(mockConn, mockParser)
+	actualLocalClient := NewClientWithParser(mockConn, mockParser)
 	expectedLocalClient := &LocalClient{Connection: mockConn, parser: mockParser}
 
 	suite.Equal(expectedLocalClient, actualLocalClient)

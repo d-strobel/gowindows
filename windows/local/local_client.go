@@ -21,9 +21,15 @@ type LocalClient struct {
 	parser     parser.ParserInterface
 }
 
-// NewLocalClient returns a new instance of the LocalClient.
+// NewClient returns a new instance of the LocalClient.
 // It requires a connection and parser as input parameters.
-func NewLocalClient(conn connection.Connection, parser *parser.Parser) *LocalClient {
+func NewClient(conn connection.Connection) *LocalClient {
+	return NewClientWithParser(conn, parser.NewParser())
+}
+
+// NewClientWithParser returns a new instance of the LocalClient.
+// It requires a connection and parser as input parameters.
+func NewClientWithParser(conn connection.Connection, parser *parser.Parser) *LocalClient {
 	return &LocalClient{Connection: conn, parser: parser}
 }
 

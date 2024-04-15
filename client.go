@@ -16,23 +16,13 @@ type Client struct {
 
 // NewClient returns a new instance of the Client object, initialized with the provided configuration.
 // Use this client to execute functions within the Windows subpackages.
-func NewClient(conf connection.Config) (*Client, error) {
-	var err error
+func NewClient(conn connection.Connection) (*Client, error) {
 
 	// Initialize a new client
 	c := &Client{}
 
-	// Store a new connection in the client
-	c.Connection, err = conf.NewConnection()
-	if err != nil {
-		return nil, err
-	}
-
-	// Store a parser in the client
-	parser := parser.NewParser()
-
 	// Build the client with the subpackages
-	c.Local = local.NewLocalClient(c.Connection, parser)
+	c.Local = local.NewClient(c.Connection)
 
 	return c, nil
 }

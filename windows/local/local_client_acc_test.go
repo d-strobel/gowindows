@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/gowindows/parser"
 	"github.com/d-strobel/gowindows/windows/local"
 	"github.com/stretchr/testify/suite"
 )
@@ -27,8 +26,6 @@ type LocalAccTestSuite struct {
 // Setup acceptance test suite for all local functions.
 // We ensure that all commands return the same output with WinRM and SSH.
 func (suite *LocalAccTestSuite) SetupSuite() {
-	parser := parser.NewParser()
-
 	// Setup WinRM connection
 	winRMConfig := &connection.WinRMConfig{
 		WinRMHost:     testHost,
@@ -38,9 +35,9 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 		WinRMInsecure: true,
 		WinRMPort:     winRMPort,
 	}
-	winRMConn, err := winRMConfig.NewConnection()
+	winRMConn, err := connection.NewConnectionWithWinRM(winRMConfig)
 	suite.Require().NoError(err)
-	suite.clients = append(suite.clients, *local.NewLocalClient(winRMConn, parser))
+	suite.clients = append(suite.clients, *local.NewClient(winRMConn))
 
 	// Setup SSH connection
 	sshConfig := &connection.SSHConfig{
@@ -50,9 +47,9 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 		SSHPassword:              password,
 		SSHInsecureIgnoreHostKey: true,
 	}
-	sshConn, err := sshConfig.NewConnection()
+	sshConn, err := connection.NewConnectionWithSSH(sshConfig)
 	suite.Require().NoError(err)
-	suite.clients = append(suite.clients, *local.NewLocalClient(sshConn, parser))
+	suite.clients = append(suite.clients, *local.NewClient(sshConn))
 }
 
 func (suite *LocalAccTestSuite) TearDownSuite() {

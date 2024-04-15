@@ -64,8 +64,8 @@ func (config *SSHConfig) defaults() error {
 	return nil
 }
 
-// NewConnection creates a new SSH client based on the provided configuration.
-func (config *SSHConfig) NewConnection() (*SSHConnection, error) {
+// NewConnectionWithSSH creates a new SSH client based on the provided configuration.
+func NewConnectionWithSSH(config *SSHConfig) (*SSHConnection, error) {
 
 	// Validate configuration
 	if err := config.validate(); err != nil {
