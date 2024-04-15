@@ -22,7 +22,6 @@ type LocalClient struct {
 }
 
 // NewClient returns a new instance of the LocalClient.
-// It requires a connection and parser as input parameters.
 func NewClient(conn connection.Connection) *LocalClient {
 	return NewClientWithParser(conn, parser.NewParser())
 }
