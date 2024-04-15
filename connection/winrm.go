@@ -8,6 +8,15 @@ import (
 	"github.com/d-strobel/winrm"
 )
 
+// Default values for WinRM configuration.
+const (
+	defaultWinRMPort     int           = 5985
+	defaultWinRMPortTLS  int           = 5986
+	defaultWinRMUseTLS   bool          = false
+	defaultWinRMInsecure bool          = false
+	defaultWinRMTimeout  time.Duration = 0
+)
+
 // WinRMConfig represents the configuration details for establishing a WinRM connection.
 type WinRMConfig struct {
 	WinRMUsername string
@@ -24,15 +33,6 @@ type WinRMConfig struct {
 type WinRMConnection struct {
 	Client *winrm.Client
 }
-
-// Default values for WinRM configuration.
-const (
-	defaultWinRMPort     int           = 5985
-	defaultWinRMPortTLS  int           = 5986
-	defaultWinRMUseTLS   bool          = false
-	defaultWinRMInsecure bool          = false
-	defaultWinRMTimeout  time.Duration = 0
-)
 
 // validate validates the WinRM configuration.
 func (config *WinRMConfig) validate() error {

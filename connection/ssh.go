@@ -12,6 +12,12 @@ import (
 	"golang.org/x/crypto/ssh/knownhosts"
 )
 
+// Default values for SSH configuration.
+const (
+	defaultSSHPort        int    = 22
+	defaultKnownHostsPath string = ".ssh/known_hosts"
+)
+
 // SSHConfig represents the configuration details for establishing an SSH connection.
 type SSHConfig struct {
 	SSHHost                  string
@@ -29,13 +35,7 @@ type SSHConnection struct {
 	Client *ssh.Client
 }
 
-// Default values for SSH configuration.
-const (
-	defaultSSHPort        int    = 22
-	defaultKnownHostsPath string = ".ssh/known_hosts"
-)
-
-// validate validates the SSH configuration.
+// validate validates the SSH configuration parameters.
 func (config *SSHConfig) validate() error {
 
 	if (config.SSHHost == "" || config.SSHUsername == "") || (config.SSHPassword == "" && config.SSHPrivateKey == "" && config.SSHPrivateKeyPath == "") {
