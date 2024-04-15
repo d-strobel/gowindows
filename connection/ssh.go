@@ -207,20 +207,8 @@ func (config *SSHConfig) knownHostCallback() (ssh.HostKeyCallback, error) {
 		return ssh.InsecureIgnoreHostKey(), nil
 	}
 
-	// Get the current user from the system
-	user, err := user.Current()
-	if err != nil {
-		return nil, err
-	}
-
-	// Set default values
-	knownHostsPath := fmt.Sprintf("%s/%s", user.HomeDir, defaultKnownHostsPath)
-	if config.SSHKnownHostsPath != "" {
-		knownHostsPath = config.SSHKnownHostsPath
-	}
-
 	// Create the callback from the known hosts file
-	callback, err := knownhosts.New(knownHostsPath)
+	callback, err := knownhosts.New(config.SSHKnownHostsPath)
 	if err != nil {
 		return nil, err
 	}
