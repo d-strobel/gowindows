@@ -3,14 +3,12 @@ package gowindows
 
 import (
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/gowindows/parser"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
 // Client represents a client object for interacting with Windows systems.
 type Client struct {
 	Connection connection.Connection
-	parser     *parser.Parser
 	Local      *local.LocalClient
 }
 
@@ -28,8 +26,6 @@ func NewClient(conn connection.Connection) (*Client, error) {
 }
 
 // Close closes any open connection.
-// Currently, only SSH connections will be terminated.
-// To avoid surprises in the future, this should always be called using a defer statement.
 func (c *Client) Close() error {
 	return c.Connection.Close()
 }
