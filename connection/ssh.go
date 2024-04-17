@@ -89,7 +89,7 @@ func NewConnectionWithSSH(config *SSHConfig) (*SSHConnection, error) {
 	// Authentication method
 	authMethod, err := config.authenticationMethod()
 	if err != nil {
-		return nil, fmt.Errorf("ssh: %s", err)
+		return nil, fmt.Errorf("ssh: authentication method failed with error: %s", err)
 	}
 
 	// Configuration
