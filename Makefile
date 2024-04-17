@@ -22,16 +22,16 @@ dependencies:
 	@go get -d -v ./...
 
 # Setup requirements
-.PHONY: requirements
-requirements:
+.PHONY: vagrant-up
+vagrant-up:
 	@printf "$(OK_COLOR)==> Setup requirements$(NO_COLOR)\n"
-	@$(MAKE) -C testing/environment vagrant-up
+	@$(MAKE) -C vagrant vagrant-up
 
 # Remove requirements
-.PHONY: remove-requirements
-remove-requirements:
+.PHONY: vagrant-down
+vagrant-down:
 	@printf "$(OK_COLOR)==> Remove requirements$(NO_COLOR)\n"
-	@$(MAKE) -C testing/environment vagrant-down
+	@$(MAKE) -C vagrant vagrant-down
 
 # Unit tests
 .PHONY: test
@@ -41,7 +41,6 @@ test: dependencies
 
 # Acceptance tests
 .PHONY: testacc
-testacc: requirements dependencies
+testacc: dependencies
 	@printf "$(OK_COLOR)==> Run acceptance tests$(NO_COLOR)\n"
 	@go test ./...
-	@$(MAKE) remove-requirements
