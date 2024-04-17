@@ -129,9 +129,19 @@ Prerequisites:
 * [Hashicorp Vagrant](https://www.vagrantup.com/)
 * [Oracle VirtualBox](https://www.virtualbox.org/)
 
+Boot the Vagrant machines:
+```bash
+make vagrant-up
+```
+
 Run acceptance tests:
 ```bash
 make testacc
+```
+
+Destroy the Vagrant machines:
+```bash
+make vagrant-down
 ```
 
 ## Third-Party libraries
