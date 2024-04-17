@@ -38,7 +38,7 @@ func main() {
 	}
 
 	// Create a new connection.
-	conn, err := NewConnectionWithWinRM(winRMconfig)
+    conn, err := connection.NewConnectionWithWinRM(winRMconfig)
 	if err != nil {
 		panic(err)
 	}
@@ -86,7 +86,7 @@ func main() {
 	}
 
 	// Create a new connection.
-	conn, err := NewConnectionWithSSH(sshConfig)
+    conn, err := connection.NewConnectionWithSSH(sshConfig)
 	if err != nil {
 		panic(err)
 	}
