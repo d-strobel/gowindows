@@ -82,6 +82,7 @@ func (suite *ConnectionWinRMUnitTestSuite) TestValidate() {
 }
 
 func (suite *ConnectionWinRMUnitTestSuite) TestDefaults() {
+	suite.T().Parallel()
 
 	suite.Run("should set the default values", func() {
 		tcs := []struct {
