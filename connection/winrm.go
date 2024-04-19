@@ -101,7 +101,7 @@ func NewConnectionWithWinRM(config *WinRMConfig) (*WinRMConnection, error) {
 
 	// Kerberos transport
 	if config.WinRMKerberos != nil {
-		params := winRMKerberosParams(config)
+		params := config.winRMKerberosParams()
 
 		client, err := winrm.NewClientWithParameters(winRMEndpoint, config.WinRMUsername, config.WinRMPassword, params)
 		if err != nil {

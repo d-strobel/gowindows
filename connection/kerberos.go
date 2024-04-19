@@ -17,7 +17,7 @@ const (
 
 // winRMKerberosParams returns the necessary parameters
 // to pass into the Kerberos WinRM connection.
-func winRMKerberosParams(config *WinRMConfig) *winrm.Parameters {
+func (config *WinRMConfig) winRMKerberosParams() *winrm.Parameters {
 
 	// Init default parameters
 	params := winrm.DefaultParameters
