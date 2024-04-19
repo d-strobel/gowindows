@@ -16,6 +16,7 @@ func TestConnectionWinRMUnitTestSuite(t *testing.T) {
 }
 
 func (suite *ConnectionWinRMUnitTestSuite) TestValidate() {
+	suite.T().Parallel()
 
 	suite.Run("should be a valide WinRM config", func() {
 		tcs := []struct {
