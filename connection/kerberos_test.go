@@ -34,7 +34,7 @@ func TestWinRMKerberosParams(t *testing.T) {
 				KrbConf:  "/home/test/krb5.conf",
 			}
 		}
-		actualParams := winRMKerberosParams(winRMConf)
+		actualParams := winRMConf.winRMKerberosParams()
 		assert.Equal(t, expectedParams, actualParams)
 	})
 
@@ -64,7 +64,7 @@ func TestWinRMKerberosParams(t *testing.T) {
 				KrbConf:  "/home/test/krb5.conf",
 			}
 		}
-		actualParams := winRMKerberosParams(winRMConf)
+		actualParams := winRMConf.winRMKerberosParams()
 		assert.Equal(t, expectedParams, actualParams)
 	})
 }

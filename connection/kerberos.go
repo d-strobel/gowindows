@@ -10,11 +10,6 @@ type KerberosConfig struct {
 	KrbConfigFile string
 }
 
-// Default kerberos values.
-const (
-	defaultKerberosProtocol = "http"
-)
-
 // winRMKerberosParams returns the necessary parameters
 // to pass into the Kerberos WinRM connection.
 func (config *WinRMConfig) winRMKerberosParams() *winrm.Parameters {
@@ -22,8 +17,8 @@ func (config *WinRMConfig) winRMKerberosParams() *winrm.Parameters {
 	// Init default parameters
 	params := winrm.DefaultParameters
 
-	// Set the protocol
-	kerberosProtocol := defaultKerberosProtocol
+	// When TLS is enabled use https, otherwise use http
+	kerberosProtocol := "http"
 	if config.WinRMUseTLS {
 		kerberosProtocol = "https"
 	}
