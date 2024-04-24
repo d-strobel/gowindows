@@ -26,7 +26,7 @@ type SSHAccTestSuite struct {
 	connection            *ssh.Connection
 }
 
-// SetupSuite setups all neccessary fixtures for running the connection tests.
+// SetupSuite setups all neccessary fixtures for running the ssh tests.
 func (suite *SSHAccTestSuite) SetupSuite() {
 	var err error
 
@@ -58,23 +58,23 @@ func (suite *SSHAccTestSuite) SetupSuite() {
 	suite.privateKeyED25519 = string(privateKeyED25519)
 
 	// Setup SSH connection
-	sshConfig := ssh.Config{
+	sshConfig := &ssh.Config{
 		Host:     suite.host,
 		Port:     suite.port,
 		Username: suite.username,
 		Password: suite.password,
 	}
-	suite.connection, err = ssh.NewConnection(&sshConfig)
+	suite.connection, err = ssh.NewConnection(sshConfig)
 	suite.Require().NoError(err)
 }
 
-// TearDownSuite closes all connections after running the tests.
+// TearDownSuite closes all ssh connections after running the tests.
 func (suite *SSHAccTestSuite) TearDownSuite() {
 	// Close connections
 	suite.connection.Close()
 }
 
-// TestSSHAccTestSuite runs the acceptance test suite for the connection package.
+// TestSSHAccTestSuite runs the acceptance test suite for the ssh package.
 // It will be skipped if the short flag is set.
 func TestSSHAccTestSuite(t *testing.T) {
 	if testing.Short() {
