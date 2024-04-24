@@ -13,6 +13,10 @@ type Connection interface {
 	// It returns the result of the command execution.
 	Run(ctx context.Context, cmd string) (CMDResult, error)
 
+	// RunWithPowershell runs a command using the configured connection and context via Powershell.
+	// It returns the result of the command execution.
+	RunWithPowershell(ctx context.Context, cmd string) (CMDResult, error)
+
 	// Close closes any open connection.
 	Close() error
 }

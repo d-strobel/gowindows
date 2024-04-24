@@ -43,7 +43,7 @@ type SID struct {
 func localRun[T localType](ctx context.Context, c *LocalClient, cmd string, l *T) error {
 
 	// Run the command
-	result, err := c.Connection.Run(ctx, cmd)
+	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {
 		return err
 	}

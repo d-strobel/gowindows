@@ -125,6 +125,63 @@ func (_c *MockConnection_Run_Call) RunAndReturn(run func(context.Context, string
 	return _c
 }
 
+// RunWithPowershell provides a mock function with given fields: ctx, cmd
+func (_m *MockConnection) RunWithPowershell(ctx context.Context, cmd string) (connection.CMDResult, error) {
+	ret := _m.Called(ctx, cmd)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RunWithPowershell")
+	}
+
+	var r0 connection.CMDResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (connection.CMDResult, error)); ok {
+		return rf(ctx, cmd)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) connection.CMDResult); ok {
+		r0 = rf(ctx, cmd)
+	} else {
+		r0 = ret.Get(0).(connection.CMDResult)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, cmd)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockConnection_RunWithPowershell_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RunWithPowershell'
+type MockConnection_RunWithPowershell_Call struct {
+	*mock.Call
+}
+
+// RunWithPowershell is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cmd string
+func (_e *MockConnection_Expecter) RunWithPowershell(ctx interface{}, cmd interface{}) *MockConnection_RunWithPowershell_Call {
+	return &MockConnection_RunWithPowershell_Call{Call: _e.mock.On("RunWithPowershell", ctx, cmd)}
+}
+
+func (_c *MockConnection_RunWithPowershell_Call) Run(run func(ctx context.Context, cmd string)) *MockConnection_RunWithPowershell_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockConnection_RunWithPowershell_Call) Return(_a0 connection.CMDResult, _a1 error) *MockConnection_RunWithPowershell_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockConnection_RunWithPowershell_Call) RunAndReturn(run func(context.Context, string) (connection.CMDResult, error)) *MockConnection_RunWithPowershell_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockConnection creates a new instance of MockConnection. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockConnection(t interface {

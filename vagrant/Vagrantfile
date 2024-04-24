@@ -23,17 +23,17 @@ Vagrant.configure("2") do |config|
   end
 
   # Windows Server 2022 Standard Core with Active Directory
-  config.vm.define "win2022ad" do |win2022ad|
-    win2022ad.vm.box = "d-strobel/win2022sc-ad"
-    win2022ad.winrm.username = "vagrant\\vagrant"
-
-    win2022ad.vm.provision "shell", inline: <<-SHELL
-    $sshPath = "C:\\ProgramData\\ssh\\administrators_authorized_keys"
-    Set-Content -Path $sshPath -Value $null
-    icacls.exe $sshPath /inheritance:r /grant Administrators:F /grant SYSTEM:F
-
-    Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_rsa}'
-    Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_ed25519}'
-    SHELL
-  end
+  # config.vm.define "win2022ad" do |win2022ad|
+  #   win2022ad.vm.box = "d-strobel/win2022sc-ad"
+  #   win2022ad.winrm.username = "vagrant\\vagrant"
+  #
+  #   win2022ad.vm.provision "shell", inline: <<-SHELL
+  #   $sshPath = "C:\\ProgramData\\ssh\\administrators_authorized_keys"
+  #   Set-Content -Path $sshPath -Value $null
+  #   icacls.exe $sshPath /inheritance:r /grant Administrators:F /grant SYSTEM:F
+  #
+  #   Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_rsa}'
+  #   Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_ed25519}'
+  #   SHELL
+  # end
 end

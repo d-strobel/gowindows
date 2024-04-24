@@ -43,14 +43,14 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalGroup -Name Users | ConvertTo-Json -Compress"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: usersGroup,
 		}, nil)
 		var g Group
-		err := localRun[Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.NoError(err)
 		suite.Equal(expectedUsersGroup, g)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 
@@ -64,14 +64,14 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalGroup | ConvertTo-Json"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: groupList,
 		}, nil)
 		var g []Group
-		err := localRun[[]Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.NoError(err)
 		suite.Equal(expectedGroupList, g)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 
@@ -85,14 +85,14 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalGroup -Name Users | ConvertTo-Json -compress"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: usersGroup,
 		}, nil)
 		var g Group
-		err := localRun[Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.NoError(err)
 		suite.Equal(expectedUsersGroup, g)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 
@@ -106,15 +106,15 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Remove-LocalGroup -Name Test"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: "",
 		}, nil)
 		var g Group
 		var expectedGroup Group
-		err := localRun[Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.NoError(err)
 		suite.Equal(expectedGroup, g)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 
@@ -128,13 +128,13 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Remove-LocalGroup -Name Test"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
 		var g Group
 		expectedErr := errors.New("test-error")
-		err := localRun[Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.Error(err)
 		suite.Equal(expectedErr, err)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 
@@ -148,16 +148,16 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalGroup -name Userrs"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdErr: "clixml-error",
 		}, nil)
 		mockParser.On("DecodeCLIXML", "clixml-error").Return("powershell-error", nil)
 		var g Group
 		expectedErr := errors.New("Command:\nGet-LocalGroup -name Userrs\n\nPowershell error:\npowershell-error")
-		err := localRun[Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.Error(err)
 		suite.Equal(expectedErr, err)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertCalled(suite.T(), "DecodeCLIXML", "clixml-error")
 	})
 
@@ -171,16 +171,16 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalGroup -name Userrs"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdErr: "incorrect-clixml-error",
 		}, nil)
 		mockParser.On("DecodeCLIXML", "incorrect-clixml-error").Return("", errors.New("parser-error"))
 		var g Group
 		expectedErr := errors.New("parser-error")
-		err := localRun[Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.Error(err)
 		suite.Equal(expectedErr, err)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertCalled(suite.T(), "DecodeCLIXML", "incorrect-clixml-error")
 	})
 
@@ -194,13 +194,13 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalGroup -name Users"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: groupList,
 		}, nil)
 		var g Group
-		err := localRun[Group](ctx, c, expectedCMD, &g)
+		err := localRun(ctx, c, expectedCMD, &g)
 		suite.Error(err)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 }

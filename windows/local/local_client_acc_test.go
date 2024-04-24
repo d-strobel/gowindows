@@ -1,53 +1,72 @@
 package local_test
 
 import (
+	"os"
+	"strconv"
 	"testing"
 
-	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/connection/ssh"
+	"github.com/d-strobel/gowindows/connection/winrm"
 	"github.com/d-strobel/gowindows/windows/local"
 	"github.com/stretchr/testify/suite"
-)
-
-// Connection parameters for acceptance test.
-const (
-	testHost  = "127.0.0.1"
-	username  = "vagrant"
-	password  = "vagrant"
-	winRMPort = 15986
-	sshPort   = 1222
 )
 
 // Acceptance test suite for all local functions.
 type LocalAccTestSuite struct {
 	suite.Suite
-	clients []local.LocalClient
+
+	// Fixtures
+	host      string
+	username  string
+	password  string
+	winRMPort int
+	sshPort   int
+	clients   []local.LocalClient
 }
 
-// Setup acceptance test suite for all local functions.
+// SetupSuite setups the acceptance test suite for all local functions.
 // We ensure that all commands return the same output with WinRM and SSH.
 func (suite *LocalAccTestSuite) SetupSuite() {
+	var err error
+
+	// Load environment variables
+	suite.host = os.Getenv("GOWINDOWS_TEST_HOST")
+	suite.Require().NotEmpty(suite.host, "Environment variable not set: GOWINDOWS_TEST_HOST")
+
+	suite.username = os.Getenv("GOWINDOWS_TEST_USERNAME")
+	suite.Require().NotEmpty(suite.username, "Environment variable not set: GOWINDOWS_TEST_USERNAME")
+
+	suite.password = os.Getenv("GOWINDOWS_TEST_PASSWORD")
+	suite.Require().NotEmpty(suite.password, "Environment variable not set: GOWINDOWS_TEST_PASSWORD")
+
+	suite.winRMPort, err = strconv.Atoi(os.Getenv("GOWINDOWS_TEST_WINRM_HTTP_PORT"))
+	suite.Require().NoError(err)
+
+	suite.sshPort, err = strconv.Atoi(os.Getenv("GOWINDOWS_TEST_SSH_PORT"))
+	suite.Require().NoError(err)
+
 	// Setup WinRM connection
-	winRMConfig := &connection.WinRMConfig{
-		WinRMHost:     testHost,
-		WinRMUsername: username,
-		WinRMPassword: password,
-		WinRMUseTLS:   true,
-		WinRMInsecure: true,
-		WinRMPort:     winRMPort,
+	winRMConfig := &winrm.Config{
+		Host:     suite.host,
+		Username: suite.username,
+		Password: suite.password,
+		UseTLS:   false,
+		Insecure: true,
+		Port:     suite.winRMPort,
 	}
-	winRMConn, err := connection.NewConnectionWithWinRM(winRMConfig)
+	winRMConn, err := winrm.NewConnection(winRMConfig)
 	suite.Require().NoError(err)
 	suite.clients = append(suite.clients, *local.NewClient(winRMConn))
 
 	// Setup SSH connection
-	sshConfig := &connection.SSHConfig{
-		SSHHost:                  testHost,
-		SSHPort:                  sshPort,
-		SSHUsername:              username,
-		SSHPassword:              password,
-		SSHInsecureIgnoreHostKey: true,
+	sshConfig := &ssh.Config{
+		Host:                  suite.host,
+		Username:              suite.username,
+		Password:              suite.password,
+		Port:                  suite.sshPort,
+		InsecureIgnoreHostKey: true,
 	}
-	sshConn, err := connection.NewConnectionWithSSH(sshConfig)
+	sshConn, err := ssh.NewConnection(sshConfig)
 	suite.Require().NoError(err)
 	suite.clients = append(suite.clients, *local.NewClient(sshConn))
 }
