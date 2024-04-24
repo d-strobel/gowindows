@@ -6,7 +6,7 @@ Gopher mascot designed by [Renee French](https://reneefrench.blogspot.com/)
 
 License: Creative Commons Attribution 4.0.
 
-Original Source: https://go.dev/blog/gopher and [@reneefrench](https://twitter.com/reneefrench) on Twitter / X 
+Original Source: https://go.dev/blog/gopher and [@reneefrench](https://twitter.com/reneefrench) on Twitter / X
 
 ### PowerShell Hero:
 The reference to the PowerShell Hero is for non-commercial use. All credits go to Microsoft.
