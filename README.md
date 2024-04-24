@@ -15,6 +15,11 @@ Leveraging WinRM and SSH connections, gowindows provides a comprehensive set of 
 This library is especially useful when combined with tools like Terraform, enabling seamless integration into infrastructure as code workflows for Windows environments.
 
 ## Usage
+
+The library can be used either with a single package, e.g. "github.com/d-strobel/gowindows/windows/local" or with multiple packages via the "github.com/d-strobel/gowindows" client.
+
+If the "multi-client" is used, then all subpackages will be attached to the client.
+
 ### Single Client with a WinRM Connection
 ```go
 package main
@@ -23,22 +28,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/gowindows/parser"
+	"github.com/d-strobel/gowindows/connection/winrm"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
 func main() {
 	// Define WinRM configuration parameters.
-	winRMconfig := &connection.WinRMConfig{
-		WinRMUsername: "vagrant",
-		WinRMPassword: "vagrant",
-		WinRMHost:     "winsrv",
-		WinRMInsecure: true, // Ignore invalid certificates
+	winRMConfig := &winrm.Config{
+		Username: "vagrant",
+		Password: "vagrant",
+		Host:     "winsrv",
+		Insecure: true, // Ignore invalid certificates
 	}
 
 	// Create a new connection.
-    conn, err := connection.NewConnectionWithWinRM(winRMconfig)
+    conn, err := winrm.NewConnection(winRMconfig)
 	if err != nil {
 		panic(err)
 	}
@@ -71,27 +75,27 @@ import (
 	"fmt"
 
 	"github.com/d-strobel/gowindows"
-	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/connection/ssh"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
 func main() {
 	// SSH configuration parameter
-	sshConfig := &connection.SSHConfig{
-		SSHHost:                  "winsrv",
-		SSHPort:                  22,
-		SSHUsername:              "vagrant",
-		SSHPassword:              "vagrant",
-		SSHInsecureIgnoreHostKey: true, // Ignore unknown or invalid host keys
+	sshConfig := &ssh.Config{
+		Host:                  "winsrv",
+		Port:                  22,
+		Username:              "vagrant",
+		Password:              "vagrant",
+		InsecureIgnoreHostKey: true, // Ignore unknown or invalid host keys
 	}
 
 	// Create a new connection.
-    conn, err := connection.NewConnectionWithSSH(sshConfig)
+    conn, err := ssh.NewConnection(sshConfig)
 	if err != nil {
 		panic(err)
 	}
 
-	// Create client for the local package
+	// Create client for the all packages
 	c, err := gowindows.NewClient(conn)
 	if err != nil {
 		panic(err)
