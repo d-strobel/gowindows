@@ -92,10 +92,10 @@ func (suite *WinRMUnitTestSuite) TestKerberosValidate() {
 }
 
 func (suite *WinRMUnitTestSuite) TestKerberosParams() {
-	suite.Run("should return a valid kerberos configuration", func() {
-		KrbConf := &KerberosConfig{
+	suite.Run("should return the expected kerberos transporter", func() {
+		krbConf := &KerberosConfig{
 			Realm:         "test.local",
-			KrbConfigFile: "/home/test/krb5.conf",
+			KrbConfigFile: "/home2/test/krb5.conf",
 			Protocol:      "http",
 		}
 		winRMConf := &Config{
@@ -106,7 +106,7 @@ func (suite *WinRMUnitTestSuite) TestKerberosParams() {
 			UseTLS:   false,
 			Insecure: true,
 		}
-		expectedParams := winrm.DefaultParameters
+		expectedParams := winrm.NewParameters("PT60S", "en-US", 153600)
 		expectedParams.TransportDecorator = func() winrm.Transporter {
 			return &winrm.ClientKerberos{
 				Username: "test",
@@ -115,10 +115,10 @@ func (suite *WinRMUnitTestSuite) TestKerberosParams() {
 				Realm:    "test.local",
 				Port:     5555,
 				Proto:    "http",
-				KrbConf:  "/home/test/krb5.conf",
+				KrbConf:  "/home2/test/krb5.conf",
 			}
 		}
-		actualParams := KrbConf.kerberosParams(winRMConf)
-		suite.Assertions.Equal(expectedParams, actualParams)
+		actualParams := krbConf.kerberosParams(winRMConf)
+		suite.Assertions.Equal(expectedParams.TransportDecorator(), actualParams.TransportDecorator())
 	})
 }

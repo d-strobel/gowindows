@@ -46,7 +46,7 @@ func (krbConfig *KerberosConfig) defaults() error {
 // to pass into the Kerberos WinRM connection.
 func (krbConfig *KerberosConfig) kerberosParams(config *Config) *winrm.Parameters {
 	// Init default parameters
-	params := winrm.DefaultParameters
+	params := winrm.NewParameters("PT60S", "en-US", 153600)
 
 	// Configure kerberos transporter
 	params.TransportDecorator = func() winrm.Transporter {
