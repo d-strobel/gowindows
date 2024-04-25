@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  Windows Server 2022 Standard Core with Active Directory
+  # Windows Server 2022 Standard Core with Active Directory
   config.vm.define "win2022ad" do |win2022ad|
     win2022ad.vm.box = "d-strobel/win2022sc-ad"
     win2022ad.winrm.username = "vagrant\\vagrant"
@@ -36,4 +36,5 @@ Vagrant.configure("2") do |config|
     Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_ed25519}'
     SHELL
   end
+
 end
