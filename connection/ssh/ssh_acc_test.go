@@ -24,6 +24,10 @@ type SSHAccTestSuite struct {
 	privateKeyPathRSA     string
 	privateKeyRSA         string
 	connection            *ssh.Connection
+	adHost                string
+	adUsernamePre2k       string
+	adPassword            string
+	adPort                int
 }
 
 // SetupSuite setups all neccessary fixtures for running the ssh tests.
@@ -56,6 +60,18 @@ func (suite *SSHAccTestSuite) SetupSuite() {
 	privateKeyED25519, err := os.ReadFile(suite.privateKeyPathED25519)
 	suite.Require().NoError(err)
 	suite.privateKeyED25519 = string(privateKeyED25519)
+
+	suite.adHost = os.Getenv("GOWINDOWS_TEST_AD_HOST")
+	suite.Require().NotEmpty(suite.host, "Environment variable not set: GOWINDOWS_TEST_AD_HOST")
+
+	suite.adUsernamePre2k = os.Getenv("GOWINDOWS_TEST_AD_USERNAME_PRE2K")
+	suite.Require().NotEmpty(suite.username, "Environment variable not set: GOWINDOWS_TEST_AD_USERNAME_PRE2K")
+
+	suite.adPassword = os.Getenv("GOWINDOWS_TEST_AD_PASSWORD")
+	suite.Require().NotEmpty(suite.password, "Environment variable not set: GOWINDOWS_TEST_AD_PASSWORD")
+
+	suite.adPort, err = strconv.Atoi(os.Getenv("GOWINDOWS_TEST_AD_SSH_PORT"))
+	suite.Require().NoError(err)
 
 	// Setup SSH connection
 	sshConfig := &ssh.Config{
@@ -141,6 +157,21 @@ func (suite *SSHAccTestSuite) TestNewConnection() {
 			Port:       suite.port,
 			Username:   suite.username,
 			PrivateKey: suite.privateKeyRSA,
+		}
+
+		conn, err := ssh.NewConnection(&sshConfig)
+		suite.Assertions.NoError(err)
+		conn.Close()
+	})
+
+	// Domaincontroller tests
+	suite.Run("domain: should establish a connection via password", func() {
+		sshConfig := ssh.Config{
+			Host:                  suite.adHost,
+			Port:                  suite.adPort,
+			Username:              suite.adUsernamePre2k,
+			Password:              suite.adPassword,
+			InsecureIgnoreHostKey: true,
 		}
 
 		conn, err := ssh.NewConnection(&sshConfig)
