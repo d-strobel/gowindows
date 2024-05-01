@@ -12,48 +12,6 @@ type Connection struct {
 	Client *winrm.Client
 }
 
-// NewConnectionWithKerberos creates a new WinRM client with Kerberos authentication.
-// It takes a WinRM configuration and a Kerberos configuration as input parameters.
-func NewConnectionWithKerberos(config *Config, krbConfig *KerberosConfig) (*Connection, error) {
-	// Validate configuration for WinRM and Kerberos.
-	if err := config.validate(); err != nil {
-		return nil, err
-	}
-	if err := krbConfig.validate(); err != nil {
-		return nil, err
-	}
-
-	// Set default values for WinRM and Kerberos.
-	if err := config.defaults(); err != nil {
-		return nil, err
-	}
-	if err := krbConfig.defaults(); err != nil {
-		return nil, err
-	}
-
-	// WinRM connection
-	winRMEndpoint := winrm.NewEndpoint(
-		config.Host,
-		config.Port,
-		config.UseTLS,
-		config.Insecure,
-		nil, // CA certificate
-		nil, // Client Certificate
-		nil, // Client Key
-		config.Timeout,
-	)
-
-	params := krbConfig.kerberosParams(config)
-
-	// Create a new WinRM client with Kerberos authentication.
-	client, err := winrm.NewClientWithParameters(winRMEndpoint, config.Username, config.Password, params)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Connection{Client: client}, nil
-}
-
 // NewConnection creates a new WinRM client based on the provided WinRM configuration.
 func NewConnection(config *Config) (*Connection, error) {
 	// Validate configuration
