@@ -16,11 +16,7 @@ This library is especially useful when combined with tools like Terraform, enabl
 
 ## Usage
 
-The library can be used either with a single package, e.g. "github.com/d-strobel/gowindows/windows/local" or with multiple packages via the "github.com/d-strobel/gowindows" client.
-
-If the "multi-client" is used, then all subpackages will be attached to the client.
-
-### Single Client with a WinRM Connection
+### Single Client with an SSH Connection
 ```go
 package main
 
@@ -28,45 +24,39 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/d-strobel/gowindows/connection/winrm"
+	"github.com/d-strobel/gowindows/connection/ssh"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
 func main() {
-	// Define WinRM configuration parameters.
-	winRMConfig := &winrm.Config{
+	sshConfig := &ssh.Config{
+		Host:     "winsrv",
 		Username: "vagrant",
 		Password: "vagrant",
-		Host:     "winsrv",
-		Insecure: true, // Ignore invalid certificates
 	}
 
 	// Create a new connection.
-    conn, err := winrm.NewConnection(winRMconfig)
+	conn, err := ssh.NewConnection(sshConfig)
 	if err != nil {
 		panic(err)
 	}
 
-	// Create a new client within the local package.
+	// Create a client for the local package.
 	c := local.NewClient(conn)
 	defer c.Connection.Close()
 
-	// Create context.
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Run the GroupRead function to retrieve a local Windows group with the name "Users".
-	group, err := c.GroupRead(ctx, local.GroupReadParams{Name: "Users"})
+	// Run the GroupRead function to retrieve a local Windows group.
+	group, err := c.GroupRead(context.Background(), local.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
 
-	// Print the user group to stdout.
+	// Print the user group.
 	fmt.Printf("User group: %+v", group)
 }
 ```
 
-### Multi Client with an SSH Connection
+### Multi Client with a WinRM Connection
 ```go
 package main
 
@@ -75,44 +65,34 @@ import (
 	"fmt"
 
 	"github.com/d-strobel/gowindows"
-	"github.com/d-strobel/gowindows/connection/ssh"
+	"github.com/d-strobel/gowindows/connection/winrm"
 	"github.com/d-strobel/gowindows/windows/local"
 )
 
 func main() {
-	// SSH configuration parameter
-	sshConfig := &ssh.Config{
-		Host:                  "winsrv",
-		Port:                  22,
-		Username:              "vagrant",
-		Password:              "vagrant",
-		InsecureIgnoreHostKey: true, // Ignore unknown or invalid host keys
+	winrmConfig := &winrm.Config{
+		Host:     "winsrv",
+		Username: "vagrant",
+		Password: "vagrant",
 	}
 
 	// Create a new connection.
-    conn, err := ssh.NewConnection(sshConfig)
+	conn, err := winrm.NewConnection(winrmConfig)
 	if err != nil {
 		panic(err)
 	}
 
-	// Create client for the all packages
-	c, err := gowindows.NewClient(conn)
-	if err != nil {
-		panic(err)
-	}
+	// Create client for all subpackages.
+	c := gowindows.NewClient(conn)
 	defer c.Close()
 
-	// Create context
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Run the GroupRead function to retrieve a local Windows group
-	group, err := c.Local.GroupRead(ctx, local.GroupReadParams{Name: "Users"})
+	// Run the GroupRead function to retrieve a local Windows group.
+	group, err := c.Local.GroupRead(context.Background(), local.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
 
-	// Print the user group
+	// Print the user group.
 	fmt.Printf("User group: %+v", group)
 }
 ```
