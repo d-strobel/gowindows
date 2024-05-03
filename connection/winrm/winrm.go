@@ -1,3 +1,10 @@
+// Package winrm provides functionality for establishing and managing WinRM (Windows Remote Management) connections.
+// It facilitates executing commands on remote Windows machines securely over HTTP(S) using the WinRM protocol.
+//
+// Key Features:
+//   - Establishes WinRM connections based on provided configuration.
+//   - Handles authentication and secure communication with remote Windows hosts.
+//   - Supports execution of commands including cmd and powershell commands.
 package winrm
 
 import (

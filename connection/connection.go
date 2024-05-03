@@ -1,4 +1,5 @@
-// Package connection provides a Go library for handling connections to Windows-based systems using WinRM and SSH protocols.
+// Package connection defines an interface and utilities for establishing and managing generic connections to remote systems.
+// It provides an abstraction layer for executing commands and managing the lifecycle of connections, facilitating interoperability with various connection types such as WinRM and SSH.
 package connection
 
 import (
@@ -23,6 +24,9 @@ type Connection interface {
 
 // CMDResult represents the result of executing a command, including stdout and stderr.
 type CMDResult struct {
+	// StdOut contains the standard output of the command.
 	StdOut string
+
+	// StdErr contains the standard error output of the command.
 	StdErr string
 }

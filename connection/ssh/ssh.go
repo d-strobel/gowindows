@@ -1,3 +1,10 @@
+// Package ssh offers utilities for creating and managing SSH (Secure Shell) connections, enabling secure communication with Windows operating systems.
+// It allows executing commands on remote hosts securely and efficiently.
+//
+// Key Features:
+//   - Establishes SSH connections with remote hosts based on provided configuration.
+//   - Handles authentication mechanisms such as password-based and privatekey-based authentication.
+//   - Supports execution of commands including cmd and powershell commands.
 package ssh
 
 import (
