@@ -93,19 +93,19 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 	suite.Run("should return the correct user", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: adminUser,
 		}, nil)
 		actualAdminUser, err := c.UserRead(ctx, UserReadParams{Name: "Administrator"})
 		suite.Require().NoError(err)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		suite.Equal(expectedAdminUser, actualAdminUser)
 	})
@@ -137,16 +137,16 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
 				parser:     mockParser,
 			}
-			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			mockConn.On("RunWithPowershell", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
 			_, err := c.UserRead(ctx, tc.inputParameters)
 			suite.Require().NoError(err)
-			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, tc.expectedCMD)
 			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		}
 	})
@@ -173,7 +173,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
@@ -181,7 +181,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			}
 			_, err := c.UserRead(ctx, tc.inputParameters)
 			suite.EqualError(err, tc.expectedErr)
-			mockConn.AssertNotCalled(suite.T(), "Run")
+			mockConn.AssertNotCalled(suite.T(), "RunWithPowershell")
 			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		}
 	})
@@ -189,17 +189,17 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 	suite.Run("should return error if run fails", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
 		_, err := c.UserRead(ctx, UserReadParams{Name: "Administrator"})
 		suite.EqualError(err, "windows.local.UserRead: test-error")
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 }
@@ -209,19 +209,19 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 	suite.Run("should return the correct list of user", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalUser | ConvertTo-Json -Compress"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: userList,
 		}, nil)
 		actualUserList, err := c.UserList(ctx)
 		suite.Require().NoError(err)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		suite.Equal(expectedUserList, actualUserList)
 	})
@@ -229,17 +229,17 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 	suite.Run("should return error if run fails", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
 			parser:     mockParser,
 		}
 		expectedCMD := "Get-LocalUser | ConvertTo-Json -Compress"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{}, errors.New("test-error"))
 		_, err := c.UserList(ctx)
 		suite.EqualError(err, "windows.local.UserList: test-error")
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 	})
 }
@@ -249,14 +249,14 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 	suite.Run("should return the correct new user", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+		mockConn := mockConnection.NewMockConnection(suite.T())
 		mockParser := mockParser.NewMockParserInterface(suite.T())
 		c := &LocalClient{
 			Connection: mockConn,
 			parser:     mockParser,
 		}
 		expectedCMD := "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -UserMayNotChangePassword:$false | ConvertTo-Json -Compress"
-		mockConn.On("Run", ctx, expectedCMD).Return(connection.CMDResult{
+		mockConn.On("RunWithPowershell", ctx, expectedCMD).Return(connection.CMDResult{
 			StdOut: testUser,
 		}, nil)
 		actualTestUser, err := c.UserCreate(ctx, UserCreateParams{
@@ -268,7 +268,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			AccountExpires:        time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC),
 		})
 		suite.Require().NoError(err)
-		mockConn.AssertCalled(suite.T(), "Run", ctx, expectedCMD)
+		mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, expectedCMD)
 		mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		suite.Equal(expectedTestUser, actualTestUser)
 	})
@@ -291,8 +291,8 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			},
 			{
 				"assert user with Name + AccountExpires",
-				UserCreateParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
+				UserCreateParams{Name: "Tester", AccountExpires: time.Date(3024, time.April, 10, 15, 0, 0, 0, time.UTC)},
+				"New-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '3024-04-10 15:00:00') -Disabled -NoPassword -UserMayNotChangePassword | ConvertTo-Json -Compress",
 			},
 			{
 				"assert user with Name + Enabled",
@@ -320,16 +320,16 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
 				parser:     mockParser,
 			}
-			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			mockConn.On("RunWithPowershell", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
 			_, err := c.UserCreate(ctx, tc.inputParameters)
 			suite.Require().NoError(err)
-			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, tc.expectedCMD)
 			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		}
 	})
@@ -359,8 +359,8 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			},
 			{
 				"assert user with Name + AccountExpires",
-				UserUpdateParams{Name: "Tester", AccountExpires: time.Date(2024, time.April, 10, 15, 0, 0, 0, time.UTC)},
-				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '2024-04-10 15:00:00') -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Disable-LocalUser -Name 'Tester'",
+				UserUpdateParams{Name: "Tester", AccountExpires: time.Date(3024, time.April, 10, 15, 0, 0, 0, time.UTC)},
+				"Set-LocalUser -Name 'Tester' -AccountExpires $(Get-Date '3024-04-10 15:00:00') -Description '' -FullName '' -PasswordNeverExpires:$false -UserMayChangePassword:$false ;Disable-LocalUser -Name 'Tester'",
 			},
 			{
 				"assert user with Name + Description + FullName",
@@ -378,16 +378,16 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
 				parser:     mockParser,
 			}
-			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			mockConn.On("RunWithPowershell", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
 			err := c.UserUpdate(ctx, tc.inputParameters)
 			suite.Require().NoError(err)
-			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, tc.expectedCMD)
 			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		}
 	})
@@ -416,16 +416,16 @@ func (suite *LocalUnitTestSuite) TestUserDelete() {
 			suite.T().Logf("test case: %s", tc.description)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			mockConn := mockConnection.NewMockConnectionInterface(suite.T())
+			mockConn := mockConnection.NewMockConnection(suite.T())
 			mockParser := mockParser.NewMockParserInterface(suite.T())
 			c := &LocalClient{
 				Connection: mockConn,
 				parser:     mockParser,
 			}
-			mockConn.On("Run", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
+			mockConn.On("RunWithPowershell", ctx, tc.expectedCMD).Return(connection.CMDResult{}, nil)
 			err := c.UserDelete(ctx, tc.inputParameters)
 			suite.Require().NoError(err)
-			mockConn.AssertCalled(suite.T(), "Run", ctx, tc.expectedCMD)
+			mockConn.AssertCalled(suite.T(), "RunWithPowershell", ctx, tc.expectedCMD)
 			mockParser.AssertNotCalled(suite.T(), "DecodeCLIXML")
 		}
 	})

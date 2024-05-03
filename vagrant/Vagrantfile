@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Read SSH public keys from files
+ssh_public_key_rsa = File.readlines('id_rsa.pub').first.strip
+ssh_public_key_ed25519 = File.readlines('ed25519.pub').first.strip
+
+# Configure vagrant boxes
+Vagrant.configure("2") do |config|
+
+  # Windows Server 2022 Standard Core
+  config.vm.define "win2022sc" do |win2022sc|
+    win2022sc.vm.box = "d-strobel/win2022sc"
+
+    win2022sc.vm.provision "shell", inline: <<-SHELL
+    $sshPath = "C:\\ProgramData\\ssh\\administrators_authorized_keys"
+    Set-Content -Path $sshPath -Value $null
+    icacls.exe $sshPath /inheritance:r /grant Administrators:F /grant SYSTEM:F
+
+    Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_rsa}'
+    Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_ed25519}'
+    SHELL
+  end
+
+  # Windows Server 2022 Standard Core with Active Directory
+  config.vm.define "win2022ad" do |win2022ad|
+    win2022ad.vm.box = "d-strobel/win2022sc-ad"
+    win2022ad.winrm.username = "vagrant\\vagrant"
+
+    win2022ad.vm.provision "shell", inline: <<-SHELL
+    $sshPath = "C:\\ProgramData\\ssh\\administrators_authorized_keys"
+    Set-Content -Path $sshPath -Value $null
+    icacls.exe $sshPath /inheritance:r /grant Administrators:F /grant SYSTEM:F
+
+    Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_rsa}'
+    Add-Content -Force -Path $sshPath -Value '#{ssh_public_key_ed25519}'
+    SHELL
+  end
+
+end

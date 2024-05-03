@@ -7,6 +7,8 @@ WARN_COLOR=\033[33;01m
 # Source .env file if available
 ifneq ("$(wildcard .env)","")
 	include .env
+else
+	include ./vagrant/vagrant.env
 endif
 
 # Format code
@@ -22,16 +24,16 @@ dependencies:
 	@go get -d -v ./...
 
 # Setup requirements
-.PHONY: requirements
-requirements:
-	@printf "$(OK_COLOR)==> Setup requirements$(NO_COLOR)\n"
-	@$(MAKE) -C testing/environment vagrant-up
+.PHONY: vagrant-up
+vagrant-up:
+	@printf "$(OK_COLOR)==> Setup vagrant machines$(NO_COLOR)\n"
+	@$(MAKE) -C vagrant vagrant-up
 
 # Remove requirements
-.PHONY: remove-requirements
-remove-requirements:
-	@printf "$(OK_COLOR)==> Remove requirements$(NO_COLOR)\n"
-	@$(MAKE) -C testing/environment vagrant-down
+.PHONY: vagrant-down
+vagrant-down:
+	@printf "$(OK_COLOR)==> Remove vagrant machines$(NO_COLOR)\n"
+	@$(MAKE) -C vagrant vagrant-down
 
 # Unit tests
 .PHONY: test
@@ -41,7 +43,25 @@ test: dependencies
 
 # Acceptance tests
 .PHONY: testacc
-testacc: requirements dependencies
+testacc: dependencies
 	@printf "$(OK_COLOR)==> Run acceptance tests$(NO_COLOR)\n"
 	@go test ./...
-	@$(MAKE) remove-requirements
+
+.PHONY: check-env
+check-env:
+	@printf "$(OK_COLOR)==> Environment variables for default Windows test machine$(NO_COLOR)\n"
+	@echo "Host: $(GOWINDOWS_TEST_HOST)"
+	@echo "Username: $(GOWINDOWS_TEST_USERNAME)"
+	@echo "Password: $(GOWINDOWS_TEST_PASSWORD)"
+	@echo "SSH Port: $(GOWINDOWS_TEST_SSH_PORT)"
+	@echo "SSH private key path to ed25519: $(GOWINDOWS_TEST_SSH_PRIVATE_KEY_ED25519_PATH)"
+	@echo "SSH private key path to rsa: $(GOWINDOWS_TEST_SSH_PRIVATE_KEY_RSA_PATH)"
+	@echo "WinRM http port: $(GOWINDOWS_TEST_WINRM_HTTP_PORT)"
+	@echo "WinRM https port: $(GOWINDOWS_TEST_WINRM_HTTPS_PORT)"
+	@printf "\n$(OK_COLOR)==> Environment variables for Active-Directory Windows test machine$(NO_COLOR)\n"
+	@echo "Host: $(GOWINDOWS_TEST_AD_HOST)"
+	@echo "Username: $(GOWINDOWS_TEST_AD_USERNAME)"
+	@echo "Password: $(GOWINDOWS_TEST_AD_PASSWORD)"
+	@echo "SSH Port: $(GOWINDOWS_TEST_AD_SSH_PORT)"
+	@echo "WinRM http port: $(GOWINDOWS_TEST_AD_WINRM_HTTP_PORT)"
+	@echo "WinRM https port: $(GOWINDOWS_TEST_AD_WINRM_HTTPS_PORT)"

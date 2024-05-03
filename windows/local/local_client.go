@@ -17,13 +17,18 @@ type localType interface {
 
 // LocalClient represents a client for handling local Windows functions.
 type LocalClient struct {
-	Connection connection.ConnectionInterface
+	Connection connection.Connection
 	parser     parser.ParserInterface
 }
 
-// NewLocalClient returns a new instance of the LocalClient.
+// NewClient returns a new instance of the LocalClient.
+func NewClient(conn connection.Connection) *LocalClient {
+	return NewClientWithParser(conn, parser.NewParser())
+}
+
+// NewClientWithParser returns a new instance of the LocalClient.
 // It requires a connection and parser as input parameters.
-func NewLocalClient(conn *connection.Connection, parser *parser.Parser) *LocalClient {
+func NewClientWithParser(conn connection.Connection, parser *parser.Parser) *LocalClient {
 	return &LocalClient{Connection: conn, parser: parser}
 }
 
@@ -38,7 +43,7 @@ type SID struct {
 func localRun[T localType](ctx context.Context, c *LocalClient, cmd string, l *T) error {
 
 	// Run the command
-	result, err := c.Connection.Run(ctx, cmd)
+	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {
 		return err
 	}
