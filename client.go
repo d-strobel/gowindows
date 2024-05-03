@@ -17,7 +17,9 @@ type Client struct {
 func NewClient(conn connection.Connection) (*Client, error) {
 
 	// Initialize a new client
-	c := &Client{}
+	c := &Client{
+		Connection: conn,
+	}
 
 	// Build the client with the subpackages
 	c.Local = local.NewClient(c.Connection)
