@@ -28,7 +28,7 @@ func (suite *GowindowsUnitTestSuite) TestNewClient() {
 		}
 
 		actualClient, err := NewClient(mockConn)
-		suite.Assertions.NoError(err)
-		suite.Assertions.IsType(expectedClient, actualClient)
+		suite.NoError(err)
+		suite.Equal(expectedClient, actualClient)
 	})
 }
