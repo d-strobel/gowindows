@@ -14,17 +14,17 @@ type Client struct {
 
 // NewClient returns a new instance of the Client object, initialized with the provided configuration.
 // Use this client to execute functions within the Windows subpackages.
-func NewClient(conn connection.Connection) (*Client, error) {
+func NewClient(conn connection.Connection) *Client {
 
-	// Initialize a new client
+	// Initialize a new client with the provided connection.
 	c := &Client{
 		Connection: conn,
 	}
 
-	// Build the client with the subpackages
+	// Build the client with the subpackages.
 	c.Local = local.NewClient(c.Connection)
 
-	return c, nil
+	return c
 }
 
 // Close closes any open connection.

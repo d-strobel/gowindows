@@ -67,11 +67,10 @@ func (suite *GowindowsAccTestSuite) TestNewClient() {
 		suite.Require().NoError(err)
 		defer conn.Close()
 
-		client, err := gowindows.NewClient(conn)
-		suite.Require().NoError(err)
-
+		client := gowindows.NewClient(conn)
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
 		_, err = client.Local.UserList(ctx)
 		suite.NoError(err)
 	})
@@ -87,11 +86,10 @@ func (suite *GowindowsAccTestSuite) TestNewClient() {
 		suite.Require().NoError(err)
 		defer conn.Close()
 
-		client, err := gowindows.NewClient(conn)
-		suite.Require().NoError(err)
-
+		client := gowindows.NewClient(conn)
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
 		_, err = client.Local.UserList(ctx)
 		suite.NoError(err)
 	})
