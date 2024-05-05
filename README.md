@@ -25,7 +25,7 @@ import (
 	"fmt"
 
 	"github.com/d-strobel/gowindows/connection/ssh"
-	"github.com/d-strobel/gowindows/windows/localaccounts"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
 
 func main() {
@@ -41,12 +41,12 @@ func main() {
 		panic(err)
 	}
 
-	// Create a client for the localaccounts package.
-	c := localaccounts.NewClient(conn)
+	// Create a client for the local accounts package.
+	c := accounts.NewClient(conn)
 	defer c.Connection.Close()
 
 	// Run the GroupRead function to retrieve a local Windows group.
-	group, err := c.GroupRead(context.Background(), localaccounts.GroupReadParams{Name: "Users"})
+	group, err := c.GroupRead(context.Background(), accounts.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +66,7 @@ import (
 
 	"github.com/d-strobel/gowindows"
 	"github.com/d-strobel/gowindows/connection/winrm"
-	"github.com/d-strobel/gowindows/windows/localaccounts"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
 
 func main() {
@@ -87,7 +87,7 @@ func main() {
 	defer c.Close()
 
 	// Run the GroupRead function to retrieve a local Windows group.
-	group, err := c.LocalAccounts.GroupRead(context.Background(), localaccounts.GroupReadParams{Name: "Users"})
+	group, err := c.LocalAccounts.GroupRead(context.Background(), accounts.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}

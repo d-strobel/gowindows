@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	mockConnection "github.com/d-strobel/gowindows/connection/mocks"
-	"github.com/d-strobel/gowindows/windows/localaccounts"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -24,7 +24,7 @@ func (suite *GowindowsUnitTestSuite) TestNewClient() {
 
 		expectedClient := &Client{
 			Connection:    mockConn,
-			LocalAccounts: localaccounts.NewClient(mockConn),
+			LocalAccounts: accounts.NewClient(mockConn),
 		}
 
 		actualClient := NewClient(mockConn)

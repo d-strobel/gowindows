@@ -1,9 +1,9 @@
-package localaccounts_test
+package accounts_test
 
 import (
 	"context"
 
-	"github.com/d-strobel/gowindows/windows/localaccounts"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
 
 var groupMemberTestCases = []string{
@@ -18,15 +18,15 @@ func (suite *LocalAccTestSuite) TestGroupMember1Read() {
 	defer cancel()
 
 	for _, c := range suite.clients {
-		params := localaccounts.GroupMemberReadParams{
+		params := accounts.GroupMemberReadParams{
 			Name:   "Administrators",
 			Member: "Administrator",
 		}
 		u, err := c.GroupMemberRead(ctx, params)
 		suite.Require().NoError(err)
-		suite.Equal(localaccounts.GroupMember{
+		suite.Equal(accounts.GroupMember{
 			Name: "WIN2022SC\\Administrator",
-			SID: localaccounts.SID{
+			SID: accounts.SID{
 				Value: "S-1-5-21-153895498-367353507-3704405138-500",
 			},
 			ObjectClass: "User",
@@ -39,20 +39,20 @@ func (suite *LocalAccTestSuite) TestGroupMember2List() {
 	defer cancel()
 
 	for _, c := range suite.clients {
-		u, err := c.GroupMemberList(ctx, localaccounts.GroupMemberListParams{
+		u, err := c.GroupMemberList(ctx, accounts.GroupMemberListParams{
 			Name: "Administrators",
 		})
 		suite.Require().NoError(err)
-		suite.Contains(u, localaccounts.GroupMember{
+		suite.Contains(u, accounts.GroupMember{
 			Name: "WIN2022SC\\Administrator",
-			SID: localaccounts.SID{
+			SID: accounts.SID{
 				Value: "S-1-5-21-153895498-367353507-3704405138-500",
 			},
 			ObjectClass: "User",
 		})
-		suite.Contains(u, localaccounts.GroupMember{
+		suite.Contains(u, accounts.GroupMember{
 			Name: "WIN2022SC\\vagrant",
-			SID: localaccounts.SID{
+			SID: accounts.SID{
 				Value: "S-1-5-21-153895498-367353507-3704405138-1000",
 			},
 			ObjectClass: "User",
@@ -65,7 +65,7 @@ func (suite *LocalAccTestSuite) TestGroupMember3Create() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := localaccounts.GroupMemberCreateParams{
+		params := accounts.GroupMemberCreateParams{
 			Name:   "Administrators",
 			Member: groupMemberTestCases[i],
 		}
@@ -79,7 +79,7 @@ func (suite *LocalAccTestSuite) TestGroupMember4Delete() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := localaccounts.GroupMemberDeleteParams{
+		params := accounts.GroupMemberDeleteParams{
 			Name:   "Administrators",
 			Member: groupMemberTestCases[i],
 		}

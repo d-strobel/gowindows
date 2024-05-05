@@ -1,4 +1,4 @@
-package localaccounts
+package accounts
 
 import (
 	"context"
@@ -100,12 +100,12 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 			{
 				"assert error with empty parameters",
 				GroupMemberReadParams{},
-				"windows.localaccounts.GroupMemberRead: group member parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.GroupMemberRead: group member parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert no member",
 				GroupMemberReadParams{Name: "Administrators"},
-				"windows.localaccounts.GroupMemberRead: group member parameter 'Member' must be set",
+				"windows.local.accounts.GroupMemberRead: group member parameter 'Member' must be set",
 			},
 		}
 
@@ -136,7 +136,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberRead() {
 			RunWithPowershell(ctx, "Get-LocalGroupMember -Name 'Administrator' -Member 'Test' | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.GroupMemberRead(ctx, GroupMemberReadParams{Name: "Administrator", Member: "Test"})
-		suite.EqualError(err, "windows.localaccounts.GroupMemberRead: test-error")
+		suite.EqualError(err, "windows.local.accounts.GroupMemberRead: test-error")
 	})
 }
 
@@ -202,7 +202,7 @@ func (suite *LocalUnitTestSuite) TestGroupMemberList() {
 			RunWithPowershell(ctx, "$gm=Get-LocalGroupMember -Name 'Administrators' ;if($gm.Count -eq 1){ConvertTo-Json @($gm) -Compress}else{ConvertTo-Json $gm -Compress}").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.GroupMemberList(ctx, GroupMemberListParams{Name: "Administrators"})
-		suite.EqualError(err, "windows.localaccounts.GroupMemberList: test-error")
+		suite.EqualError(err, "windows.local.accounts.GroupMemberList: test-error")
 	})
 }
 
@@ -244,12 +244,12 @@ func (suite *LocalUnitTestSuite) TestGroupMemberCreate() {
 			{
 				"assert error with empty parameters",
 				GroupMemberCreateParams{},
-				"windows.localaccounts.GroupMemberCreate: group member parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.GroupMemberCreate: group member parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert no member",
 				GroupMemberCreateParams{Name: "Administrators"},
-				"windows.localaccounts.GroupMemberCreate: group member parameter 'Member' must be set",
+				"windows.local.accounts.GroupMemberCreate: group member parameter 'Member' must be set",
 			},
 		}
 
@@ -306,12 +306,12 @@ func (suite *LocalUnitTestSuite) TestGroupMemberDelete() {
 			{
 				"assert error with empty parameters",
 				GroupMemberDeleteParams{},
-				"windows.localaccounts.GroupMemberDelete: group member parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.GroupMemberDelete: group member parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert no member",
 				GroupMemberDeleteParams{Name: "Administrators"},
-				"windows.localaccounts.GroupMemberDelete: group member parameter 'Member' must be set",
+				"windows.local.accounts.GroupMemberDelete: group member parameter 'Member' must be set",
 			},
 		}
 

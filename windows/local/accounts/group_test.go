@@ -1,4 +1,4 @@
-package localaccounts
+package accounts
 
 import (
 	"context"
@@ -108,12 +108,12 @@ func (suite *LocalUnitTestSuite) TestGroupRead() {
 			{
 				"assert error with empty parameters",
 				GroupReadParams{},
-				"windows.localaccounts.GroupRead: group parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.GroupRead: group parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error when name contains wildcard",
 				GroupReadParams{Name: "Remote*"},
-				"windows.localaccounts.GroupRead: group parameter 'Name' does not allow wildcards",
+				"windows.local.accounts.GroupRead: group parameter 'Name' does not allow wildcards",
 			},
 		}
 
@@ -143,7 +143,7 @@ func (suite *LocalUnitTestSuite) TestGroupRead() {
 			RunWithPowershell(ctx, "Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.GroupRead(ctx, GroupReadParams{Name: "Users"})
-		suite.EqualError(err, "windows.localaccounts.GroupRead: test-error")
+		suite.EqualError(err, "windows.local.accounts.GroupRead: test-error")
 	})
 }
 
@@ -179,7 +179,7 @@ func (suite *LocalUnitTestSuite) TestGroupList() {
 			RunWithPowershell(ctx, cmd).
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.GroupList(ctx)
-		suite.EqualError(err, "windows.localaccounts.GroupList: test-error")
+		suite.EqualError(err, "windows.local.accounts.GroupList: test-error")
 	})
 }
 
@@ -240,7 +240,7 @@ func (suite *LocalUnitTestSuite) TestGroupCreate() {
 			RunWithPowershell(ctx, "New-LocalGroup -Name 'Test' | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.GroupCreate(ctx, GroupCreateParams{Name: "Test"})
-		suite.EqualError(err, "windows.localaccounts.GroupCreate: test-error")
+		suite.EqualError(err, "windows.local.accounts.GroupCreate: test-error")
 	})
 }
 
@@ -292,12 +292,12 @@ func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 			{
 				"assert error with empty parameters",
 				GroupUpdateParams{},
-				"windows.localaccounts.GroupUpdate: group parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.GroupUpdate: group parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error with just the description parameter",
 				GroupUpdateParams{Description: "test"},
-				"windows.localaccounts.GroupUpdate: group parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.GroupUpdate: group parameter 'Name' or 'SID' must be set",
 			},
 		}
 
@@ -328,7 +328,7 @@ func (suite *LocalUnitTestSuite) TestGroupUpdate() {
 			RunWithPowershell(ctx, "Set-LocalGroup -Name 'Test' -Description 'Test'").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		err := c.GroupUpdate(ctx, GroupUpdateParams{Name: "Test", Description: "Test"})
-		suite.EqualError(err, "windows.localaccounts.GroupUpdate: test-error")
+		suite.EqualError(err, "windows.local.accounts.GroupUpdate: test-error")
 	})
 }
 
@@ -375,7 +375,7 @@ func (suite *LocalUnitTestSuite) TestGroupDelete() {
 			{
 				"assert error with empty parameters",
 				GroupDeleteParams{},
-				"windows.localaccounts.GroupDelete: group parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.GroupDelete: group parameter 'Name' or 'SID' must be set",
 			},
 		}
 
@@ -406,6 +406,6 @@ func (suite *LocalUnitTestSuite) TestGroupDelete() {
 			RunWithPowershell(ctx, "Remove-LocalGroup -Name 'Test'").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		err := c.GroupDelete(ctx, GroupDeleteParams{Name: "Test"})
-		suite.EqualError(err, "windows.localaccounts.GroupDelete: test-error")
+		suite.EqualError(err, "windows.local.accounts.GroupDelete: test-error")
 	})
 }

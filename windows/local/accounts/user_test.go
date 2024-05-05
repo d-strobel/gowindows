@@ -1,4 +1,4 @@
-package localaccounts
+package accounts
 
 import (
 	"context"
@@ -146,12 +146,12 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			{
 				"assert error with empty parameters",
 				UserReadParams{},
-				"windows.localaccounts.UserRead: user parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.UserRead: user parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error when name contains wildcard",
 				UserReadParams{Name: "Remote*"},
-				"windows.localaccounts.UserRead: user parameter 'Name' does not allow wildcards",
+				"windows.local.accounts.UserRead: user parameter 'Name' does not allow wildcards",
 			},
 		}
 
@@ -181,7 +181,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			RunWithPowershell(ctx, "Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.UserRead(ctx, UserReadParams{Name: "Administrator"})
-		suite.EqualError(err, "windows.localaccounts.UserRead: test-error")
+		suite.EqualError(err, "windows.local.accounts.UserRead: test-error")
 	})
 }
 
@@ -215,7 +215,7 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 			RunWithPowershell(ctx, "Get-LocalUser | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.UserList(ctx)
-		suite.EqualError(err, "windows.localaccounts.UserList: test-error")
+		suite.EqualError(err, "windows.local.accounts.UserList: test-error")
 	})
 }
 
@@ -355,7 +355,7 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			{
 				"assert error with empty parameters",
 				UserUpdateParams{},
-				"windows.localaccounts.UserUpdate: user parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.UserUpdate: user parameter 'Name' or 'SID' must be set",
 			},
 		}
 
@@ -412,7 +412,7 @@ func (suite *LocalUnitTestSuite) TestUserDelete() {
 			{
 				"assert error with empty parameters",
 				UserDeleteParams{},
-				"windows.localaccounts.UserDelete: user parameter 'Name' or 'SID' must be set",
+				"windows.local.accounts.UserDelete: user parameter 'Name' or 'SID' must be set",
 			},
 		}
 

@@ -1,4 +1,4 @@
-package localaccounts
+package accounts
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package localaccounts_test
+package accounts_test
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/d-strobel/gowindows/connection/ssh"
 	"github.com/d-strobel/gowindows/connection/winrm"
-	"github.com/d-strobel/gowindows/windows/localaccounts"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,7 +21,7 @@ type LocalAccTestSuite struct {
 	password  string
 	winRMPort int
 	sshPort   int
-	clients   []localaccounts.Client
+	clients   []accounts.Client
 }
 
 // SetupSuite setups the acceptance test suite for all local functions.
@@ -56,7 +56,7 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 	}
 	winRMConn, err := winrm.NewConnection(winRMConfig)
 	suite.Require().NoError(err)
-	suite.clients = append(suite.clients, *localaccounts.NewClient(winRMConn))
+	suite.clients = append(suite.clients, *accounts.NewClient(winRMConn))
 
 	// Setup SSH connection
 	sshConfig := &ssh.Config{
@@ -68,7 +68,7 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 	}
 	sshConn, err := ssh.NewConnection(sshConfig)
 	suite.Require().NoError(err)
-	suite.clients = append(suite.clients, *localaccounts.NewClient(sshConn))
+	suite.clients = append(suite.clients, *accounts.NewClient(sshConn))
 }
 
 func (suite *LocalAccTestSuite) TearDownSuite() {

@@ -1,7 +1,7 @@
-// Package localaccounts provides a Go library for handling local Windows accounts.
+// Package accounts provides a Go library for handling local Windows accounts.
 // The functions are related to the Powershell local accounts cmdlets provided by Windows.
 // https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/?view=powershell-5.1
-package localaccounts
+package accounts
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 )
 
 // accounts is a type constraint for the run function, ensuring it works with specific types.
-type accountType interface {
+type accounts interface {
 	Group | []Group | User | []User | GroupMember | []GroupMember
 }
 
@@ -45,7 +45,7 @@ type SID struct {
 
 // run runs a PowerShell command against a Windows system, handles the command results,
 // and unmarshals the output into a local object type.
-func run[T accountType](ctx context.Context, c *Client, cmd string, l *T) error {
+func run[T accounts](ctx context.Context, c *Client, cmd string, l *T) error {
 	// Run the command
 	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {
