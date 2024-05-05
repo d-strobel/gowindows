@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/gowindows/parser"
+	"github.com/d-strobel/gowindows/parsing"
 )
 
 // localType is a type constraint for the localRun function, ensuring it works with specific types.
@@ -17,19 +17,22 @@ type localType interface {
 
 // LocalClient represents a client for handling local Windows functions.
 type LocalClient struct {
+	// Connection represents a connection.Connection object.
 	Connection connection.Connection
-	parser     parser.ParserInterface
+
+	// decodeCliXmlErr represents a function that decodes a CLIXML error and returns aa  human readable string.
+	decodeCliXmlErr func(string) (string, error)
 }
 
 // NewClient returns a new instance of the LocalClient.
 func NewClient(conn connection.Connection) *LocalClient {
-	return NewClientWithParser(conn, parser.NewParser())
+	return NewClientWithParser(conn, parsing.DecodeCliXmlErr)
 }
 
 // NewClientWithParser returns a new instance of the LocalClient.
-// It requires a connection and parser as input parameters.
-func NewClientWithParser(conn connection.Connection, parser *parser.Parser) *LocalClient {
-	return &LocalClient{Connection: conn, parser: parser}
+// It requires a connection and parsing as input parameters.
+func NewClientWithParser(conn connection.Connection, parsing func(string) (string, error)) *LocalClient {
+	return &LocalClient{Connection: conn, decodeCliXmlErr: parsing}
 }
 
 // SID represents the Security Identifier (SID) of a security principal.
@@ -41,7 +44,6 @@ type SID struct {
 // localRun runs a PowerShell command against a Windows system, handles the command results,
 // and unmarshals the output into a local object type.
 func localRun[T localType](ctx context.Context, c *LocalClient, cmd string, l *T) error {
-
 	// Run the command
 	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {
@@ -50,7 +52,7 @@ func localRun[T localType](ctx context.Context, c *LocalClient, cmd string, l *T
 
 	// Handle stderr
 	if result.StdErr != "" {
-		stderr, err := c.parser.DecodeCLIXML(result.StdErr)
+		stderr, err := c.decodeCliXmlErr(result.StdErr)
 		if err != nil {
 			return err
 		}

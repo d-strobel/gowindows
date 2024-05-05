@@ -1,4 +1,4 @@
-package parser
+package parsing
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 )
 
 // Unit test suite for all Time parsing functions
-type WinTimeUnitTestSuite struct {
+type DotnetTimeUnitTestSuite struct {
 	suite.Suite
 	// Fixtures
 	dotNetDatetime          string
@@ -20,12 +20,12 @@ type WinTimeUnitTestSuite struct {
 
 // Test struct for unmarshal tests
 type TestUnmarshalObject struct {
-	Name    string  `json:"Name"`
-	Created WinTime `json:"Created"`
-	Updated WinTime `json:"Updated"`
+	Name    string     `json:"Name"`
+	Created DotnetTime `json:"Created"`
+	Updated DotnetTime `json:"Updated"`
 }
 
-func (suite *WinTimeUnitTestSuite) SetupSuite() {
+func (suite *DotnetTimeUnitTestSuite) SetupSuite() {
 	// Fixtures
 	suite.dotNetDatetime = `"\/Date(1701379505092)\/"`
 	suite.expectedDatetime = time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)
@@ -37,26 +37,28 @@ func (suite *WinTimeUnitTestSuite) SetupSuite() {
 	`
 	suite.expectedUnmarshaledJSON = TestUnmarshalObject{
 		Name:    "tester",
-		Created: WinTime{suite.expectedDatetime},
-		Updated: WinTime{suite.expectedDatetime},
+		Created: DotnetTime(suite.expectedDatetime),
+		Updated: DotnetTime(suite.expectedDatetime),
 	}
 }
 
-func TestWinTimeUnitTestSuite(t *testing.T) {
-	suite.Run(t, &WinTimeUnitTestSuite{})
+func TestDotnetTimeUnitTestSuite(t *testing.T) {
+	suite.Run(t, &DotnetTimeUnitTestSuite{})
 }
 
-func (suite *WinTimeUnitTestSuite) TestUnmarshalJSON() {
+func (suite *DotnetTimeUnitTestSuite) TestUnmarshalJSON() {
+	suite.T().Parallel()
 
-	suite.Run("should unmarshal the dotnet timestring to WinTime object", func() {
-		winTime := &WinTime{}
+	suite.Run("should unmarshal the dotnet timestring to DotnetTime object", func() {
+		winTime := DotnetTime{}
+		expectedDotnetTime := DotnetTime(suite.expectedDatetime)
 		err := winTime.UnmarshalJSON([]byte(suite.dotNetDatetime))
 		suite.NoError(err)
-		suite.Equal(suite.expectedDatetime, winTime.Time)
+		suite.Equal(expectedDotnetTime, winTime)
 	})
 
 	suite.Run("should return error with invalid dotnet timestring", func() {
-		winTime := &WinTime{}
+		winTime := DotnetTime{}
 		err := winTime.UnmarshalJSON([]byte("2023-20-10"))
 		suite.Errorf(err, "parser.ConvertDotNetTime: input string is not a dotnet json datetime")
 	})

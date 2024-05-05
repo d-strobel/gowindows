@@ -6,23 +6,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/d-strobel/gowindows/parser"
+	"github.com/d-strobel/gowindows/parsing"
 )
 
 // User represents a Windows local user with its properties.
 type User struct {
-	AccountExpires         parser.WinTime `json:"AccountExpires"`
-	Description            string         `json:"Description"`
-	Enabled                bool           `json:"Enabled"`
-	FullName               string         `json:"FullName"`
-	PasswordChangeableDate parser.WinTime `json:"PasswordChangeableDate"`
-	PasswordExpires        parser.WinTime `json:"PasswordExpires"`
-	UserMayChangePassword  bool           `json:"UserMayChangePassword"`
-	PasswordRequired       bool           `json:"PasswordRequired"`
-	PasswordLastSet        parser.WinTime `json:"PasswordLastSet"`
-	LastLogon              parser.WinTime `json:"LastLogon"`
-	Name                   string         `json:"Name"`
-	SID                    SID            `json:"SID"`
+	AccountExpires         parsing.DotnetTime `json:"AccountExpires"`
+	Description            string             `json:"Description"`
+	Enabled                bool               `json:"Enabled"`
+	FullName               string             `json:"FullName"`
+	PasswordChangeableDate parsing.DotnetTime `json:"PasswordChangeableDate"`
+	PasswordExpires        parsing.DotnetTime `json:"PasswordExpires"`
+	UserMayChangePassword  bool               `json:"UserMayChangePassword"`
+	PasswordRequired       bool               `json:"PasswordRequired"`
+	PasswordLastSet        parsing.DotnetTime `json:"PasswordLastSet"`
+	LastLogon              parsing.DotnetTime `json:"LastLogon"`
+	Name                   string             `json:"Name"`
+	SID                    SID                `json:"SID"`
 }
 
 // UserReadParams represents parameters for the UserRead function.
@@ -34,10 +34,25 @@ type UserReadParams struct {
 	SID string
 }
 
+// pwshCommand returns a PowerShell command for retrieving a local user.
+func (params UserReadParams) pwshCommand() string {
+	// Base command
+	cmd := []string{"Get-LocalUser"}
+
+	// Add parameters
+	// Prefer SID over Name
+	if params.SID != "" {
+		cmd = append(cmd, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	cmd = append(cmd, "| ConvertTo-Json -Compress")
+	return strings.Join(cmd, " ")
+}
+
 // UserRead gets a local user by SID or Name and returns a User object.
 func (c *LocalClient) UserRead(ctx context.Context, params UserReadParams) (User, error) {
-
-	// Declare User object
 	var u User
 
 	// Assert needed parameters
@@ -50,22 +65,8 @@ func (c *LocalClient) UserRead(ctx context.Context, params UserReadParams) (User
 		return u, fmt.Errorf("windows.local.UserRead: user parameter 'Name' does not allow wildcards")
 	}
 
-	// Base command
-	cmds := []string{"Get-LocalUser"}
-
-	// Add parameters
-	// Prefer SID over Name
-	if params.SID != "" {
-		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-	}
-
-	cmds = append(cmds, "| ConvertTo-Json -Compress")
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[User](ctx, c, cmd, &u); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
 		return u, fmt.Errorf("windows.local.UserRead: %s", err)
 	}
 
@@ -74,15 +75,13 @@ func (c *LocalClient) UserRead(ctx context.Context, params UserReadParams) (User
 
 // UserList returns a list of all local user.
 func (c *LocalClient) UserList(ctx context.Context) ([]User, error) {
-
-	// Declare slice of User
 	var u []User
 
 	// Command
 	cmd := "Get-LocalUser | ConvertTo-Json -Compress"
 
 	// Run command
-	if err := localRun[[]User](ctx, c, cmd, &u); err != nil {
+	if err := localRun(ctx, c, cmd, &u); err != nil {
 		return u, fmt.Errorf("windows.local.UserList: %s", err)
 	}
 
@@ -119,10 +118,54 @@ type UserCreateParams struct {
 	UserMayChangePassword bool
 }
 
+// pwshCommand returns a PowerShell command for creating a local user.
+func (params UserCreateParams) pwshCommand() string {
+	// Base command
+	cmd := []string{"New-LocalUser"}
+
+	// Add parameters
+	cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+
+	if params.Description != "" {
+		cmd = append(cmd, fmt.Sprintf("-Description '%s'", params.Description))
+	}
+
+	if params.AccountExpires.Compare(time.Now()) == 1 {
+		accountExpires := params.AccountExpires.Format(time.DateTime)
+		cmd = append(cmd, fmt.Sprintf("-AccountExpires $(Get-Date '%s')", accountExpires))
+	} else {
+		cmd = append(cmd, "-AccountNeverExpires")
+	}
+
+	if params.Enabled {
+		cmd = append(cmd, "-Disabled:$false")
+	} else {
+		cmd = append(cmd, "-Disabled")
+	}
+
+	if params.FullName != "" {
+		cmd = append(cmd, fmt.Sprintf("-FullName '%s'", params.FullName))
+	}
+
+	if params.Password != "" {
+		cmd = append(cmd, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))
+		cmd = append(cmd, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
+	} else {
+		cmd = append(cmd, "-NoPassword")
+	}
+
+	if params.UserMayChangePassword {
+		cmd = append(cmd, "-UserMayNotChangePassword:$false")
+	} else {
+		cmd = append(cmd, "-UserMayNotChangePassword")
+	}
+
+	cmd = append(cmd, "| ConvertTo-Json -Compress")
+	return strings.Join(cmd, " ")
+}
+
 // UserCreate creates a local user and returns a User object.
 func (c *LocalClient) UserCreate(ctx context.Context, params UserCreateParams) (User, error) {
-
-	// Declare User object
 	var u User
 
 	// Assert needed parameters
@@ -130,51 +173,8 @@ func (c *LocalClient) UserCreate(ctx context.Context, params UserCreateParams) (
 		return u, fmt.Errorf("windows.local.UserCreate: user parameter 'Name' must be set")
 	}
 
-	// Base command
-	cmds := []string{"New-LocalUser"}
-
-	// Add parameters
-	cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-
-	if params.Description != "" {
-		cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
-	}
-
-	if params.AccountExpires.Compare(time.Now()) == 1 {
-		accountExpires := params.AccountExpires.Format(time.DateTime)
-		cmds = append(cmds, fmt.Sprintf("-AccountExpires $(Get-Date '%s')", accountExpires))
-	} else {
-		cmds = append(cmds, "-AccountNeverExpires")
-	}
-
-	if params.Enabled {
-		cmds = append(cmds, "-Disabled:$false")
-	} else {
-		cmds = append(cmds, "-Disabled")
-	}
-
-	if params.FullName != "" {
-		cmds = append(cmds, fmt.Sprintf("-FullName '%s'", params.FullName))
-	}
-
-	if params.Password != "" {
-		cmds = append(cmds, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))
-		cmds = append(cmds, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
-	} else {
-		cmds = append(cmds, "-NoPassword")
-	}
-
-	if params.UserMayChangePassword {
-		cmds = append(cmds, "-UserMayNotChangePassword:$false")
-	} else {
-		cmds = append(cmds, "-UserMayNotChangePassword")
-	}
-
-	cmds = append(cmds, "| ConvertTo-Json -Compress")
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[User](ctx, c, cmd, &u); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
 		return u, fmt.Errorf("windows.local.UserCreate: %s", err)
 	}
 
@@ -214,10 +214,53 @@ type UserUpdateParams struct {
 	UserMayChangePassword bool
 }
 
+// pwshCommand returns a PowerShell command for updating a local user.
+func (params UserUpdateParams) pwshCommand() string {
+	// Base commands
+	cmd1 := []string{"Set-LocalUser"}
+	cmd2 := []string{}
+
+	if params.Enabled {
+		cmd2 = append(cmd2, "Enable-LocalUser")
+	} else {
+		cmd2 = append(cmd2, "Disable-LocalUser")
+	}
+
+	// Add parameters
+	// Prefer SID over Name to identify group
+	if params.SID != "" {
+		cmd1 = append(cmd1, fmt.Sprintf("-SID %s", params.SID))
+		cmd2 = append(cmd2, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmd1 = append(cmd1, fmt.Sprintf("-Name '%s'", params.Name))
+		cmd2 = append(cmd2, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	if params.AccountExpires.Compare(time.Now()) == 1 {
+		accountExpires := params.AccountExpires.Format(time.DateTime)
+		cmd1 = append(cmd1, fmt.Sprintf("-AccountExpires $(Get-Date '%s')", accountExpires))
+	} else {
+		cmd1 = append(cmd1, "-AccountNeverExpires")
+	}
+
+	// Always set Description and FullName to allow removal of these parameters
+	cmd1 = append(cmd1, fmt.Sprintf("-Description '%s'", params.Description))
+	cmd1 = append(cmd1, fmt.Sprintf("-FullName '%s'", params.FullName))
+
+	if params.Password != "" {
+		cmd1 = append(cmd1, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))
+	}
+
+	cmd1 = append(cmd1, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
+	cmd1 = append(cmd1, fmt.Sprintf("-UserMayChangePassword:$%t", params.UserMayChangePassword))
+
+	// Append second command with a semicolon
+	cmd1 = append(cmd1, fmt.Sprintf(";%s", strings.Join(cmd2, " ")))
+	return strings.Join(cmd1, " ")
+}
+
 // UserUpdate updates a local user.
 func (c *LocalClient) UserUpdate(ctx context.Context, params UserUpdateParams) error {
-
-	// Satisfy localType interface
 	var u User
 
 	// Assert needed parameters
@@ -225,50 +268,8 @@ func (c *LocalClient) UserUpdate(ctx context.Context, params UserUpdateParams) e
 		return fmt.Errorf("windows.local.UserUpdate: user parameter 'Name' or 'SID' must be set")
 	}
 
-	// Base command
-	cmds := []string{"Set-LocalUser"}
-	cmds2 := []string{}
-
-	if params.Enabled {
-		cmds2 = append(cmds2, "Enable-LocalUser")
-	} else {
-		cmds2 = append(cmds2, "Disable-LocalUser")
-	}
-
-	// Add parameters
-	// Prefer SID over Name to identify group
-	if params.SID != "" {
-		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-		cmds2 = append(cmds2, fmt.Sprintf("-SID %s", params.SID))
-	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-		cmds2 = append(cmds2, fmt.Sprintf("-Name '%s'", params.Name))
-	}
-
-	if params.AccountExpires.Compare(time.Now()) == 1 {
-		accountExpires := params.AccountExpires.Format(time.DateTime)
-		cmds = append(cmds, fmt.Sprintf("-AccountExpires $(Get-Date '%s')", accountExpires))
-	} else {
-		cmds = append(cmds, "-AccountNeverExpires")
-	}
-
-	// Always set Description and FullName to allow removal of these parameters
-	cmds = append(cmds, fmt.Sprintf("-Description '%s'", params.Description))
-	cmds = append(cmds, fmt.Sprintf("-FullName '%s'", params.FullName))
-
-	if params.Password != "" {
-		cmds = append(cmds, fmt.Sprintf("-Password $(ConvertTo-SecureString -String '%s' -AsPlainText -Force)", params.Password))
-	}
-
-	cmds = append(cmds, fmt.Sprintf("-PasswordNeverExpires:$%t", params.PasswordNeverExpires))
-	cmds = append(cmds, fmt.Sprintf("-UserMayChangePassword:$%t", params.UserMayChangePassword))
-
-	// Append second command with a semicolon
-	cmds = append(cmds, fmt.Sprintf(";%s", strings.Join(cmds2, " ")))
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[User](ctx, c, cmd, &u); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
 		return fmt.Errorf("windows.local.UserUpdate: %s", err)
 	}
 
@@ -284,10 +285,24 @@ type UserDeleteParams struct {
 	SID string
 }
 
+// pwshCommand returns a PowerShell command for deleting a local user.
+func (params UserDeleteParams) pwshCommand() string {
+	// Base command
+	cmd := []string{"Remove-LocalUser"}
+
+	// Add parameters
+	// Prefer SID over Name to identifiy group
+	if params.SID != "" {
+		cmd = append(cmd, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	return strings.Join(cmd, " ")
+}
+
 // UserDelete removes a local user by SID or Name.
 func (c *LocalClient) UserDelete(ctx context.Context, params UserDeleteParams) error {
-
-	// Satisfy localType interface
 	var u User
 
 	// Assert needed parameters
@@ -295,21 +310,8 @@ func (c *LocalClient) UserDelete(ctx context.Context, params UserDeleteParams) e
 		return fmt.Errorf("windows.local.UserDelete: user parameter 'Name' or 'SID' must be set")
 	}
 
-	// Base command
-	cmds := []string{"Remove-LocalUser"}
-
-	// Add parameters
-	// Prefer SID over Name to identifiy group
-	if params.SID != "" {
-		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-	}
-
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[User](ctx, c, cmd, &u); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
 		return fmt.Errorf("windows.local.UserDelete: %s", err)
 	}
 

@@ -25,9 +25,26 @@ type GroupMemberReadParams struct {
 	Member string
 }
 
+// pwshCommad returns a PowerShell command for reading a local group member.
+func (params GroupMemberReadParams) pwshCommand() string {
+	// Base command
+	cmd := []string{"Get-LocalGroupMember"}
+
+	// Add parameters
+	// Prefer SID over Name
+	if params.SID != "" {
+		cmd = append(cmd, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	cmd = append(cmd, fmt.Sprintf("-Member '%s'", params.Member))
+	cmd = append(cmd, "| ConvertTo-Json -Compress")
+	return strings.Join(cmd, " ")
+}
+
 // GroupMemberRead retrieves information about a specific member in a local Windows group.
 func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberReadParams) (GroupMember, error) {
-	// Declare GroupMember
 	var gm GroupMember
 
 	// Assert needed parameters
@@ -39,23 +56,8 @@ func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberRea
 		return gm, fmt.Errorf("windows.local.GroupMemberRead: group member parameter 'Member' must be set")
 	}
 
-	// Base command
-	cmds := []string{"Get-LocalGroupMember"}
-
-	// Add parameters
-	// Prefer SID over Name
-	if params.SID != "" {
-		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-	}
-
-	cmds = append(cmds, fmt.Sprintf("-Member '%s'", params.Member))
-	cmds = append(cmds, "| ConvertTo-Json -Compress")
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[GroupMember](ctx, c, cmd, &gm); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &gm); err != nil {
 		return gm, fmt.Errorf("windows.local.GroupMemberRead: %s", err)
 	}
 
@@ -71,9 +73,26 @@ type GroupMemberListParams struct {
 	SID string
 }
 
+// pwshCommand returns a PowerShell command for listing members of a local group.
+func (params GroupMemberListParams) pwshCommand() string {
+	// Base command
+	cmd := []string{"$gm=Get-LocalGroupMember"}
+
+	// Add parameters
+	// Prefer SID over Name
+	if params.SID != "" {
+		cmd = append(cmd, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	// Ensure that groups with a single group member is also printed as an array
+	cmd = append(cmd, ";if($gm.Count -eq 1){ConvertTo-Json @($gm) -Compress}else{ConvertTo-Json $gm -Compress}")
+	return strings.Join(cmd, " ")
+}
+
 // GroupMemberList returns a list of members for a specific local Windows group.
 func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberListParams) ([]GroupMember, error) {
-	// Declare slice of GroupMember
 	var gm []GroupMember
 
 	// Assert needed parameters
@@ -81,23 +100,8 @@ func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberLis
 		return gm, fmt.Errorf("windows.local.GroupMemberList: group member parameter 'Name' or 'SID' must be set")
 	}
 
-	// Base command
-	cmds := []string{"$gm=Get-LocalGroupMember"}
-
-	// Add parameters
-	// Prefer SID over Name
-	if params.SID != "" {
-		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-	}
-
-	// Ensure that groups with a single group member is also printed as an array
-	cmds = append(cmds, ";if($gm.Count -eq 1){ConvertTo-Json @($gm) -Compress}else{ConvertTo-Json $gm -Compress}")
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[[]GroupMember](ctx, c, cmd, &gm); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &gm); err != nil {
 		return gm, fmt.Errorf("windows.local.GroupMemberList: %s", err)
 	}
 
@@ -116,9 +120,25 @@ type GroupMemberCreateParams struct {
 	Member string
 }
 
+// pwshCommand returns a PowerShell command for adding a new member to a local group.
+func (params GroupMemberCreateParams) pwshCommand() string {
+	// Base command
+	cmd := []string{"Add-LocalGroupMember"}
+
+	// Add parameters
+	// Prefer SID over Name
+	if params.SID != "" {
+		cmd = append(cmd, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	cmd = append(cmd, fmt.Sprintf("-Member '%s'", params.Member))
+	return strings.Join(cmd, " ")
+}
+
 // GroupMemberCreate adds a new member to a local Windows group.
 func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberCreateParams) error {
-	// Satisfy the localType interface
 	var gm GroupMember
 
 	// Assert needed parameters
@@ -130,22 +150,8 @@ func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberC
 		return fmt.Errorf("windows.local.GroupMemberCreate: group member parameter 'Member' must be set")
 	}
 
-	// Base command
-	cmds := []string{"Add-LocalGroupMember"}
-
-	// Add parameters
-	// Prefer SID over Name
-	if params.SID != "" {
-		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-	}
-
-	cmds = append(cmds, fmt.Sprintf("-Member '%s'", params.Member))
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[GroupMember](ctx, c, cmd, &gm); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &gm); err != nil {
 		return fmt.Errorf("windows.local.GroupMemberCreate: %s", err)
 	}
 
@@ -164,9 +170,25 @@ type GroupMemberDeleteParams struct {
 	Member string
 }
 
+// pwshCommand returns a PowerShell command for removing a member from a local group.
+func (params GroupMemberDeleteParams) pwshCommand() string {
+	// Base command
+	cmd := []string{"Remove-LocalGroupMember"}
+
+	// Add parameters
+	// Prefer SID over Name
+	if params.SID != "" {
+		cmd = append(cmd, fmt.Sprintf("-SID %s", params.SID))
+	} else if params.Name != "" {
+		cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+	cmd = append(cmd, fmt.Sprintf("-Member '%s'", params.Member))
+
+	return strings.Join(cmd, " ")
+}
+
 // GroupMemberDelete removes a member from a local Windows group.
 func (c *LocalClient) GroupMemberDelete(ctx context.Context, params GroupMemberDeleteParams) error {
-	// Satisfy the localType interface
 	var gm GroupMember
 
 	// Assert needed parameters
@@ -178,22 +200,8 @@ func (c *LocalClient) GroupMemberDelete(ctx context.Context, params GroupMemberD
 		return fmt.Errorf("windows.local.GroupMemberDelete: group member parameter 'Member' must be set")
 	}
 
-	// Base command
-	cmds := []string{"Remove-LocalGroupMember"}
-
-	// Add parameters
-	// Prefer SID over Name
-	if params.SID != "" {
-		cmds = append(cmds, fmt.Sprintf("-SID %s", params.SID))
-	} else if params.Name != "" {
-		cmds = append(cmds, fmt.Sprintf("-Name '%s'", params.Name))
-	}
-
-	cmds = append(cmds, fmt.Sprintf("-Member '%s'", params.Member))
-	cmd := strings.Join(cmds, " ")
-
 	// Run command
-	if err := localRun[GroupMember](ctx, c, cmd, &gm); err != nil {
+	if err := localRun(ctx, c, params.pwshCommand(), &gm); err != nil {
 		return fmt.Errorf("windows.local.GroupMemberDelete: %s", err)
 	}
 

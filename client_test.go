@@ -28,6 +28,7 @@ func (suite *GowindowsUnitTestSuite) TestNewClient() {
 		}
 
 		actualClient := NewClient(mockConn)
-		suite.Equal(expectedClient, actualClient)
+		suite.IsType(expectedClient, actualClient)
+		suite.Equal(expectedClient.Connection, actualClient.Connection)
 	})
 }

@@ -74,7 +74,7 @@ func (c *Connection) Close() error {
 }
 
 // RunWithPowershell runs a command using the configured SSH connection and context via Powershell.
-func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connection.CMDResult, error) {
+func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connection.CmdResult, error) {
 	// Prepare base64 encoded powershell command
 	pwshCmd := winrm.Powershell(cmd)
 	return c.Run(ctx, pwshCmd)
@@ -82,8 +82,8 @@ func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connect
 
 // Run runs a command using the configured SSH connection and context.
 // It returns the result of the command execution, including stdout and stderr.
-func (c *Connection) Run(ctx context.Context, cmd string) (connection.CMDResult, error) {
-	var r connection.CMDResult
+func (c *Connection) Run(ctx context.Context, cmd string) (connection.CmdResult, error) {
+	var r connection.CmdResult
 
 	// Open a new SSH session.
 	s, err := c.Client.NewSession()

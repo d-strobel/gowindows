@@ -60,7 +60,7 @@ func (c *Connection) Close() error {
 
 // RunWithPowershell runs a command using the configured WinRM connection and context via Powershell.
 // It returns the result of the command execution, including stdout and stderr.
-func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connection.CMDResult, error) {
+func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connection.CmdResult, error) {
 	// Prepare powershell command.
 	pwshCmd := winrm.Powershell(cmd)
 	return c.Run(ctx, pwshCmd)
@@ -68,8 +68,8 @@ func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connect
 
 // Run runs a command using the configured WinRM connection and context.
 // It returns a connection.CMDResult object, including stdout and stderr.
-func (c *Connection) Run(ctx context.Context, cmd string) (connection.CMDResult, error) {
-	var r connection.CMDResult
+func (c *Connection) Run(ctx context.Context, cmd string) (connection.CmdResult, error) {
+	var r connection.CmdResult
 
 	stdout, stderr, _, err := c.Client.RunWithContextWithString(ctx, cmd, "")
 	if err != nil {
