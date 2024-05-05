@@ -1,4 +1,4 @@
-package local
+package localaccounts
 
 import (
 	"context"
@@ -146,12 +146,12 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			{
 				"assert error with empty parameters",
 				UserReadParams{},
-				"windows.local.UserRead: user parameter 'Name' or 'SID' must be set",
+				"windows.localaccounts.UserRead: user parameter 'Name' or 'SID' must be set",
 			},
 			{
 				"assert error when name contains wildcard",
 				UserReadParams{Name: "Remote*"},
-				"windows.local.UserRead: user parameter 'Name' does not allow wildcards",
+				"windows.localaccounts.UserRead: user parameter 'Name' does not allow wildcards",
 			},
 		}
 
@@ -181,7 +181,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			RunWithPowershell(ctx, "Get-LocalUser -Name 'Administrator' | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.UserRead(ctx, UserReadParams{Name: "Administrator"})
-		suite.EqualError(err, "windows.local.UserRead: test-error")
+		suite.EqualError(err, "windows.localaccounts.UserRead: test-error")
 	})
 }
 
@@ -215,7 +215,7 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 			RunWithPowershell(ctx, "Get-LocalUser | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{}, errors.New("test-error"))
 		_, err := c.UserList(ctx)
-		suite.EqualError(err, "windows.local.UserList: test-error")
+		suite.EqualError(err, "windows.localaccounts.UserList: test-error")
 	})
 }
 
@@ -355,7 +355,7 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			{
 				"assert error with empty parameters",
 				UserUpdateParams{},
-				"windows.local.UserUpdate: user parameter 'Name' or 'SID' must be set",
+				"windows.localaccounts.UserUpdate: user parameter 'Name' or 'SID' must be set",
 			},
 		}
 
@@ -412,7 +412,7 @@ func (suite *LocalUnitTestSuite) TestUserDelete() {
 			{
 				"assert error with empty parameters",
 				UserDeleteParams{},
-				"windows.local.UserDelete: user parameter 'Name' or 'SID' must be set",
+				"windows.localaccounts.UserDelete: user parameter 'Name' or 'SID' must be set",
 			},
 		}
 

@@ -1,4 +1,4 @@
-package local
+package localaccounts
 
 import (
 	"context"
@@ -47,7 +47,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			RunWithPowershell(ctx, cmd).
 			Return(connection.CmdResult{StdOut: usersGroup, StdErr: ""}, nil)
 		var g Group
-		err := localRun(ctx, c, cmd, &g)
+		err := run(ctx, c, cmd, &g)
 		suite.NoError(err)
 		suite.Equal(expectedUsersGroup, g)
 	})
@@ -65,7 +65,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			RunWithPowershell(ctx, cmd).
 			Return(connection.CmdResult{StdOut: groupList, StdErr: ""}, nil)
 		var g []Group
-		err := localRun(ctx, c, cmd, &g)
+		err := run(ctx, c, cmd, &g)
 		suite.NoError(err)
 		suite.Equal(expectedGroupList, g)
 	})
@@ -84,7 +84,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			Return(connection.CmdResult{StdOut: "", StdErr: ""}, nil)
 		var g Group
 		var expectedGroup Group
-		err := localRun(ctx, c, cmd, &g)
+		err := run(ctx, c, cmd, &g)
 		suite.NoError(err)
 		suite.Equal(expectedGroup, g)
 	})
@@ -103,7 +103,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			RunWithPowershell(ctx, cmd).
 			Return(connection.CmdResult{}, expectedErr)
 		var g Group
-		err := localRun(ctx, c, cmd, &g)
+		err := run(ctx, c, cmd, &g)
 		suite.Error(err)
 		suite.Equal(expectedErr, err)
 	})
@@ -122,7 +122,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			Return(connection.CmdResult{StdOut: "", StdErr: "test-error"}, nil)
 		var g Group
 		expectedErr := errors.New("Command:\nGet-LocalGroup -name Userrs\n\nPowershell error:\ntest-error")
-		err := localRun(ctx, c, cmd, &g)
+		err := run(ctx, c, cmd, &g)
 		suite.Error(err)
 		suite.Equal(expectedErr, err)
 	})
@@ -140,7 +140,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			RunWithPowershell(ctx, cmd).
 			Return(connection.CmdResult{StdOut: groupList}, nil)
 		var g Group
-		err := localRun(ctx, c, cmd, &g)
+		err := run(ctx, c, cmd, &g)
 		suite.Error(err)
 	})
 }

@@ -1,5 +1,7 @@
-// Package local provides a Go library for handling local Windows functions.
-package local
+// Package localaccounts provides a Go library for handling local Windows accounts.
+// The functions are related to the Powershell local accounts cmdlets provided by Windows.
+// https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/?view=powershell-5.1
+package localaccounts
 
 import (
 	"context"
@@ -10,8 +12,8 @@ import (
 	"github.com/d-strobel/gowindows/parsing"
 )
 
-// localType is a type constraint for the localRun function, ensuring it works with specific types.
-type localType interface {
+// accounts is a type constraint for the run function, ensuring it works with specific types.
+type accountType interface {
 	Group | []Group | User | []User | GroupMember | []GroupMember
 }
 
@@ -41,9 +43,9 @@ type SID struct {
 	Value string `json:"Value"`
 }
 
-// localRun runs a PowerShell command against a Windows system, handles the command results,
+// run runs a PowerShell command against a Windows system, handles the command results,
 // and unmarshals the output into a local object type.
-func localRun[T localType](ctx context.Context, c *Client, cmd string, l *T) error {
+func run[T accountType](ctx context.Context, c *Client, cmd string, l *T) error {
 	// Run the command
 	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {

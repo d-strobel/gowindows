@@ -71,7 +71,7 @@ func (suite *GowindowsAccTestSuite) TestNewClient() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		_, err = client.Local.UserList(ctx)
+		_, err = client.LocalAccounts.UserList(ctx)
 		suite.NoError(err)
 	})
 	suite.Run("should return local users with a winrm connection", func() {
@@ -90,7 +90,7 @@ func (suite *GowindowsAccTestSuite) TestNewClient() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		_, err = client.Local.UserList(ctx)
+		_, err = client.LocalAccounts.UserList(ctx)
 		suite.NoError(err)
 	})
 }

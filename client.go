@@ -3,13 +3,13 @@ package gowindows
 
 import (
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/gowindows/windows/local"
+	"github.com/d-strobel/gowindows/windows/localaccounts"
 )
 
 // Client represents a client object for interacting with Windows systems.
 type Client struct {
-	Connection connection.Connection
-	Local      *local.Client
+	Connection    connection.Connection
+	LocalAccounts *localaccounts.Client
 }
 
 // NewClient returns a new instance of the Client object, initialized with the provided configuration.
@@ -22,7 +22,7 @@ func NewClient(conn connection.Connection) *Client {
 	}
 
 	// Build the client with the subpackages.
-	c.Local = local.NewClient(c.Connection)
+	c.LocalAccounts = localaccounts.NewClient(c.Connection)
 
 	return c
 }

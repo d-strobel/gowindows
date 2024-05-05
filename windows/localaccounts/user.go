@@ -1,4 +1,4 @@
-package local
+package localaccounts
 
 import (
 	"context"
@@ -57,17 +57,17 @@ func (c *Client) UserRead(ctx context.Context, params UserReadParams) (User, err
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return u, fmt.Errorf("windows.local.UserRead: user parameter 'Name' or 'SID' must be set")
+		return u, fmt.Errorf("windows.localaccounts.UserRead: user parameter 'Name' or 'SID' must be set")
 	}
 
 	// We want to retrieve exactly one user.
 	if strings.Contains(params.Name, "*") {
-		return u, fmt.Errorf("windows.local.UserRead: user parameter 'Name' does not allow wildcards")
+		return u, fmt.Errorf("windows.localaccounts.UserRead: user parameter 'Name' does not allow wildcards")
 	}
 
 	// Run command
-	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
-		return u, fmt.Errorf("windows.local.UserRead: %s", err)
+	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
+		return u, fmt.Errorf("windows.localaccounts.UserRead: %s", err)
 	}
 
 	return u, nil
@@ -81,8 +81,8 @@ func (c *Client) UserList(ctx context.Context) ([]User, error) {
 	cmd := "Get-LocalUser | ConvertTo-Json -Compress"
 
 	// Run command
-	if err := localRun(ctx, c, cmd, &u); err != nil {
-		return u, fmt.Errorf("windows.local.UserList: %s", err)
+	if err := run(ctx, c, cmd, &u); err != nil {
+		return u, fmt.Errorf("windows.localaccounts.UserList: %s", err)
 	}
 
 	return u, nil
@@ -170,12 +170,12 @@ func (c *Client) UserCreate(ctx context.Context, params UserCreateParams) (User,
 
 	// Assert needed parameters
 	if params.Name == "" {
-		return u, fmt.Errorf("windows.local.UserCreate: user parameter 'Name' must be set")
+		return u, fmt.Errorf("windows.localaccounts.UserCreate: user parameter 'Name' must be set")
 	}
 
 	// Run command
-	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
-		return u, fmt.Errorf("windows.local.UserCreate: %s", err)
+	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
+		return u, fmt.Errorf("windows.localaccounts.UserCreate: %s", err)
 	}
 
 	return u, nil
@@ -265,12 +265,12 @@ func (c *Client) UserUpdate(ctx context.Context, params UserUpdateParams) error 
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.UserUpdate: user parameter 'Name' or 'SID' must be set")
+		return fmt.Errorf("windows.localaccounts.UserUpdate: user parameter 'Name' or 'SID' must be set")
 	}
 
 	// Run command
-	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
-		return fmt.Errorf("windows.local.UserUpdate: %s", err)
+	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
+		return fmt.Errorf("windows.localaccounts.UserUpdate: %s", err)
 	}
 
 	return nil
@@ -307,12 +307,12 @@ func (c *Client) UserDelete(ctx context.Context, params UserDeleteParams) error 
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.UserDelete: user parameter 'Name' or 'SID' must be set")
+		return fmt.Errorf("windows.localaccounts.UserDelete: user parameter 'Name' or 'SID' must be set")
 	}
 
 	// Run command
-	if err := localRun(ctx, c, params.pwshCommand(), &u); err != nil {
-		return fmt.Errorf("windows.local.UserDelete: %s", err)
+	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
+		return fmt.Errorf("windows.localaccounts.UserDelete: %s", err)
 	}
 
 	return nil
