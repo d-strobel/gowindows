@@ -11,6 +11,7 @@ import (
 	"context"
 
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/parsing"
 	"github.com/d-strobel/winrm"
 )
 
@@ -62,7 +63,11 @@ func (c *Connection) Close() error {
 // It returns the result of the command execution, including stdout and stderr.
 func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connection.CmdResult, error) {
 	// Prepare powershell command.
-	pwshCmd := winrm.Powershell(cmd)
+	pwshCmd, err := parsing.EncodePwshCmd(cmd)
+	if err != nil {
+		return connection.CmdResult{}, err
+	}
+
 	return c.Run(ctx, pwshCmd)
 }
 
