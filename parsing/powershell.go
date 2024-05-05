@@ -12,7 +12,7 @@ import (
 // It returns a valid powershell.exe command with no profile and the encoded command.
 func EncodePwshCmd(cmd string) (string, error) {
 	// Disable unnecessary progress bars which is considered as stderr.
-	cmd = "$ProgressPreference = 'SilentlyContinue';" + cmd
+	cmd = fmt.Sprintf("$ProgressPreference = 'SilentlyContinue'; %s", cmd)
 
 	// Encode string to UTF16-LE.
 	encoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder()
