@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.1
 
 require (
-	github.com/d-strobel/winrm v1.0.0
+	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
 	golang.org/x/crypto v0.22.0
 )
 

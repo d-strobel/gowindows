@@ -12,7 +12,7 @@ import (
 
 	"github.com/d-strobel/gowindows/connection"
 	"github.com/d-strobel/gowindows/parsing"
-	"github.com/d-strobel/winrm"
+	"github.com/masterzen/winrm"
 )
 
 // Connection represents a WinRM connection.

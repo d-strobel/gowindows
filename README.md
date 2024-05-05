@@ -129,13 +129,12 @@ make vagrant-down
 ```
 
 ## Third-Party libraries
-* For this project, I made a fork of [masterzen/winrm](https://github.com/masterzen/winrm).<br>
-If the original library gets more maintenance, I will think about switching back.
+* For the WinRM connection part, I rely on the library [masterzen/winrm](https://github.com/masterzen/winrm).
 
 ## Inspirations
 * [hashicorp - terraform-provider-ad](https://github.com/hashicorp/terraform-provider-ad):<br>
 Hashicorp made a great start with the terraform-provider-ad. Currently, it seems that the provider is not actively maintained.<br>
-Beyond that, my goal was to split that provider into a library and a provider and extend its functionality with non Active-Directory systems.
+Beyond that, my goal is to split the terraform-provider into a library and a provider and extend its functionality with non Active-Directory systems.
 
 ## License
 This project is licensed under the [Mozilla Public License Version 2.0](LICENSE).
