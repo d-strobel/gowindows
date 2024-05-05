@@ -40,7 +40,7 @@ func (params GroupReadParams) pwshCommand() string {
 }
 
 // GroupRead gets a local group by SID or Name and returns a Group object.
-func (c *LocalClient) GroupRead(ctx context.Context, params GroupReadParams) (Group, error) {
+func (c *Client) GroupRead(ctx context.Context, params GroupReadParams) (Group, error) {
 	var g Group
 
 	// Assert needed parameters
@@ -61,7 +61,7 @@ func (c *LocalClient) GroupRead(ctx context.Context, params GroupReadParams) (Gr
 }
 
 // GroupList returns a list of all local groups.
-func (c *LocalClient) GroupList(ctx context.Context) ([]Group, error) {
+func (c *Client) GroupList(ctx context.Context) ([]Group, error) {
 	var g []Group
 
 	// Command
@@ -102,7 +102,7 @@ func (params GroupCreateParams) pwshCommand() string {
 }
 
 // GroupCreate creates a new local group and returns the Group object.
-func (c *LocalClient) GroupCreate(ctx context.Context, params GroupCreateParams) (Group, error) {
+func (c *Client) GroupCreate(ctx context.Context, params GroupCreateParams) (Group, error) {
 	var g Group
 
 	// Assert needed parameters
@@ -153,7 +153,7 @@ func (params GroupUpdateParams) pwshCommand() string {
 }
 
 // GroupUpdate updates a local group.
-func (c *LocalClient) GroupUpdate(ctx context.Context, params GroupUpdateParams) error {
+func (c *Client) GroupUpdate(ctx context.Context, params GroupUpdateParams) error {
 	var g Group
 
 	// Assert needed parameters
@@ -195,7 +195,7 @@ func (params GroupDeleteParams) pwshCommand() string {
 }
 
 // GroupDelete removes a local group by SID or Name.
-func (c *LocalClient) GroupDelete(ctx context.Context, params GroupDeleteParams) error {
+func (c *Client) GroupDelete(ctx context.Context, params GroupDeleteParams) error {
 	var g Group
 
 	// Assert needed parameters

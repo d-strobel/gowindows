@@ -15,8 +15,8 @@ type localType interface {
 	Group | []Group | User | []User | GroupMember | []GroupMember
 }
 
-// LocalClient represents a client for handling local Windows functions.
-type LocalClient struct {
+// Client represents a client for handling local Windows functions.
+type Client struct {
 	// Connection represents a connection.Connection object.
 	Connection connection.Connection
 
@@ -24,15 +24,15 @@ type LocalClient struct {
 	decodeCliXmlErr func(string) (string, error)
 }
 
-// NewClient returns a new instance of the LocalClient.
-func NewClient(conn connection.Connection) *LocalClient {
+// NewClient returns a new instance of the Client.
+func NewClient(conn connection.Connection) *Client {
 	return NewClientWithParser(conn, parsing.DecodeCliXmlErr)
 }
 
-// NewClientWithParser returns a new instance of the LocalClient.
+// NewClientWithParser returns a new instance of the Client.
 // It requires a connection and parsing as input parameters.
-func NewClientWithParser(conn connection.Connection, parsing func(string) (string, error)) *LocalClient {
-	return &LocalClient{Connection: conn, decodeCliXmlErr: parsing}
+func NewClientWithParser(conn connection.Connection, parsing func(string) (string, error)) *Client {
+	return &Client{Connection: conn, decodeCliXmlErr: parsing}
 }
 
 // SID represents the Security Identifier (SID) of a security principal.
@@ -43,7 +43,7 @@ type SID struct {
 
 // localRun runs a PowerShell command against a Windows system, handles the command results,
 // and unmarshals the output into a local object type.
-func localRun[T localType](ctx context.Context, c *LocalClient, cmd string, l *T) error {
+func localRun[T localType](ctx context.Context, c *Client, cmd string, l *T) error {
 	// Run the command
 	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {

@@ -52,7 +52,7 @@ func (params UserReadParams) pwshCommand() string {
 }
 
 // UserRead gets a local user by SID or Name and returns a User object.
-func (c *LocalClient) UserRead(ctx context.Context, params UserReadParams) (User, error) {
+func (c *Client) UserRead(ctx context.Context, params UserReadParams) (User, error) {
 	var u User
 
 	// Assert needed parameters
@@ -74,7 +74,7 @@ func (c *LocalClient) UserRead(ctx context.Context, params UserReadParams) (User
 }
 
 // UserList returns a list of all local user.
-func (c *LocalClient) UserList(ctx context.Context) ([]User, error) {
+func (c *Client) UserList(ctx context.Context) ([]User, error) {
 	var u []User
 
 	// Command
@@ -165,7 +165,7 @@ func (params UserCreateParams) pwshCommand() string {
 }
 
 // UserCreate creates a local user and returns a User object.
-func (c *LocalClient) UserCreate(ctx context.Context, params UserCreateParams) (User, error) {
+func (c *Client) UserCreate(ctx context.Context, params UserCreateParams) (User, error) {
 	var u User
 
 	// Assert needed parameters
@@ -260,7 +260,7 @@ func (params UserUpdateParams) pwshCommand() string {
 }
 
 // UserUpdate updates a local user.
-func (c *LocalClient) UserUpdate(ctx context.Context, params UserUpdateParams) error {
+func (c *Client) UserUpdate(ctx context.Context, params UserUpdateParams) error {
 	var u User
 
 	// Assert needed parameters
@@ -302,7 +302,7 @@ func (params UserDeleteParams) pwshCommand() string {
 }
 
 // UserDelete removes a local user by SID or Name.
-func (c *LocalClient) UserDelete(ctx context.Context, params UserDeleteParams) error {
+func (c *Client) UserDelete(ctx context.Context, params UserDeleteParams) error {
 	var u User
 
 	// Assert needed parameters

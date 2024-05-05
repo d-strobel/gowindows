@@ -125,7 +125,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
-		c := &LocalClient{
+		c := &Client{
 			Connection:      mockConn,
 			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 		}
@@ -160,7 +160,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			mockConn := mockConnection.NewMockConnection(suite.T())
-			c := &LocalClient{
+			c := &Client{
 				Connection:      mockConn,
 				decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 			}
@@ -173,7 +173,7 @@ func (suite *LocalUnitTestSuite) TestUserRead() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
-		c := &LocalClient{
+		c := &Client{
 			Connection:      mockConn,
 			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 		}
@@ -191,7 +191,7 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
-		c := &LocalClient{
+		c := &Client{
 			Connection:      mockConn,
 			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 		}
@@ -207,7 +207,7 @@ func (suite *LocalUnitTestSuite) TestUserList() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
-		c := &LocalClient{
+		c := &Client{
 			Connection:      mockConn,
 			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 		}
@@ -277,7 +277,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
-		c := &LocalClient{
+		c := &Client{
 			Connection:      mockConn,
 			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 		}
@@ -364,7 +364,7 @@ func (suite *LocalUnitTestSuite) TestUserUpdate() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			mockConn := mockConnection.NewMockConnection(suite.T())
-			c := &LocalClient{
+			c := &Client{
 				Connection:      mockConn,
 				decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 			}
@@ -421,7 +421,7 @@ func (suite *LocalUnitTestSuite) TestUserDelete() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			mockConn := mockConnection.NewMockConnection(suite.T())
-			c := &LocalClient{
+			c := &Client{
 				Connection:      mockConn,
 				decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 			}

@@ -9,7 +9,7 @@ import (
 // Client represents a client object for interacting with Windows systems.
 type Client struct {
 	Connection connection.Connection
-	Local      *local.LocalClient
+	Local      *local.Client
 }
 
 // NewClient returns a new instance of the Client object, initialized with the provided configuration.

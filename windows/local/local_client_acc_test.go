@@ -21,7 +21,7 @@ type LocalAccTestSuite struct {
 	password  string
 	winRMPort int
 	sshPort   int
-	clients   []local.LocalClient
+	clients   []local.Client
 }
 
 // SetupSuite setups the acceptance test suite for all local functions.

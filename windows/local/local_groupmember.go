@@ -44,7 +44,7 @@ func (params GroupMemberReadParams) pwshCommand() string {
 }
 
 // GroupMemberRead retrieves information about a specific member in a local Windows group.
-func (c *LocalClient) GroupMemberRead(ctx context.Context, params GroupMemberReadParams) (GroupMember, error) {
+func (c *Client) GroupMemberRead(ctx context.Context, params GroupMemberReadParams) (GroupMember, error) {
 	var gm GroupMember
 
 	// Assert needed parameters
@@ -92,7 +92,7 @@ func (params GroupMemberListParams) pwshCommand() string {
 }
 
 // GroupMemberList returns a list of members for a specific local Windows group.
-func (c *LocalClient) GroupMemberList(ctx context.Context, params GroupMemberListParams) ([]GroupMember, error) {
+func (c *Client) GroupMemberList(ctx context.Context, params GroupMemberListParams) ([]GroupMember, error) {
 	var gm []GroupMember
 
 	// Assert needed parameters
@@ -138,7 +138,7 @@ func (params GroupMemberCreateParams) pwshCommand() string {
 }
 
 // GroupMemberCreate adds a new member to a local Windows group.
-func (c *LocalClient) GroupMemberCreate(ctx context.Context, params GroupMemberCreateParams) error {
+func (c *Client) GroupMemberCreate(ctx context.Context, params GroupMemberCreateParams) error {
 	var gm GroupMember
 
 	// Assert needed parameters
@@ -188,7 +188,7 @@ func (params GroupMemberDeleteParams) pwshCommand() string {
 }
 
 // GroupMemberDelete removes a member from a local Windows group.
-func (c *LocalClient) GroupMemberDelete(ctx context.Context, params GroupMemberDeleteParams) error {
+func (c *Client) GroupMemberDelete(ctx context.Context, params GroupMemberDeleteParams) error {
 	var gm GroupMember
 
 	// Assert needed parameters
