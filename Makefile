@@ -23,6 +23,11 @@ dependencies:
 	@printf "$(OK_COLOR)==> Install dependencies$(NO_COLOR)\n"
 	@go get -d -v ./...
 
+.PHONY: generate
+generate:
+	@printf "$(OK_COLOR)==> Generate mocks$(NO_COLOR)\n"
+	@mockery
+
 # Setup requirements
 .PHONY: vagrant-up
 vagrant-up:
