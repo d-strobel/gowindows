@@ -14,7 +14,7 @@ import (
 	"sync"
 
 	"github.com/d-strobel/gowindows/connection"
-	"github.com/d-strobel/winrm"
+	"github.com/d-strobel/gowindows/parsing"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -74,16 +74,20 @@ func (c *Connection) Close() error {
 }
 
 // RunWithPowershell runs a command using the configured SSH connection and context via Powershell.
-func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connection.CMDResult, error) {
-	// Prepare base64 encoded powershell command
-	pwshCmd := winrm.Powershell(cmd)
+func (c *Connection) RunWithPowershell(ctx context.Context, cmd string) (connection.CmdResult, error) {
+	// Prepare powershell command.
+	pwshCmd, err := parsing.EncodePwshCmd(cmd)
+	if err != nil {
+		return connection.CmdResult{}, err
+	}
+
 	return c.Run(ctx, pwshCmd)
 }
 
 // Run runs a command using the configured SSH connection and context.
 // It returns the result of the command execution, including stdout and stderr.
-func (c *Connection) Run(ctx context.Context, cmd string) (connection.CMDResult, error) {
-	var r connection.CMDResult
+func (c *Connection) Run(ctx context.Context, cmd string) (connection.CmdResult, error) {
+	var r connection.CmdResult
 
 	// Open a new SSH session.
 	s, err := c.Client.NewSession()

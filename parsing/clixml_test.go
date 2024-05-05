@@ -1,4 +1,4 @@
-package parser
+package parsing
 
 import (
 	"testing"
@@ -51,7 +51,7 @@ CategoryInfo          : InvalidArgument: (:) [Set-ADOrganizationalUnit], Paramet
 FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.ActiveDirectory .Management.Commands.SetADOrganizationalUnit`
 
 	suite.expectedUnmarshaledCLIXML = &clixml{
-		XML: []string{
+		Xml: []string{
 			"Set-ADOrganizationalUnit : A parameter cannot be found that matches parameter _x000D__x000A_",
 			"name 'Path'._x000D__x000A_",
 			"At line:1 char:101_x000D__x000A_",
@@ -79,6 +79,7 @@ FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.ActiveDirectory .Manage
 		".Management.Commands.SetADOrganizationalUnit",
 		"",
 	}
+
 }
 
 func TestCLIXMLUnitTestSuite(t *testing.T) {
@@ -110,7 +111,7 @@ func (suite *CLIXMLUnitTestSuite) TestStringSlice() {
 	})
 	suite.Run("should not panic with empty slice", func() {
 		clixml := &clixml{
-			XML: []string{},
+			Xml: []string{},
 		}
 		actualResult := clixml.stringSlice()
 		suite.Require().NotPanics(func() { clixml.stringSlice() })
@@ -118,7 +119,7 @@ func (suite *CLIXMLUnitTestSuite) TestStringSlice() {
 	})
 	suite.Run("should not panic with empty string inside slice", func() {
 		clixml := &clixml{
-			XML: []string{"", ""},
+			Xml: []string{"", ""},
 		}
 		actualResult := clixml.stringSlice()
 		suite.Require().NotPanics(func() { clixml.stringSlice() })
@@ -130,14 +131,12 @@ func (suite *CLIXMLUnitTestSuite) TestDecodeCLIXML() {
 	suite.T().Parallel()
 
 	suite.Run("should return expected result", func() {
-		parser := &Parser{}
-		actualResult, err := parser.DecodeCLIXML(suite.cliXMLError)
+		actualResult, err := DecodeCliXmlErr(suite.cliXMLError)
 		suite.Require().NoError(err)
 		suite.Equal(suite.expectedString, actualResult)
 	})
 	suite.Run("should return error if not a clixml string", func() {
-		parser := &Parser{}
-		actualResult, err := parser.DecodeCLIXML("")
+		actualResult, err := DecodeCliXmlErr("")
 		suite.Error(err)
 		suite.Equal("", actualResult)
 	})

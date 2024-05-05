@@ -4,7 +4,3 @@ packages:
     config:
       all: true
       dir: ./connection/mocks
-  github.com/d-strobel/gowindows/parser:
-    config:
-      all: true
-      dir: ./parser/mocks

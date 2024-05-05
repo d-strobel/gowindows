@@ -25,7 +25,7 @@ import (
 	"fmt"
 
 	"github.com/d-strobel/gowindows/connection/ssh"
-	"github.com/d-strobel/gowindows/windows/local"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
 
 func main() {
@@ -41,12 +41,12 @@ func main() {
 		panic(err)
 	}
 
-	// Create a client for the local package.
-	c := local.NewClient(conn)
+	// Create a client for the local accounts package.
+	c := accounts.NewClient(conn)
 	defer c.Connection.Close()
 
 	// Run the GroupRead function to retrieve a local Windows group.
-	group, err := c.GroupRead(context.Background(), local.GroupReadParams{Name: "Users"})
+	group, err := c.GroupRead(context.Background(), accounts.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +66,7 @@ import (
 
 	"github.com/d-strobel/gowindows"
 	"github.com/d-strobel/gowindows/connection/winrm"
-	"github.com/d-strobel/gowindows/windows/local"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
 
 func main() {
@@ -87,7 +87,7 @@ func main() {
 	defer c.Close()
 
 	// Run the GroupRead function to retrieve a local Windows group.
-	group, err := c.Local.GroupRead(context.Background(), local.GroupReadParams{Name: "Users"})
+	group, err := c.LocalAccounts.GroupRead(context.Background(), accounts.GroupReadParams{Name: "Users"})
 	if err != nil {
 		panic(err)
 	}
@@ -129,13 +129,12 @@ make vagrant-down
 ```
 
 ## Third-Party libraries
-* For this project, I made a fork of [masterzen/winrm](https://github.com/masterzen/winrm).<br>
-If the original library gets more maintenance, I will think about switching back.
+* For the WinRM connection part, I rely on the library [masterzen/winrm](https://github.com/masterzen/winrm).
 
 ## Inspirations
 * [hashicorp - terraform-provider-ad](https://github.com/hashicorp/terraform-provider-ad):<br>
 Hashicorp made a great start with the terraform-provider-ad. Currently, it seems that the provider is not actively maintained.<br>
-Beyond that, my goal was to split that provider into a library and a provider and extend its functionality with non Active-Directory systems.
+Beyond that, my goal is to split the terraform-provider into a library and a provider and extend its functionality with non Active-Directory systems.
 
 ## License
 This project is licensed under the [Mozilla Public License Version 2.0](LICENSE).

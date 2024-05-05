@@ -12,18 +12,18 @@ type Connection interface {
 
 	// Run runs a command using the configured connection and context.
 	// It returns the result of the command execution.
-	Run(ctx context.Context, cmd string) (CMDResult, error)
+	Run(ctx context.Context, cmd string) (CmdResult, error)
 
 	// RunWithPowershell runs a command using the configured connection and context via Powershell.
 	// It returns the result of the command execution.
-	RunWithPowershell(ctx context.Context, cmd string) (CMDResult, error)
+	RunWithPowershell(ctx context.Context, cmd string) (CmdResult, error)
 
 	// Close closes any open connection.
 	Close() error
 }
 
-// CMDResult represents the result of executing a command, including stdout and stderr.
-type CMDResult struct {
+// CmdResult represents the result of executing a Cmd command, including stdout and stderr.
+type CmdResult struct {
 	// StdOut contains the standard output of the command.
 	StdOut string
 

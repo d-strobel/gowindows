@@ -1,12 +1,12 @@
-package local_test
+package accounts_test
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/d-strobel/gowindows/parser"
-	"github.com/d-strobel/gowindows/windows/local"
+	"github.com/d-strobel/gowindows/parsing"
+	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
 
 // We insert numbers into the function names to ensure that
@@ -16,24 +16,24 @@ func (suite *LocalAccTestSuite) TestUser1Read() {
 	defer cancel()
 
 	for _, c := range suite.clients {
-		params := local.UserReadParams{
+		params := accounts.UserReadParams{
 			Name: "Administrator",
 		}
 		u, err := c.UserRead(ctx, params)
 		suite.Require().NoError(err)
-		suite.Equal(local.User{
-			AccountExpires:         parser.WinTime{},
+		suite.Equal(accounts.User{
+			AccountExpires:         parsing.DotnetTime{},
 			Description:            "Built-in account for administering the computer/domain",
 			Enabled:                true,
 			FullName:               "",
-			PasswordChangeableDate: parser.WinTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
-			PasswordExpires:        parser.WinTime{},
+			PasswordChangeableDate: parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordExpires:        parsing.DotnetTime{},
 			UserMayChangePassword:  true,
 			PasswordRequired:       true,
-			PasswordLastSet:        parser.WinTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
-			LastLogon:              parser.WinTime{},
+			PasswordLastSet:        parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			LastLogon:              parsing.DotnetTime{},
 			Name:                   "Administrator",
-			SID: local.SID{
+			SID: accounts.SID{
 				Value: "S-1-5-21-153895498-367353507-3704405138-500",
 			},
 		}, u)
@@ -47,35 +47,35 @@ func (suite *LocalAccTestSuite) TestUser2List() {
 	for _, c := range suite.clients {
 		u, err := c.UserList(ctx)
 		suite.Require().NoError(err)
-		suite.Contains(u, local.User{
-			AccountExpires:         parser.WinTime{},
+		suite.Contains(u, accounts.User{
+			AccountExpires:         parsing.DotnetTime{},
 			Description:            "Built-in account for administering the computer/domain",
 			Enabled:                true,
 			FullName:               "",
-			PasswordChangeableDate: parser.WinTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
-			PasswordExpires:        parser.WinTime{},
+			PasswordChangeableDate: parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordExpires:        parsing.DotnetTime{},
 			UserMayChangePassword:  true,
 			PasswordRequired:       true,
-			PasswordLastSet:        parser.WinTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
-			LastLogon:              parser.WinTime{},
+			PasswordLastSet:        parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			LastLogon:              parsing.DotnetTime{},
 			Name:                   "Administrator",
-			SID: local.SID{
+			SID: accounts.SID{
 				Value: "S-1-5-21-153895498-367353507-3704405138-500",
 			},
 		})
-		suite.Contains(u, local.User{
-			AccountExpires:         parser.WinTime{},
+		suite.Contains(u, accounts.User{
+			AccountExpires:         parsing.DotnetTime{},
 			Description:            "Built-in account for guest access to the computer/domain",
 			Enabled:                false,
 			FullName:               "",
-			PasswordChangeableDate: parser.WinTime{},
-			PasswordExpires:        parser.WinTime{},
+			PasswordChangeableDate: parsing.DotnetTime{},
+			PasswordExpires:        parsing.DotnetTime{},
 			UserMayChangePassword:  false,
 			PasswordRequired:       false,
-			PasswordLastSet:        parser.WinTime{},
-			LastLogon:              parser.WinTime{},
+			PasswordLastSet:        parsing.DotnetTime{},
+			LastLogon:              parsing.DotnetTime{},
 			Name:                   "Guest",
-			SID: local.SID{
+			SID: accounts.SID{
 				Value: "S-1-5-21-153895498-367353507-3704405138-501",
 			},
 		})
@@ -87,7 +87,7 @@ func (suite *LocalAccTestSuite) TestUser3Create() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.UserCreateParams{
+		params := accounts.UserCreateParams{
 			Name:                 fmt.Sprintf("Test-User-%d", i),
 			Description:          "This is a test user",
 			FullName:             fmt.Sprintf("Full-Test-User-%d", i),
@@ -98,13 +98,13 @@ func (suite *LocalAccTestSuite) TestUser3Create() {
 		}
 		g, err := c.UserCreate(ctx, params)
 		suite.NoError(err)
-		suite.Equal(local.User{Name: fmt.Sprintf("Test-User-%d", i)}.Name, g.Name)
-		suite.Equal(local.User{Description: "This is a test user"}.Description, g.Description)
-		suite.Equal(local.User{FullName: fmt.Sprintf("Full-Test-User-%d", i)}.FullName, g.FullName)
-		suite.Equal(local.User{PasswordExpires: parser.WinTime{}}.PasswordExpires, g.PasswordExpires)
-		suite.Equal(local.User{AccountExpires: parser.WinTime{Time: time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC)}}.AccountExpires, g.AccountExpires)
-		suite.Equal(local.User{UserMayChangePassword: false}.UserMayChangePassword, g.UserMayChangePassword)
-		suite.Equal(local.User{Enabled: true}.Enabled, g.Enabled)
+		suite.Equal(accounts.User{Name: fmt.Sprintf("Test-User-%d", i)}.Name, g.Name)
+		suite.Equal(accounts.User{Description: "This is a test user"}.Description, g.Description)
+		suite.Equal(accounts.User{FullName: fmt.Sprintf("Full-Test-User-%d", i)}.FullName, g.FullName)
+		suite.Equal(accounts.User{PasswordExpires: parsing.DotnetTime{}}.PasswordExpires, g.PasswordExpires)
+		suite.Equal(accounts.User{AccountExpires: parsing.DotnetTime(time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC))}.AccountExpires, g.AccountExpires)
+		suite.Equal(accounts.User{UserMayChangePassword: false}.UserMayChangePassword, g.UserMayChangePassword)
+		suite.Equal(accounts.User{Enabled: true}.Enabled, g.Enabled)
 	}
 }
 
@@ -113,7 +113,7 @@ func (suite *LocalAccTestSuite) TestUser4Update() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.UserUpdateParams{
+		params := accounts.UserUpdateParams{
 			Name:           fmt.Sprintf("Test-User-%d", i),
 			Description:    "Updated - This is a test user",
 			FullName:       fmt.Sprintf("Updated-Full-Test-User-%d", i),
@@ -131,7 +131,7 @@ func (suite *LocalAccTestSuite) TestUser5Delete() {
 	defer cancel()
 
 	for i, c := range suite.clients {
-		params := local.UserDeleteParams{
+		params := accounts.UserDeleteParams{
 			Name: fmt.Sprintf("Test-User-%d", i),
 		}
 		err := c.UserDelete(ctx, params)

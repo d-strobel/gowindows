@@ -69,22 +69,22 @@ func (_c *MockConnection_Close_Call) RunAndReturn(run func() error) *MockConnect
 }
 
 // Run provides a mock function with given fields: ctx, cmd
-func (_m *MockConnection) Run(ctx context.Context, cmd string) (connection.CMDResult, error) {
+func (_m *MockConnection) Run(ctx context.Context, cmd string) (connection.CmdResult, error) {
 	ret := _m.Called(ctx, cmd)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Run")
 	}
 
-	var r0 connection.CMDResult
+	var r0 connection.CmdResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (connection.CMDResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (connection.CmdResult, error)); ok {
 		return rf(ctx, cmd)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) connection.CMDResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) connection.CmdResult); ok {
 		r0 = rf(ctx, cmd)
 	} else {
-		r0 = ret.Get(0).(connection.CMDResult)
+		r0 = ret.Get(0).(connection.CmdResult)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -115,33 +115,33 @@ func (_c *MockConnection_Run_Call) Run(run func(ctx context.Context, cmd string)
 	return _c
 }
 
-func (_c *MockConnection_Run_Call) Return(_a0 connection.CMDResult, _a1 error) *MockConnection_Run_Call {
+func (_c *MockConnection_Run_Call) Return(_a0 connection.CmdResult, _a1 error) *MockConnection_Run_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockConnection_Run_Call) RunAndReturn(run func(context.Context, string) (connection.CMDResult, error)) *MockConnection_Run_Call {
+func (_c *MockConnection_Run_Call) RunAndReturn(run func(context.Context, string) (connection.CmdResult, error)) *MockConnection_Run_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // RunWithPowershell provides a mock function with given fields: ctx, cmd
-func (_m *MockConnection) RunWithPowershell(ctx context.Context, cmd string) (connection.CMDResult, error) {
+func (_m *MockConnection) RunWithPowershell(ctx context.Context, cmd string) (connection.CmdResult, error) {
 	ret := _m.Called(ctx, cmd)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RunWithPowershell")
 	}
 
-	var r0 connection.CMDResult
+	var r0 connection.CmdResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (connection.CMDResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (connection.CmdResult, error)); ok {
 		return rf(ctx, cmd)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) connection.CMDResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) connection.CmdResult); ok {
 		r0 = rf(ctx, cmd)
 	} else {
-		r0 = ret.Get(0).(connection.CMDResult)
+		r0 = ret.Get(0).(connection.CmdResult)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -172,12 +172,12 @@ func (_c *MockConnection_RunWithPowershell_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockConnection_RunWithPowershell_Call) Return(_a0 connection.CMDResult, _a1 error) *MockConnection_RunWithPowershell_Call {
+func (_c *MockConnection_RunWithPowershell_Call) Return(_a0 connection.CmdResult, _a1 error) *MockConnection_RunWithPowershell_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockConnection_RunWithPowershell_Call) RunAndReturn(run func(context.Context, string) (connection.CMDResult, error)) *MockConnection_RunWithPowershell_Call {
+func (_c *MockConnection_RunWithPowershell_Call) RunAndReturn(run func(context.Context, string) (connection.CmdResult, error)) *MockConnection_RunWithPowershell_Call {
 	_c.Call.Return(run)
 	return _c
 }
