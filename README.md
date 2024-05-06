@@ -98,6 +98,13 @@ func main() {
 ```
 
 ## Development
+### Pre-commit
+To ensure smooth execution in the pipeline and eliminate potential linting errors,
+it's highly advisable to integrate pre-commit hooks. These hooks can be effortlessly
+installed to streamline the process and maintain code quality standards.
+
+You can find more details about pre-commit hooks on their official website: [pre-commit](https://pre-commit.com/).
+
 ### Conventional Commits
 **gowindows** follows the conventional commit guidelines. For more information, see [conventionalcommits.org](https://www.conventionalcommits.org/).
 
