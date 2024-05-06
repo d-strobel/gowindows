@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.21']
+        go-version: ['1.22']
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go ${{ matrix.go-version }}
@@ -18,6 +18,19 @@ jobs:
       - name: Install dependencies
         run: go get .
       - name: Build
-        run: go build -v ./...
+        run: go build ./...
       - name: Test with the Go CLI
         run: go test -short ./...
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make generate
+      - name: git diff
+        run: |
+          git diff --exit-code || \
+            (echo; echo "Unexpected difference in directories after code generation. Run 'make generate' command and commit."; exit 1)
