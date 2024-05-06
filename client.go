@@ -6,6 +6,10 @@ import (
 	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
 
+// Mockery generates mocks for the gowindows interfaces.
+// Use "go generate" to update the mocks.
+//go:generate go run github.com/vektra/mockery/v2
+
 // Client represents a client object for interacting with Windows systems.
 type Client struct {
 	Connection    connection.Connection

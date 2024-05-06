@@ -25,8 +25,8 @@ dependencies:
 
 .PHONY: generate
 generate:
-	@printf "$(OK_COLOR)==> Generate mocks$(NO_COLOR)\n"
-	@mockery
+	@printf "$(OK_COLOR)==> Go generate$(NO_COLOR)\n"
+	@go generate
 
 # Setup requirements
 .PHONY: vagrant-up
