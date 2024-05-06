@@ -10,7 +10,9 @@ import (
 // DotnetTime is a custom time type that embeds the time.Time type. It is designed to handle
 // the unmarshalling of dotnet JSON datetime strings in the format "\"/Date(timestamp)/\""
 // when used as a field in a struct that is being unmarshalled from JSON.
-type DotnetTime time.Time
+type DotnetTime struct {
+	time.Time
+}
 
 // UnmarshalJSON implements the json.Unmarshaler interface for the DotnetTime type.
 // It parses a JSON-encoded dotnet JSON datetime string and converts it into a DotnetTime object.
@@ -47,7 +49,7 @@ func (t *DotnetTime) UnmarshalJSON(b []byte) error {
 
 	// Unmarshal unix time into DotnetTime object
 	unixTime := time.Unix(seconds, 0).UTC()
-	*t = DotnetTime(unixTime)
+	*t = DotnetTime{unixTime}
 
 	return nil
 }
