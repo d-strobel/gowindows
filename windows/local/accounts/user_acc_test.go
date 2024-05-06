@@ -26,11 +26,11 @@ func (suite *LocalAccTestSuite) TestUser1Read() {
 			Description:            "Built-in account for administering the computer/domain",
 			Enabled:                true,
 			FullName:               "",
-			PasswordChangeableDate: parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordChangeableDate: parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 			PasswordExpires:        parsing.DotnetTime{},
 			UserMayChangePassword:  true,
 			PasswordRequired:       true,
-			PasswordLastSet:        parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordLastSet:        parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 			LastLogon:              parsing.DotnetTime{},
 			Name:                   "Administrator",
 			SID: accounts.SID{
@@ -52,11 +52,11 @@ func (suite *LocalAccTestSuite) TestUser2List() {
 			Description:            "Built-in account for administering the computer/domain",
 			Enabled:                true,
 			FullName:               "",
-			PasswordChangeableDate: parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordChangeableDate: parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 			PasswordExpires:        parsing.DotnetTime{},
 			UserMayChangePassword:  true,
 			PasswordRequired:       true,
-			PasswordLastSet:        parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordLastSet:        parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 			LastLogon:              parsing.DotnetTime{},
 			Name:                   "Administrator",
 			SID: accounts.SID{
@@ -102,7 +102,7 @@ func (suite *LocalAccTestSuite) TestUser3Create() {
 		suite.Equal(accounts.User{Description: "This is a test user"}.Description, g.Description)
 		suite.Equal(accounts.User{FullName: fmt.Sprintf("Full-Test-User-%d", i)}.FullName, g.FullName)
 		suite.Equal(accounts.User{PasswordExpires: parsing.DotnetTime{}}.PasswordExpires, g.PasswordExpires)
-		suite.Equal(accounts.User{AccountExpires: parsing.DotnetTime(time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC))}.AccountExpires, g.AccountExpires)
+		suite.Equal(accounts.User{AccountExpires: parsing.DotnetTime{Time: time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC)}}.AccountExpires, g.AccountExpires)
 		suite.Equal(accounts.User{UserMayChangePassword: false}.UserMayChangePassword, g.UserMayChangePassword)
 		suite.Equal(accounts.User{Enabled: true}.Enabled, g.Enabled)
 	}

@@ -24,11 +24,11 @@ var (
 		Description:            "Built-in account for administering the computer/domain",
 		Enabled:                true,
 		FullName:               "",
-		PasswordChangeableDate: parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+		PasswordChangeableDate: parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 		PasswordExpires:        parsing.DotnetTime{},
 		UserMayChangePassword:  true,
 		PasswordRequired:       true,
-		PasswordLastSet:        parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+		PasswordLastSet:        parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 		LastLogon:              parsing.DotnetTime{},
 		Name:                   "Administrator",
 		SID: SID{
@@ -41,11 +41,11 @@ var (
 			Description:            "Built-in account for administering the computer/domain",
 			Enabled:                true,
 			FullName:               "",
-			PasswordChangeableDate: parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordChangeableDate: parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 			PasswordExpires:        parsing.DotnetTime{},
 			UserMayChangePassword:  true,
 			PasswordRequired:       true,
-			PasswordLastSet:        parsing.DotnetTime(time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)),
+			PasswordLastSet:        parsing.DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)},
 			LastLogon:              parsing.DotnetTime{},
 			Name:                   "Administrator",
 			SID: SID{
@@ -70,7 +70,7 @@ var (
 		},
 	}
 	expectedTestUser = User{
-		AccountExpires:         parsing.DotnetTime(time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC)),
+		AccountExpires:         parsing.DotnetTime{Time: time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC)},
 		Description:            "This is a test user",
 		Enabled:                true,
 		FullName:               "Full-Test-User",

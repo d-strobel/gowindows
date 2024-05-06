@@ -37,8 +37,8 @@ func (suite *DotnetTimeUnitTestSuite) SetupSuite() {
 	`
 	suite.expectedUnmarshaledJSON = TestUnmarshalObject{
 		Name:    "tester",
-		Created: DotnetTime(suite.expectedDatetime),
-		Updated: DotnetTime(suite.expectedDatetime),
+		Created: DotnetTime{Time: suite.expectedDatetime},
+		Updated: DotnetTime{Time: suite.expectedDatetime},
 	}
 }
 
@@ -51,7 +51,7 @@ func (suite *DotnetTimeUnitTestSuite) TestUnmarshalJSON() {
 
 	suite.Run("should unmarshal the dotnet timestring to DotnetTime object", func() {
 		winTime := DotnetTime{}
-		expectedDotnetTime := DotnetTime(suite.expectedDatetime)
+		expectedDotnetTime := DotnetTime{Time: suite.expectedDatetime}
 		err := winTime.UnmarshalJSON([]byte(suite.dotNetDatetime))
 		suite.NoError(err)
 		suite.Equal(expectedDotnetTime, winTime)
@@ -68,5 +68,14 @@ func (suite *DotnetTimeUnitTestSuite) TestUnmarshalJSON() {
 		err := json.Unmarshal([]byte(suite.jsonData), &actualResult)
 		suite.NoError(err)
 		suite.Equal(suite.expectedUnmarshaledJSON, actualResult)
+	})
+}
+
+func (suite *DotnetTimeUnitTestSuite) TestTimeMethods() {
+	suite.Run("should be able to format dotnet time to RFC3389", func() {
+		dotnetTime := DotnetTime{Time: time.Date(2023, time.November, 30, 21, 25, 5, 0, time.UTC)}
+		actualResult := dotnetTime.Format(time.RFC3339)
+		expectedResult := "2023-11-30T21:25:05Z"
+		suite.Equal(expectedResult, actualResult)
 	})
 }
