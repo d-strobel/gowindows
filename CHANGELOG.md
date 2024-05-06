@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/d-strobel/gowindows/compare/v1.0.0...v1.0.1) (2024-05-06)
+
+
+### Bug Fixes
+
+* dotnettime does not embed the time.Time methods ([32bcba0](https://github.com/d-strobel/gowindows/commit/32bcba09903d79c722d269a9566513525b66449a))
+
 ## 1.0.0 (2024-05-06)
 
 
