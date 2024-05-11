@@ -6,8 +6,8 @@ package accounts
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
+	"errors"
 	"github.com/d-strobel/gowindows/connection"
 	"github.com/d-strobel/gowindows/parsing"
 )
@@ -59,7 +59,7 @@ func run[T accounts](ctx context.Context, c *Client, cmd string, l *T) error {
 			return err
 		}
 
-		return fmt.Errorf("Command:\n%s\n\nPowershell error:\n%s", cmd, stderr)
+		return errors.New(stderr)
 	}
 
 	if result.StdOut == "" {

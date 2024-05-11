@@ -2,8 +2,11 @@ package accounts
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/d-strobel/gowindows/winerror"
 )
 
 // GroupMember represents a member of a local Windows group.
@@ -44,21 +47,23 @@ func (params GroupMemberReadParams) pwshCommand() string {
 }
 
 // GroupMemberRead retrieves information about a specific member in a local Windows group.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupMemberRead(ctx context.Context, params GroupMemberReadParams) (GroupMember, error) {
 	var gm GroupMember
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return gm, fmt.Errorf("windows.local.accounts.GroupMemberRead: group member parameter 'Name' or 'SID' must be set")
+		return gm, errors.New("windows.local.accounts.GroupMemberRead: group member parameter 'Name' or 'SID' must be set")
 	}
 
 	if params.Member == "" {
-		return gm, fmt.Errorf("windows.local.accounts.GroupMemberRead: group member parameter 'Member' must be set")
+		return gm, errors.New("windows.local.accounts.GroupMemberRead: group member parameter 'Member' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &gm); err != nil {
-		return gm, fmt.Errorf("windows.local.accounts.GroupMemberRead: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &gm); err != nil {
+		return gm, winerror.Errorf(cmd, "windows.local.accounts.GroupMemberRead: %s", err)
 	}
 
 	return gm, nil
@@ -92,17 +97,19 @@ func (params GroupMemberListParams) pwshCommand() string {
 }
 
 // GroupMemberList returns a list of members for a specific local Windows group.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupMemberList(ctx context.Context, params GroupMemberListParams) ([]GroupMember, error) {
 	var gm []GroupMember
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return gm, fmt.Errorf("windows.local.accounts.GroupMemberList: group member parameter 'Name' or 'SID' must be set")
+		return gm, errors.New("windows.local.accounts.GroupMemberList: group member parameter 'Name' or 'SID' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &gm); err != nil {
-		return gm, fmt.Errorf("windows.local.accounts.GroupMemberList: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &gm); err != nil {
+		return gm, winerror.Errorf(cmd, "windows.local.accounts.GroupMemberList: %s", err)
 	}
 
 	return gm, nil
@@ -138,21 +145,23 @@ func (params GroupMemberCreateParams) pwshCommand() string {
 }
 
 // GroupMemberCreate adds a new member to a local Windows group.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupMemberCreate(ctx context.Context, params GroupMemberCreateParams) error {
 	var gm GroupMember
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.accounts.GroupMemberCreate: group member parameter 'Name' or 'SID' must be set")
+		return errors.New("windows.local.accounts.GroupMemberCreate: group member parameter 'Name' or 'SID' must be set")
 	}
 
 	if params.Member == "" {
-		return fmt.Errorf("windows.local.accounts.GroupMemberCreate: group member parameter 'Member' must be set")
+		return errors.New("windows.local.accounts.GroupMemberCreate: group member parameter 'Member' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &gm); err != nil {
-		return fmt.Errorf("windows.local.accounts.GroupMemberCreate: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &gm); err != nil {
+		return winerror.Errorf(cmd, "windows.local.accounts.GroupMemberCreate: %s", err)
 	}
 
 	return nil
@@ -188,21 +197,23 @@ func (params GroupMemberDeleteParams) pwshCommand() string {
 }
 
 // GroupMemberDelete removes a member from a local Windows group.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupMemberDelete(ctx context.Context, params GroupMemberDeleteParams) error {
 	var gm GroupMember
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.accounts.GroupMemberDelete: group member parameter 'Name' or 'SID' must be set")
+		return errors.New("windows.local.accounts.GroupMemberDelete: group member parameter 'Name' or 'SID' must be set")
 	}
 
 	if params.Member == "" {
-		return fmt.Errorf("windows.local.accounts.GroupMemberDelete: group member parameter 'Member' must be set")
+		return errors.New("windows.local.accounts.GroupMemberDelete: group member parameter 'Member' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &gm); err != nil {
-		return fmt.Errorf("windows.local.accounts.GroupMemberDelete: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &gm); err != nil {
+		return winerror.Errorf(cmd, "windows.local.accounts.GroupMemberDelete: %s", err)
 	}
 
 	return nil
