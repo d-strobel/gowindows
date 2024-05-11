@@ -17,14 +17,14 @@ const (
 
 // Config represents the configuration details for establishing an SSH connection.
 type Config struct {
-	Host                  string
-	Port                  int
-	Username              string
-	Password              string
-	PrivateKey            string
-	PrivateKeyPath        string
-	KnownHostsPath        string
-	InsecureIgnoreHostKey bool
+	Host           string
+	Port           int
+	Username       string
+	Password       string
+	PrivateKey     string
+	PrivateKeyPath string
+	KnownHostsPath string
+	Insecure       bool
 }
 
 // validate validates the SSH configuration parameters.
@@ -59,7 +59,7 @@ func (config *Config) defaults() error {
 func (config *Config) knownHostCallback() (ssh.HostKeyCallback, error) {
 
 	// Ignore host key
-	if config.InsecureIgnoreHostKey {
+	if config.Insecure {
 		return ssh.InsecureIgnoreHostKey(), nil
 	}
 
