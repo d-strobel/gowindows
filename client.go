@@ -19,7 +19,6 @@ type Client struct {
 // NewClient returns a new instance of the Client object, initialized with the provided configuration.
 // Use this client to execute functions within the Windows subpackages.
 func NewClient(conn connection.Connection) *Client {
-
 	// Initialize a new client with the provided connection.
 	c := &Client{
 		Connection: conn,

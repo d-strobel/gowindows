@@ -9,7 +9,6 @@ import (
 // Connection defines the interface for a connection.
 // Every connection type must implement this interface.
 type Connection interface {
-
 	// Run runs a command using the configured connection and context.
 	// It returns the result of the command execution.
 	Run(ctx context.Context, cmd string) (CmdResult, error)
