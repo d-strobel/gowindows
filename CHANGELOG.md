@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/d-strobel/gowindows/compare/v1.0.1...v1.1.0) (2024-05-11)
+
+
+### Features
+
+* add winerror package to handle custom errors ([8cb6171](https://github.com/d-strobel/gowindows/commit/8cb617194d0c50f2d89107d97daf475f7e0834a9))
+* integrated custom winerror into local accounts package ([849f4c2](https://github.com/d-strobel/gowindows/commit/849f4c27a05b3c4a411afabe243c9ba43a3fee8f))
+
 ## [1.0.1](https://github.com/d-strobel/gowindows/compare/v1.0.0...v1.0.1) (2024-05-06)
 
 
