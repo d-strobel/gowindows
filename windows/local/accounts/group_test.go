@@ -95,7 +95,7 @@ func (suite *LocalUnitTestSuite) TestGroupRead() {
 			RunWithPowershell(ctx, "Get-LocalGroup -Name 'Users' | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdOut: usersGroup}, nil)
 		actualUsersGroup, err := c.GroupRead(ctx, GroupReadParams{Name: "Users"})
-		suite.Require().NoError(err)
+		suite.NoError(err)
 		suite.Equal(expectedUsersGroup, actualUsersGroup)
 	})
 

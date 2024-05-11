@@ -121,7 +121,7 @@ func (suite *LocalUnitTestSuite) TestLocalRun() {
 			RunWithPowershell(ctx, cmd).
 			Return(connection.CmdResult{StdOut: "", StdErr: "test-error"}, nil)
 		var g Group
-		expectedErr := errors.New("Command:\nGet-LocalGroup -name Userrs\n\nPowershell error:\ntest-error")
+		expectedErr := errors.New("test-error")
 		err := run(ctx, c, cmd, &g)
 		suite.Error(err)
 		suite.Equal(expectedErr, err)

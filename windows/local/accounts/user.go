@@ -2,11 +2,13 @@ package accounts
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/d-strobel/gowindows/parsing"
+	"github.com/d-strobel/gowindows/winerror"
 )
 
 // User represents a Windows local user with its properties.
@@ -52,28 +54,31 @@ func (params UserReadParams) pwshCommand() string {
 }
 
 // UserRead gets a local user by SID or Name and returns a User object.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) UserRead(ctx context.Context, params UserReadParams) (User, error) {
 	var u User
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return u, fmt.Errorf("windows.local.accounts.UserRead: user parameter 'Name' or 'SID' must be set")
+		return u, errors.New("windows.local.accounts.UserRead: user parameter 'Name' or 'SID' must be set")
 	}
 
 	// We want to retrieve exactly one user.
 	if strings.Contains(params.Name, "*") {
-		return u, fmt.Errorf("windows.local.accounts.UserRead: user parameter 'Name' does not allow wildcards")
+		return u, errors.New("windows.local.accounts.UserRead: user parameter 'Name' does not allow wildcards")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
-		return u, fmt.Errorf("windows.local.accounts.UserRead: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &u); err != nil {
+		return u, winerror.Errorf(cmd, "windows.local.accounts.UserRead: %s", err)
 	}
 
 	return u, nil
 }
 
 // UserList returns a list of all local user.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) UserList(ctx context.Context) ([]User, error) {
 	var u []User
 
@@ -82,7 +87,7 @@ func (c *Client) UserList(ctx context.Context) ([]User, error) {
 
 	// Run command
 	if err := run(ctx, c, cmd, &u); err != nil {
-		return u, fmt.Errorf("windows.local.accounts.UserList: %s", err)
+		return u, winerror.Errorf(cmd, "windows.local.accounts.UserList: %s", err)
 	}
 
 	return u, nil
@@ -165,17 +170,19 @@ func (params UserCreateParams) pwshCommand() string {
 }
 
 // UserCreate creates a local user and returns a User object.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) UserCreate(ctx context.Context, params UserCreateParams) (User, error) {
 	var u User
 
 	// Assert needed parameters
 	if params.Name == "" {
-		return u, fmt.Errorf("windows.local.accounts.UserCreate: user parameter 'Name' must be set")
+		return u, errors.New("windows.local.accounts.UserCreate: user parameter 'Name' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
-		return u, fmt.Errorf("windows.local.accounts.UserCreate: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &u); err != nil {
+		return u, winerror.Errorf(cmd, "windows.local.accounts.UserCreate: %s", err)
 	}
 
 	return u, nil
@@ -260,17 +267,19 @@ func (params UserUpdateParams) pwshCommand() string {
 }
 
 // UserUpdate updates a local user.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) UserUpdate(ctx context.Context, params UserUpdateParams) error {
 	var u User
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.accounts.UserUpdate: user parameter 'Name' or 'SID' must be set")
+		return errors.New("windows.local.accounts.UserUpdate: user parameter 'Name' or 'SID' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
-		return fmt.Errorf("windows.local.accounts.UserUpdate: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &u); err != nil {
+		return winerror.Errorf(cmd, "windows.local.accounts.UserUpdate: %s", err)
 	}
 
 	return nil
@@ -302,17 +311,19 @@ func (params UserDeleteParams) pwshCommand() string {
 }
 
 // UserDelete removes a local user by SID or Name.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) UserDelete(ctx context.Context, params UserDeleteParams) error {
 	var u User
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.accounts.UserDelete: user parameter 'Name' or 'SID' must be set")
+		return errors.New("windows.local.accounts.UserDelete: user parameter 'Name' or 'SID' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &u); err != nil {
-		return fmt.Errorf("windows.local.accounts.UserDelete: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &u); err != nil {
+		return winerror.Errorf(cmd, "windows.local.accounts.UserDelete: %s", err)
 	}
 
 	return nil

@@ -2,8 +2,11 @@ package accounts
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/d-strobel/gowindows/winerror"
 )
 
 // Group represents a Windows local group with its properties.
@@ -40,27 +43,30 @@ func (params GroupReadParams) pwshCommand() string {
 }
 
 // GroupRead gets a local group by SID or Name and returns a Group object.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupRead(ctx context.Context, params GroupReadParams) (Group, error) {
 	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return g, fmt.Errorf("windows.local.accounts.GroupRead: group parameter 'Name' or 'SID' must be set")
+		return g, errors.New("windows.local.accounts.GroupRead: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// We want to retrieve exactly one group.
 	if strings.Contains(params.Name, "*") {
-		return g, fmt.Errorf("windows.local.accounts.GroupRead: group parameter 'Name' does not allow wildcards")
+		return g, errors.New("windows.local.accounts.GroupRead: group parameter 'Name' does not allow wildcards")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &g); err != nil {
-		return g, fmt.Errorf("windows.local.accounts.GroupRead: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &g); err != nil {
+		return g, winerror.Errorf(cmd, "windows.local.accounts.GroupRead: %s", err)
 	}
 	return g, nil
 }
 
 // GroupList returns a list of all local groups.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupList(ctx context.Context) ([]Group, error) {
 	var g []Group
 
@@ -69,7 +75,7 @@ func (c *Client) GroupList(ctx context.Context) ([]Group, error) {
 
 	// Run command
 	if err := run(ctx, c, cmd, &g); err != nil {
-		return g, fmt.Errorf("windows.local.accounts.GroupList: %s", err)
+		return g, winerror.Errorf(cmd, "windows.local.accounts.GroupList: %s", err)
 	}
 	return g, nil
 }
@@ -102,17 +108,19 @@ func (params GroupCreateParams) pwshCommand() string {
 }
 
 // GroupCreate creates a new local group and returns the Group object.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupCreate(ctx context.Context, params GroupCreateParams) (Group, error) {
 	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" {
-		return g, fmt.Errorf("windows.local.accounts.GroupCreate: group parameter 'Name' must be set")
+		return g, errors.New("windows.local.accounts.GroupCreate: group parameter 'Name' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &g); err != nil {
-		return g, fmt.Errorf("windows.local.accounts.GroupCreate: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &g); err != nil {
+		return g, winerror.Errorf(cmd, "windows.local.accounts.GroupCreate: %s", err)
 	}
 
 	return g, nil
@@ -153,17 +161,19 @@ func (params GroupUpdateParams) pwshCommand() string {
 }
 
 // GroupUpdate updates a local group.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupUpdate(ctx context.Context, params GroupUpdateParams) error {
 	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.accounts.GroupUpdate: group parameter 'Name' or 'SID' must be set")
+		return errors.New("windows.local.accounts.GroupUpdate: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &g); err != nil {
-		return fmt.Errorf("windows.local.accounts.GroupUpdate: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &g); err != nil {
+		return winerror.Errorf(cmd, "windows.local.accounts.GroupUpdate: %s", err)
 	}
 
 	return nil
@@ -195,17 +205,19 @@ func (params GroupDeleteParams) pwshCommand() string {
 }
 
 // GroupDelete removes a local group by SID or Name.
+// It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) GroupDelete(ctx context.Context, params GroupDeleteParams) error {
 	var g Group
 
 	// Assert needed parameters
 	if params.Name == "" && params.SID == "" {
-		return fmt.Errorf("windows.local.accounts.GroupDelete: group parameter 'Name' or 'SID' must be set")
+		return errors.New("windows.local.accounts.GroupDelete: group parameter 'Name' or 'SID' must be set")
 	}
 
 	// Run command
-	if err := run(ctx, c, params.pwshCommand(), &g); err != nil {
-		return fmt.Errorf("windows.local.accounts.GroupDelete: %s", err)
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &g); err != nil {
+		return winerror.Errorf(cmd, "windows.local.accounts.GroupDelete: %s", err)
 	}
 
 	return nil

@@ -60,11 +60,11 @@ func (suite *LocalAccTestSuite) SetupSuite() {
 
 	// Setup SSH connection
 	sshConfig := &ssh.Config{
-		Host:                  suite.host,
-		Username:              suite.username,
-		Password:              suite.password,
-		Port:                  suite.sshPort,
-		InsecureIgnoreHostKey: true,
+		Host:     suite.host,
+		Username: suite.username,
+		Password: suite.password,
+		Port:     suite.sshPort,
+		Insecure: true,
 	}
 	sshConn, err := ssh.NewConnection(sshConfig)
 	suite.Require().NoError(err)

@@ -167,11 +167,11 @@ func (suite *SSHAccTestSuite) TestNewConnection() {
 	// Domaincontroller tests
 	suite.Run("domain: should establish a connection via password", func() {
 		sshConfig := ssh.Config{
-			Host:                  suite.adHost,
-			Port:                  suite.adPort,
-			Username:              suite.adUsernamePre2k,
-			Password:              suite.adPassword,
-			InsecureIgnoreHostKey: true,
+			Host:     suite.adHost,
+			Port:     suite.adPort,
+			Username: suite.adUsernamePre2k,
+			Password: suite.adPassword,
+			Insecure: true,
 		}
 
 		conn, err := ssh.NewConnection(&sshConfig)
