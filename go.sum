@@ -245,8 +245,8 @@ github.com/subosito/gotenv v1.4.2 h1:X1TuBLAMDFbaTAChgCBLu3DU3UPyELpnF2jjJ2cz/S8
 github.com/subosito/gotenv v1.4.2/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
 github.com/tidwall/transform v0.0.0-20201103190739-32f242e2dbde h1:AMNpJRc7P+GTwVbl8DkK2I9I8BBUzNiHuH/tlxrpan0=
 github.com/tidwall/transform v0.0.0-20201103190739-32f242e2dbde/go.mod h1:MvrEmduDUz4ST5pGZ7CABCnOU5f3ZiOAZzT6b1A6nX8=
-github.com/vektra/mockery/v2 v2.43.0 h1:9jgLwYbFIKPwWJUeK6Y+0s9oLRIGXLfW4FWlmF9R8c0=
-github.com/vektra/mockery/v2 v2.43.0/go.mod h1:XNTE9RIu3deGAGQRVjP1VZxGpQNm0YedZx4oDs3prr8=
+github.com/vektra/mockery/v2 v2.43.1 h1:fSrCtQa2zh+rZ73WkcCKJIXZMiOoCvSnC8CWUt9THlY=
+github.com/vektra/mockery/v2 v2.43.1/go.mod h1:XNTE9RIu3deGAGQRVjP1VZxGpQNm0YedZx4oDs3prr8=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
