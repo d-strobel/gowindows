@@ -1,4 +1,5 @@
 with-expecter: true
+disable-version-string: true
 packages:
   github.com/d-strobel/gowindows/connection:
     config:
