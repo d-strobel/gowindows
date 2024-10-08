@@ -1,12 +1,11 @@
 module github.com/d-strobel/gowindows
 
 go 1.22
-
-toolchain go1.22.0
+toolchain go1.23.2
 
 require (
 	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
-	github.com/vektra/mockery/v2 v2.46.0
+	github.com/vektra/mockery/v2 v2.46.2
 	golang.org/x/crypto v0.28.0
 )
 
