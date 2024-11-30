@@ -1,8 +1,8 @@
 module github.com/d-strobel/gowindows
 
-go 1.22
+go 1.23
 
-toolchain go1.22.0
+toolchain go1.23.3
 
 require (
 	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
