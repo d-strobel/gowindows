@@ -37,7 +37,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 		tcs := []struct {
 			description        string
 			expectedRecordA    RecordA
-			inputRecordAObject []recordAObject
+			inputRecordAObject []recordObject
 		}{
 			{
 				"should return the correct RecordA object",
@@ -48,14 +48,14 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 					TimeToLive:        3600,
 					Addresses:         []string{"2.2.2.2"},
 				},
-				[]recordAObject{
+				[]recordObject{
 					{
 						DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 						Name:              "test",
 						RecordType:        "A",
 						Timestamp:         parsing.DotnetTime{},
 						TimeToLive:        timeToLive{Seconds: 3600},
-						RecordData: recordARecordData{
+						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv4Address": "2.2.2.2",
 							},
@@ -72,14 +72,14 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 					TimeToLive:        60,
 					Addresses:         []string{"2.2.2.2", "3.3.3.3"},
 				},
-				[]recordAObject{
+				[]recordObject{
 					{
 						DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 						Name:              "test",
 						RecordType:        "A",
 						Timestamp:         parsing.DotnetTime{},
 						TimeToLive:        timeToLive{Seconds: 3600},
-						RecordData: recordARecordData{
+						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv4Address": "2.2.2.2",
 							},
@@ -91,7 +91,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 						RecordType:        "A",
 						Timestamp:         parsing.DotnetTime{},
 						TimeToLive:        timeToLive{Seconds: 60},
-						RecordData: recordARecordData{
+						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv4Address": "3.3.3.3",
 							},

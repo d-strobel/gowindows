@@ -14,12 +14,30 @@ import (
 
 // server is a type constraint for the run function, ensuring it works with specific types.
 type server interface {
-	Zone | []Zone | []recordAObject
+	Zone | []Zone | []recordObject
 }
+
+// Default Windows DNS TTL.
+// https://learn.microsoft.com/en-us/windows/win32/ad/configuration-of-ttl-limits?source=recommendations
+const defaultTimeToLive int32 = 86400
 
 // timeToLive represents a time to live (TTL) object returned by Powershell DNS commands.
 type timeToLive struct {
 	Seconds int32 `json:"TotalSeconds"`
+}
+
+// recordObject contains the unmarshaled json of the powershell record object.
+type recordObject struct {
+	DistinguishedName string             `json:"DistinguishedName"`
+	Name              string             `json:"HostName"`
+	RecordData        recordRecordData   `json:"RecordData"`
+	RecordType        string             `json:"RecordType"`
+	Timestamp         parsing.DotnetTime `json:"Timestamp"`
+	Type              int8               `json:"Type"`
+	TimeToLive        timeToLive         `json:"TimeToLive"`
+}
+type recordRecordData struct {
+	CimInstanceProperties parsing.CimClassKeyVal `json:"CimInstanceProperties"`
 }
 
 // Client represents a client for handling DNS server functions.

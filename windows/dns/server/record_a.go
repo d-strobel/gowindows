@@ -7,13 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/d-strobel/gowindows/parsing"
 	"github.com/d-strobel/gowindows/winerror"
 )
-
-// Default Windows DNS TTL.
-// https://learn.microsoft.com/en-us/windows/win32/ad/configuration-of-ttl-limits?source=recommendations
-const defaultTimeToLive int32 = 86400
 
 // RecordA represents a DNS A-Record.
 type RecordA struct {
@@ -24,22 +19,8 @@ type RecordA struct {
 	TimeToLive        int32
 }
 
-// recordAObject contains the unmarshaled json of the powershell output.
-type recordAObject struct {
-	DistinguishedName string             `json:"DistinguishedName"`
-	Name              string             `json:"HostName"`
-	RecordData        recordARecordData  `json:"RecordData"`
-	RecordType        string             `json:"RecordType"`
-	Timestamp         parsing.DotnetTime `json:"Timestamp"`
-	Type              int8               `json:"Type"`
-	TimeToLive        timeToLive         `json:"TimeToLive"`
-}
-type recordARecordData struct {
-	CimInstanceProperties parsing.CimClassKeyVal `json:"CimInstanceProperties"`
-}
-
 // convertOutput converts the unmarshaled JSON output from the recordAObject to a RecordA object.
-func (r *RecordA) convertOutput(o []recordAObject) {
+func (r *RecordA) convertOutput(o []recordObject) {
 	// Set the values of the first object to the RecordA object.
 	r.DistinguishedName = o[0].DistinguishedName
 	r.Name = o[0].Name
@@ -89,7 +70,7 @@ func (params RecordAReadParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordARead(ctx context.Context, params RecordAReadParams) (RecordA, error) {
 	var r RecordA
-	var o []recordAObject
+	var o []recordObject
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
@@ -158,7 +139,7 @@ func (params RecordACreateParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordACreate(ctx context.Context, params RecordACreateParams) (RecordA, error) {
 	var r RecordA
-	var o []recordAObject
+	var o []recordObject
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || len(params.Addresses) == 0 {
@@ -224,7 +205,7 @@ func (params RecordAUpdateParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordAUpdate(ctx context.Context, params RecordAUpdateParams) (RecordA, error) {
 	var r RecordA
-	var o []recordAObject
+	var o []recordObject
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || params.TimeToLive == 0 {
@@ -261,7 +242,7 @@ func (params RecordADeleteParams) pwshCommand() string {
 // RecordADelete deletes a DNS A-Record.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordADelete(ctx context.Context, params RecordADeleteParams) error {
-	var o []recordAObject
+	var o []recordObject
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
