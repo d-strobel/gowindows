@@ -302,8 +302,6 @@ func (suite *DnsServerUnitTestSuite) TestRecordAUpdate() {
 
 // Test RecordADelete related methods.
 func (suite *DnsServerUnitTestSuite) TestRecordADeletePwshCommand() {
-	suite.T().Parallel()
-
 	suite.Run("should return the correct command", func() {
 		tcs := []struct {
 			description     string
@@ -322,10 +320,6 @@ func (suite *DnsServerUnitTestSuite) TestRecordADeletePwshCommand() {
 			actualCmd := tc.inputParameters.pwshCommand()
 			suite.Equal(tc.expectedCmd, actualCmd)
 		}
-	})
-
-	suite.Run("should return specific errors", func() {
-
 	})
 }
 
