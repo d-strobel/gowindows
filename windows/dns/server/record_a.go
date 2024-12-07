@@ -19,7 +19,7 @@ type RecordA struct {
 	TimeToLive        int32
 }
 
-// convertOutput converts the unmarshaled JSON output from the recordAObject to a RecordA object.
+// convertOutput converts the unmarshaled JSON output from the recordObject to a RecordA object.
 func (r *RecordA) convertOutput(o []recordObject) {
 	// Set the values of the first object to the RecordA object.
 	r.DistinguishedName = o[0].DistinguishedName
