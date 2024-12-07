@@ -14,7 +14,12 @@ import (
 
 // server is a type constraint for the run function, ensuring it works with specific types.
 type server interface {
-	Zone | []Zone
+	Zone | []Zone | []recordAObject
+}
+
+// timeToLive represents a time to live (TTL) object returned by Powershell DNS commands.
+type timeToLive struct {
+	Seconds int32 `json:"TotalSeconds"`
 }
 
 // Client represents a client for handling DNS server functions.
