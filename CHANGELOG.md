@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0](https://github.com/d-strobel/gowindows/compare/v1.1.0...v1.2.0) (2024-12-08)
+
+
+### Features
+
+* add dns server AAAA-Record functions ([584fa32](https://github.com/d-strobel/gowindows/commit/584fa323066786b3109708ea15bde2a30286d53f))
+* add dns server functions for read and list dns zones ([f757fc9](https://github.com/d-strobel/gowindows/commit/f757fc9cb700bd2e7959394517d546090caf2c3b))
+* add dnsserver A-Record functions ([c154dea](https://github.com/d-strobel/gowindows/commit/c154dea8f8b3704adb627ac1242bbfcc152541dc))
+* add dnsserver CName-Record functions ([ffb7267](https://github.com/d-strobel/gowindows/commit/ffb72671af5d6e654e86bc0b7b59f9deaca57b39))
+* add dnsserver PTR-Record functions ([8f55816](https://github.com/d-strobel/gowindows/commit/8f558162aabc52e7e230f627716d30a0b2993c61))
+* add error handling to parsing json key-value strings ([a4059a7](https://github.com/d-strobel/gowindows/commit/a4059a7ad8ca681286a782e81ec01c7d2179153f))
+* implement parsing helper function for json key-value strings ([93da78d](https://github.com/d-strobel/gowindows/commit/93da78dae2104859171546940be7a1e99fca7686))
+
+
+### Bug Fixes
+
+* cimclass unmarshaljson does not handle array ([6962ec6](https://github.com/d-strobel/gowindows/commit/6962ec6d7d13463083098036893727417d072df4))
+
 ## [1.1.0](https://github.com/d-strobel/gowindows/compare/v1.0.1...v1.1.0) (2024-05-11)
 
 
