@@ -21,7 +21,7 @@ format:
 .PHONY: dependencies
 dependencies:
 	@printf "$(OK_COLOR)==> Install dependencies$(NO_COLOR)\n"
-	@go get -d -v ./...
+	@go get -v ./...
 
 .PHONY: generate
 generate:
