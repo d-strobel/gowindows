@@ -14,7 +14,7 @@ import (
 
 // server is a type constraint for the run function, ensuring it works with specific types.
 type server interface {
-	Zone | []Zone | []recordObject
+	Zone | []Zone | recordObject | []recordObject
 }
 
 // Default Windows DNS TTL.
