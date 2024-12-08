@@ -11,8 +11,10 @@ import (
 type CimClassKeyValUnitTestSuite struct {
 	suite.Suite
 	// Fixtures
-	testJson     string
-	testExpected TestCimClass
+	testJson      string
+	testExpected  TestCimClass
+	testJson2     string
+	testExpected2 TestCimClass
 }
 
 // Fixture objects
@@ -48,6 +50,24 @@ func (suite *CimClassKeyValUnitTestSuite) SetupSuite() {
 			},
 		},
 	}
+	suite.testJson2 = `{
+        "CimClass":  {
+            "CimSuperClassName":  "DnsDomain",
+		    "CimSuperClass":  "ROOT/Microsoft/Windows/DNS:DnsDomain",
+		    "CimClassProperties":  "DistinguishedName HostName RecordClass RecordData RecordType Timestamp TimeToLive Type",
+		    "CimClassQualifiers":  ["HostNameAlias = \"test.local.\""],
+		    "CimClassMethods":  "",
+		    "CimSystemProperties":  "Microsoft.Management.Infrastructure.CimSystemProperties"
+        }
+    }`
+	suite.testExpected2 = TestCimClass{
+		TestCimClassValues{
+			CimSuperClassName: "DnsDomain",
+			CimClassQualifiers: CimClassKeyVal{
+				"HostNameAlias": "test.local.",
+			},
+		},
+	}
 }
 
 func TestCimClassKeyValUnitTestSuite(t *testing.T) {
@@ -62,6 +82,13 @@ func (suite *CimClassKeyValUnitTestSuite) TestUnmarshalJSON() {
 		err := json.Unmarshal([]byte(suite.testJson), &testCimClass)
 		suite.NoError(err)
 		suite.Equal(suite.testExpected, testCimClass)
+	})
+
+	suite.Run("should unmarshal the whole CimClass correctly with json array", func() {
+		testCimClass := TestCimClass{}
+		err := json.Unmarshal([]byte(suite.testJson2), &testCimClass)
+		suite.NoError(err)
+		suite.Equal(suite.testExpected2, testCimClass)
 	})
 
 	suite.Run("should unmarshal the CimClassQualifiers a key-value map", func() {
@@ -95,5 +122,14 @@ func (suite *CimClassKeyValUnitTestSuite) TestUnmarshalJSON() {
 		err := cimClassKeyVal.UnmarshalJSON([]byte(`"dynamic = \"True\""`))
 		suite.NoError(err)
 		suite.Equal(CimClassKeyVal{"dynamic": "True"}, cimClassKeyVal)
+	})
+
+	suite.Run("should unmarshal the json array to key-value map", func() {
+		cimClassKeyVal := CimClassKeyVal{}
+		err := cimClassKeyVal.UnmarshalJSON([]byte(`["HostNameAlias = \"test.local.\""],`))
+		suite.NoError(err)
+		suite.Equal(CimClassKeyVal{
+			"HostNameAlias": "test.local.",
+		}, cimClassKeyVal)
 	})
 }

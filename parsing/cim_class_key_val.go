@@ -18,10 +18,14 @@ func (kv *CimClassKeyVal) UnmarshalJSON(b []byte) error {
 	// Convert the input bytes to a string
 	raw := string(b)
 
+	// Remove surrounding brackets.
+	// This is usally the case when the input is a JSON array of strings.
+	raw = strings.TrimPrefix(raw, `[`)
+	raw = strings.TrimSuffix(raw, `],`)
+
 	// Remove surrounding quotes
-	if strings.HasPrefix(raw, `"`) && strings.HasSuffix(raw, `"`) {
-		raw = raw[1 : len(raw)-1]
-	}
+	raw = strings.TrimPrefix(raw, `"`)
+	raw = strings.TrimSuffix(raw, `"`)
 
 	// Unescape the JSON string
 	raw = strings.ReplaceAll(raw, `\"`, `"`)
