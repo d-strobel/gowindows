@@ -43,16 +43,16 @@ func (r *RecordA) convertOutput(o []recordObject) {
 	}
 }
 
-// RecordAReadParams represents parameters for the A-Record function.
+// RecordAReadParams represents parameters for the A-Record read function.
 type RecordAReadParams struct {
-	// Specifies the name of the Record.
+	// Specifies the name of the record.
 	Name string
 
 	// Specifies the zone in which the record is located.
 	Zone string
 }
 
-// pwshCommand returns the PowerShell command to read a local group by SID or Name.
+// pwshCommand returns the PowerShell command to read an A-Record.
 func (params RecordAReadParams) pwshCommand() string {
 	// Base command
 	cmd := []string{"$r=Get-DnsServerResourceRecord -RRType 'A' -Node"}
@@ -66,7 +66,7 @@ func (params RecordAReadParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordARead gets a DNS A-Record by Name and Zone. It returns a RecordA object.
+// RecordARead gets an A-Record by Name and Zone. It returns a RecordA object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordARead(ctx context.Context, params RecordAReadParams) (RecordA, error) {
 	var r RecordA
@@ -89,7 +89,7 @@ func (c *Client) RecordARead(ctx context.Context, params RecordAReadParams) (Rec
 	return r, nil
 }
 
-// RecordACreateParams represents parameters for the A-Record function.
+// RecordACreateParams represents parameters for the A-Record create function.
 type RecordACreateParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -135,7 +135,7 @@ func (params RecordACreateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordACreate creates a DNS A-Record. It returns a RecordA object.
+// RecordACreate creates a new A-Record. It returns a RecordA object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordACreate(ctx context.Context, params RecordACreateParams) (RecordA, error) {
 	var r RecordA
@@ -163,7 +163,7 @@ func (c *Client) RecordACreate(ctx context.Context, params RecordACreateParams) 
 	return r, nil
 }
 
-// RecordAUpdateParams represents parameters for the A-Record function.
+// RecordAUpdateParams represents parameters for the A-Record update function.
 // Only the TimeToLive can be updated.
 type RecordAUpdateParams struct {
 	// Specifies the name of the Record.
@@ -178,7 +178,7 @@ type RecordAUpdateParams struct {
 	TimeToLive int32
 }
 
-// pwshCommand returns the PowerShell command to create a new A-Record.
+// pwshCommand returns the PowerShell command to update an A-Record.
 func (params RecordAUpdateParams) pwshCommand() string {
 	// Update to default TTL if not provided.
 	// New-TimeSpan only allows int32 values.
@@ -201,7 +201,7 @@ func (params RecordAUpdateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordAUpdate updates a DNS A-Record. It returns a RecordA object.
+// RecordAUpdate updates an A-Record. It returns a RecordA object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordAUpdate(ctx context.Context, params RecordAUpdateParams) (RecordA, error) {
 	var r RecordA
@@ -224,7 +224,7 @@ func (c *Client) RecordAUpdate(ctx context.Context, params RecordAUpdateParams) 
 	return r, nil
 }
 
-// RecordADeleteParams represents parameters for the A-Record function.
+// RecordADeleteParams represents parameters for the A-Record delete function.
 type RecordADeleteParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -233,13 +233,13 @@ type RecordADeleteParams struct {
 	Zone string
 }
 
-// pwshCommand returns the PowerShell command to create a new A-Record.
+// pwshCommand returns the PowerShell command to delete an A-Record.
 func (params RecordADeleteParams) pwshCommand() string {
 	// Base command
 	return fmt.Sprintf("Remove-DnsServerResourceRecord -RRType 'A' -Force -Name '%s' -ZoneName '%s'", params.Name, params.Zone)
 }
 
-// RecordADelete deletes a DNS A-Record.
+// RecordADelete deletes an A-Record.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordADelete(ctx context.Context, params RecordADeleteParams) error {
 	var o []recordObject

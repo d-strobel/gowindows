@@ -21,7 +21,6 @@ type RecordCName struct {
 
 // convertOutput converts the unmarshaled JSON output from the recordObject to a RecordCName object.
 func (r *RecordCName) convertOutput(o recordObject) {
-	// Set the values of the first object to the RecordCName object.
 	r.DistinguishedName = o.DistinguishedName
 	r.Name = o.Name
 	r.Timestamp = o.Timestamp.Time
@@ -29,7 +28,7 @@ func (r *RecordCName) convertOutput(o recordObject) {
 	r.CName = o.RecordData.CimInstanceProperties["HostNameAlias"]
 }
 
-// RecordCNameReadParams represents parameters for the CName-Record function.
+// RecordCNameReadParams represents parameters for the CName-Record read function.
 type RecordCNameReadParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -38,7 +37,7 @@ type RecordCNameReadParams struct {
 	Zone string
 }
 
-// pwshCommand returns the PowerShell command to read a DNS CName-Record.
+// pwshCommand returns the PowerShell command to read a CName-Record.
 func (params RecordCNameReadParams) pwshCommand() string {
 	// Base command
 	cmd := []string{"Get-DnsServerResourceRecord -RRType 'CName' -Node"}
@@ -52,7 +51,7 @@ func (params RecordCNameReadParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordCNameRead gets a DNS CName-Record by Name and Zone. It returns a RecordCName object.
+// RecordCNameRead gets a CName-Record. It returns a RecordCName object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordCNameRead(ctx context.Context, params RecordCNameReadParams) (RecordCName, error) {
 	var r RecordCName
@@ -75,7 +74,7 @@ func (c *Client) RecordCNameRead(ctx context.Context, params RecordCNameReadPara
 	return r, nil
 }
 
-// RecordCNameCreateParams represents parameters for the CName-Record function.
+// RecordCNameCreateParams represents parameters for the CName-Record create function.
 type RecordCNameCreateParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -116,7 +115,7 @@ func (params RecordCNameCreateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordCNameCreate creates a DNS CName-Record. It returns a RecordCName object.
+// RecordCNameCreate creates a CName-Record. It returns a RecordCName object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordCNameCreate(ctx context.Context, params RecordCNameCreateParams) (RecordCName, error) {
 	var r RecordCName
@@ -144,7 +143,7 @@ func (c *Client) RecordCNameCreate(ctx context.Context, params RecordCNameCreate
 	return r, nil
 }
 
-// RecordCNameUpdateParams represents parameters for the CName-Record function.
+// RecordCNameUpdateParams represents parameters for the CName-Record update function.
 // The CName and TimeToLive can be updated.
 type RecordCNameUpdateParams struct {
 	// Specifies the name of the Record.
@@ -162,7 +161,7 @@ type RecordCNameUpdateParams struct {
 	TimeToLive int32
 }
 
-// pwshCommand returns the PowerShell command to create a new A-Record.
+// pwshCommand returns the PowerShell command to update a CName-Record.
 func (params RecordCNameUpdateParams) pwshCommand() string {
 	// Update to default TTL if not provided.
 	// New-TimeSpan only allows int32 values.
@@ -189,7 +188,7 @@ func (params RecordCNameUpdateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordCNameUpdate updates a DNS A-Record. It returns a RecordCName object.
+// RecordCNameUpdate updates a CName-Record. It returns a RecordCName object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordCNameUpdate(ctx context.Context, params RecordCNameUpdateParams) (RecordCName, error) {
 	var r RecordCName
@@ -227,7 +226,7 @@ func (params RecordCNameDeleteParams) pwshCommand() string {
 	return fmt.Sprintf("Remove-DnsServerResourceRecord -RRType 'CName' -Force -Name '%s' -ZoneName '%s'", params.Name, params.Zone)
 }
 
-// RecordCNameDelete deletes a DNS CName-Record.
+// RecordCNameDelete deletes a CName-Record.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordCNameDelete(ctx context.Context, params RecordCNameDeleteParams) error {
 	var o recordObject

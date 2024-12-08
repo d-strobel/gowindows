@@ -43,7 +43,7 @@ func (r *RecordAAAA) convertOutput(o []recordObject) {
 	}
 }
 
-// RecordAAAAReadParams represents parameters for the A-Record function.
+// RecordAAAAReadParams represents parameters for the AAAA-Record read function.
 type RecordAAAAReadParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -52,7 +52,7 @@ type RecordAAAAReadParams struct {
 	Zone string
 }
 
-// pwshCommand returns the PowerShell command to read a local group by SID or Name.
+// pwshCommand returns the PowerShell command to read an AAAA-Record.
 func (params RecordAAAAReadParams) pwshCommand() string {
 	// Base command
 	cmd := []string{"$r=Get-DnsServerResourceRecord -RRType 'AAAA' -Node"}
@@ -66,7 +66,7 @@ func (params RecordAAAAReadParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordAAAARead gets a DNS A-Record by Name and Zone. It returns a RecordAAAA object.
+// RecordAAAARead gets an AAAA-Record. It returns a RecordAAAA object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordAAAARead(ctx context.Context, params RecordAAAAReadParams) (RecordAAAA, error) {
 	var r RecordAAAA
@@ -89,7 +89,7 @@ func (c *Client) RecordAAAARead(ctx context.Context, params RecordAAAAReadParams
 	return r, nil
 }
 
-// RecordAAAACreateParams represents parameters for the A-Record function.
+// RecordAAAACreateParams represents parameters for the AAAA-Record create function.
 type RecordAAAACreateParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -106,7 +106,7 @@ type RecordAAAACreateParams struct {
 	TimeToLive int32
 }
 
-// pwshCommand returns the PowerShell command to create a new A-Record.
+// pwshCommand returns the PowerShell command to create a new AAAA-Record.
 func (params RecordAAAACreateParams) pwshCommand() string {
 	addressList := []string{}
 
@@ -135,7 +135,7 @@ func (params RecordAAAACreateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordAAAACreate creates a DNS A-Record. It returns a RecordAAAA object.
+// RecordAAAACreate creates an AAAA-Record. It returns a RecordAAAA object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordAAAACreate(ctx context.Context, params RecordAAAACreateParams) (RecordAAAA, error) {
 	var r RecordAAAA
@@ -163,7 +163,7 @@ func (c *Client) RecordAAAACreate(ctx context.Context, params RecordAAAACreatePa
 	return r, nil
 }
 
-// RecordAAAAUpdateParams represents parameters for the A-Record function.
+// RecordAAAAUpdateParams represents parameters for the A-Record update function.
 // Only the TimeToLive can be updated.
 type RecordAAAAUpdateParams struct {
 	// Specifies the name of the Record.
@@ -178,7 +178,7 @@ type RecordAAAAUpdateParams struct {
 	TimeToLive int32
 }
 
-// pwshCommand returns the PowerShell command to create a new A-Record.
+// pwshCommand returns the PowerShell command to update an AAAA-Record.
 func (params RecordAAAAUpdateParams) pwshCommand() string {
 	// Update to default TTL if not provided.
 	// New-TimeSpan only allows int32 values.
@@ -201,7 +201,7 @@ func (params RecordAAAAUpdateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordAAAAUpdate updates a DNS A-Record. It returns a RecordAAAA object.
+// RecordAAAAUpdate updates an AAAA-Record. It returns a RecordAAAA object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordAAAAUpdate(ctx context.Context, params RecordAAAAUpdateParams) (RecordAAAA, error) {
 	var r RecordAAAA
@@ -224,7 +224,7 @@ func (c *Client) RecordAAAAUpdate(ctx context.Context, params RecordAAAAUpdatePa
 	return r, nil
 }
 
-// RecordAAAADeleteParams represents parameters for the A-Record function.
+// RecordAAAADeleteParams represents parameters for the AAAA-Record delete function.
 type RecordAAAADeleteParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -233,13 +233,13 @@ type RecordAAAADeleteParams struct {
 	Zone string
 }
 
-// pwshCommand returns the PowerShell command to create a new A-Record.
+// pwshCommand returns the PowerShell command to delete an AAAA-Record.
 func (params RecordAAAADeleteParams) pwshCommand() string {
 	// Base command
 	return fmt.Sprintf("Remove-DnsServerResourceRecord -RRType 'AAAA' -Force -Name '%s' -ZoneName '%s'", params.Name, params.Zone)
 }
 
-// RecordAAAADelete deletes a DNS A-Record.
+// RecordAAAADelete deletes an AAAA-Record.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordAAAADelete(ctx context.Context, params RecordAAAADeleteParams) error {
 	var o []recordObject

@@ -28,7 +28,7 @@ func (r *RecordPTR) convertOutput(o recordObject) {
 	r.PTR = o.RecordData.CimInstanceProperties["PtrDomainName"]
 }
 
-// RecordPTRReadParams represents parameters for the PTR-Record function.
+// RecordPTRReadParams represents parameters for the PTR-Record read function.
 type RecordPTRReadParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -37,7 +37,7 @@ type RecordPTRReadParams struct {
 	Zone string
 }
 
-// pwshCommand returns the PowerShell command to read a DNS PTR-Record.
+// pwshCommand returns the PowerShell command to read a PTR-Record.
 func (params RecordPTRReadParams) pwshCommand() string {
 	// Base command
 	cmd := []string{"Get-DnsServerResourceRecord -RRType 'PTR' -Node"}
@@ -51,7 +51,7 @@ func (params RecordPTRReadParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordPTRRead gets a DNS PTR-Record by Name and Zone. It returns a RecordPTR object.
+// RecordPTRRead gets a PTR-Record. It returns a RecordPTR object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordPTRRead(ctx context.Context, params RecordPTRReadParams) (RecordPTR, error) {
 	var r RecordPTR
@@ -74,7 +74,7 @@ func (c *Client) RecordPTRRead(ctx context.Context, params RecordPTRReadParams) 
 	return r, nil
 }
 
-// RecordPTRCreateParams represents parameters for the PTR-Record function.
+// RecordPTRCreateParams represents parameters for the PTR-Record create function.
 type RecordPTRCreateParams struct {
 	// Specifies the name of the Record.
 	Name string
@@ -82,7 +82,7 @@ type RecordPTRCreateParams struct {
 	// Specifies the zone in which the record is located.
 	Zone string
 
-	// Specifies the PTR of the record.
+	// Specifies the canonical name this record will point to.
 	PTR string
 
 	// Specifies the time to live (TTL) of the record in seconds.
@@ -115,7 +115,7 @@ func (params RecordPTRCreateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordPTRCreate creates a DNS PTR-Record. It returns a RecordPTR object.
+// RecordPTRCreate creates a PTR-Record. It returns a RecordPTR object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordPTRCreate(ctx context.Context, params RecordPTRCreateParams) (RecordPTR, error) {
 	var r RecordPTR
@@ -143,7 +143,7 @@ func (c *Client) RecordPTRCreate(ctx context.Context, params RecordPTRCreatePara
 	return r, nil
 }
 
-// RecordPTRUpdateParams represents parameters for the PTR-Record function.
+// RecordPTRUpdateParams represents parameters for the PTR-Record update function.
 // The PTR and TimeToLive can be updated.
 type RecordPTRUpdateParams struct {
 	// Specifies the name of the Record.
@@ -152,7 +152,7 @@ type RecordPTRUpdateParams struct {
 	// Specifies the zone in which the record is located.
 	Zone string
 
-	// Specifies the PTR of the record.
+	// Specifies the canonical name this record will point to.
 	PTR string
 
 	// Specifies the time to live (TTL) of the record in seconds.
@@ -161,7 +161,7 @@ type RecordPTRUpdateParams struct {
 	TimeToLive int32
 }
 
-// pwshCommand returns the PowerShell command to create a new PTR-Record.
+// pwshCommand returns the PowerShell command to update a PTR-Record.
 func (params RecordPTRUpdateParams) pwshCommand() string {
 	// Update to default TTL if not provided.
 	// New-TimeSpan only allows int32 values.
@@ -188,7 +188,7 @@ func (params RecordPTRUpdateParams) pwshCommand() string {
 	return strings.Join(cmd, " ")
 }
 
-// RecordPTRUpdate updates a DNS PTR-Record. It returns a RecordPTR object.
+// RecordPTRUpdate updates a PTR-Record. It returns a RecordPTR object.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordPTRUpdate(ctx context.Context, params RecordPTRUpdateParams) (RecordPTR, error) {
 	var r RecordPTR
@@ -226,7 +226,7 @@ func (params RecordPTRDeleteParams) pwshCommand() string {
 	return fmt.Sprintf("Remove-DnsServerResourceRecord -RRType 'PTR' -Force -Name '%s' -ZoneName '%s'", params.Name, params.Zone)
 }
 
-// RecordPTRDelete deletes a DNS PTR-Record.
+// RecordPTRDelete deletes a PTR-Record.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) RecordPTRDelete(ctx context.Context, params RecordPTRDeleteParams) error {
 	var o recordObject
