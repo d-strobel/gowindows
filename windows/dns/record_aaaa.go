@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/netip"
 	"strings"
 	"time"
 
@@ -14,13 +15,13 @@ import (
 type RecordAAAA struct {
 	DistinguishedName string
 	Name              string
-	Addresses         []string
+	Addresses         []netip.Addr
 	Timestamp         time.Time
 	TimeToLive        time.Duration
 }
 
 // convertOutput converts the unmarshaled JSON output from the recordObject to a RecordAAAA object.
-func (r *RecordAAAA) convertOutput(o []recordObject) {
+func (r *RecordAAAA) convertOutput(o []recordObject) error {
 	// Set the values of the first object to the RecordAAAA object.
 	r.DistinguishedName = o[0].DistinguishedName
 	r.Name = o[0].Name
@@ -29,10 +30,18 @@ func (r *RecordAAAA) convertOutput(o []recordObject) {
 
 	// Set the addresses and the lowest TTL.
 	if len(o) == 1 {
-		r.Addresses = []string{o[0].RecordData.CimInstanceProperties["IPv6Address"]}
+		ip, err := netip.ParseAddr(o[0].RecordData.CimInstanceProperties["IPv6Address"])
+		if err != nil {
+			return err
+		}
+		r.Addresses = []netip.Addr{ip}
 	} else {
 		for _, record := range o {
-			r.Addresses = append(r.Addresses, record.RecordData.CimInstanceProperties["IPv6Address"])
+			ip, err := netip.ParseAddr(record.RecordData.CimInstanceProperties["IPv6Address"])
+			if err != nil {
+				return err
+			}
+			r.Addresses = append(r.Addresses, ip)
 
 			// Set the lowest TTL to be RFC2181 compliant.
 			// https://www.rfc-editor.org/rfc/rfc2181#section-5.2
@@ -41,6 +50,8 @@ func (r *RecordAAAA) convertOutput(o []recordObject) {
 			}
 		}
 	}
+
+	return nil
 }
 
 // RecordAAAAReadParams represents parameters for the AAAA-Record read function.
@@ -84,7 +95,9 @@ func (c *Client) RecordAAAARead(ctx context.Context, params RecordAAAAReadParams
 	}
 
 	// Convert the output to a RecordAAAA object.
-	r.convertOutput(o)
+	if err := r.convertOutput(o); err != nil {
+		return r, fmt.Errorf(cmd, "windows.dns.server.RecordAAAARead: failed to convert output to RecordAAAA object: %s", err)
+	}
 
 	return r, nil
 }
@@ -98,7 +111,7 @@ type RecordAAAACreateParams struct {
 	Zone string
 
 	// Specifies the IPv6 addresses of the record.
-	Addresses []string
+	Addresses []netip.Addr
 
 	// Specifies the time to live (TTL) of the record in seconds.
 	// If not provided, the default is 86400 seconds.
@@ -128,7 +141,7 @@ func (params RecordAAAACreateParams) pwshCommand() string {
 
 	// Add addresses with single quotes and join them with commas.
 	for _, address := range params.Addresses {
-		addressList = append(addressList, fmt.Sprintf("'%s'", address))
+		addressList = append(addressList, fmt.Sprintf("'%s'", address.String()))
 	}
 	cmd = append(cmd, fmt.Sprintf("-IPv6Address @(%s)", strings.Join(addressList, ",")))
 
@@ -147,6 +160,13 @@ func (c *Client) RecordAAAACreate(ctx context.Context, params RecordAAAACreatePa
 		return r, errors.New("windows.dns.server.RecordAAAACreate: record parameters 'Name', 'Zone' and 'Addresses' must be set")
 	}
 
+	// Assert Ipv4 addresses
+	for _, address := range params.Addresses {
+		if !address.Is6() {
+			return r, errors.New("windows.dns.server.RecordAAAACreate: record parameter 'Addresses' must be a list of IPv6 addresses")
+		}
+	}
+
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
@@ -159,7 +179,9 @@ func (c *Client) RecordAAAACreate(ctx context.Context, params RecordAAAACreatePa
 	}
 
 	// Convert the output to a RecordAAAA object.
-	r.convertOutput(o)
+	if err := r.convertOutput(o); err != nil {
+		return r, fmt.Errorf(cmd, "windows.dns.server.RecordAAAACreate: failed to convert output to RecordAAAA object: %s", err)
+	}
 
 	return r, nil
 }
@@ -221,7 +243,9 @@ func (c *Client) RecordAAAAUpdate(ctx context.Context, params RecordAAAAUpdatePa
 	}
 
 	// Convert the output to a RecordAAAA object.
-	r.convertOutput(o)
+	if err := r.convertOutput(o); err != nil {
+		return r, fmt.Errorf(cmd, "windows.dns.server.RecordAAAAUpdate: failed to convert output to RecordAAAA object: %s", err)
+	}
 
 	return r, nil
 }

@@ -2,6 +2,7 @@ package dns
 
 import (
 	"context"
+	"net/netip"
 	"time"
 
 	"github.com/d-strobel/gowindows/connection"
@@ -27,7 +28,7 @@ var (
 		Name:              "test",
 		Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
 		TimeToLive:        time.Second * 3600,
-		Addresses:         []string{"2.2.2.2"},
+		Addresses:         []netip.Addr{netip.MustParseAddr("2.2.2.2")},
 	}
 )
 
@@ -46,7 +47,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 					DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
 					TimeToLive:        time.Duration(time.Second * 3600),
-					Addresses:         []string{"2.2.2.2"},
+					Addresses:         []netip.Addr{netip.MustParseAddr("2.2.2.2")},
 				},
 				[]recordObject{
 					{
@@ -70,7 +71,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 					DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
 					TimeToLive:        time.Duration(time.Second * 60),
-					Addresses:         []string{"2.2.2.2", "3.3.3.3"},
+					Addresses:         []netip.Addr{netip.MustParseAddr("2.2.2.2"), netip.MustParseAddr("3.3.3.3")},
 				},
 				[]recordObject{
 					{
@@ -104,7 +105,8 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 		for _, tc := range tcs {
 			suite.T().Logf("test case: %s", tc.description)
 			r := RecordA{}
-			r.convertOutput(tc.inputRecordAObject)
+			err := r.convertOutput(tc.inputRecordAObject)
+			suite.NoError(err)
 			suite.Equal(tc.expectedRecordA, r)
 		}
 	})
@@ -198,17 +200,17 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreatePwshCommand() {
 		}{
 			{
 				"assert without ttl parameter",
-				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}},
+				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("1.1.1.1")}},
 				"$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 86400) -IPv4Address @('1.1.1.1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}",
 			},
 			{
 				"assert with multiple ip addresses",
-				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1", "2.2.2.2", "3.3.3.3"}},
+				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("1.1.1.1"), netip.MustParseAddr("2.2.2.2"), netip.MustParseAddr("3.3.3.3")}},
 				"$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 86400) -IPv4Address @('1.1.1.1','2.2.2.2','3.3.3.3') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}",
 			},
 			{
 				"assert with ttl parameter",
-				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: time.Second * 3600},
+				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("1.1.1.1")}, TimeToLive: time.Second * 3600},
 				"$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv4Address @('1.1.1.1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}",
 			},
 		}
@@ -235,7 +237,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv4Address @('1.1.1.1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}").
 			Return(connection.CmdResult{StdOut: recordAJson}, nil)
-		actualRecord, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: time.Second * 3600})
+		actualRecord, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("1.1.1.1")}, TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordA, actualRecord)
 	})
@@ -252,8 +254,20 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreate() {
 			RunWithPowershell(ctx, "$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv4Address @('1.1.1.1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}").
 			Return(connection.CmdResult{StdErr: recordExistsErr}, nil)
 
-		_, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: time.Second * 3600})
+		_, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("1.1.1.1")}, TimeToLive: time.Second * 3600})
 		suite.EqualError(err, "windows.dns.server.RecordACreate: the specified record already exists.")
+	})
+
+	suite.Run("should return 'invalid Ipv4' error", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnection(suite.T())
+		c := &Client{
+			Connection:      mockConn,
+			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
+		}
+		_, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("fe80:0010::")}, TimeToLive: time.Second * 3600})
+		suite.EqualError(err, "windows.dns.server.RecordACreate: record parameter 'Addresses' must be a list of IPv4 addresses")
 	})
 }
 
