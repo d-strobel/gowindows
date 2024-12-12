@@ -1,4 +1,4 @@
-package server
+package dns
 
 import (
 	"context"
@@ -26,7 +26,7 @@ var (
 		DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 		Name:              "test",
 		Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-		TimeToLive:        3600,
+		TimeToLive:        time.Second * 3600,
 		Addresses:         []string{"2001:db8:0000::1"},
 	}
 )
@@ -45,7 +45,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAConvertOutput() {
 					Name:              "test",
 					DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-					TimeToLive:        3600,
+					TimeToLive:        time.Second * 3600,
 					Addresses:         []string{"2001:db8:0000::1"},
 				},
 				[]recordObject{
@@ -54,7 +54,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAConvertOutput() {
 						Name:              "test",
 						RecordType:        "AAAA",
 						Timestamp:         parsing.DotnetTime{},
-						TimeToLive:        timeToLive{Seconds: 3600},
+						TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 3600},
 						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv6Address": "2001:db8:0000::1",
@@ -69,7 +69,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAConvertOutput() {
 					Name:              "test",
 					DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-					TimeToLive:        60,
+					TimeToLive:        time.Second * 60,
 					Addresses:         []string{"2001:db8:0000::1", "2001:db8:0000::2"},
 				},
 				[]recordObject{
@@ -78,7 +78,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAConvertOutput() {
 						Name:              "test",
 						RecordType:        "AAAA",
 						Timestamp:         parsing.DotnetTime{},
-						TimeToLive:        timeToLive{Seconds: 3600},
+						TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 3600},
 						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv6Address": "2001:db8:0000::1",
@@ -90,7 +90,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAConvertOutput() {
 						Name:              "test",
 						RecordType:        "AAAA",
 						Timestamp:         parsing.DotnetTime{},
-						TimeToLive:        timeToLive{Seconds: 60},
+						TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 60},
 						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv6Address": "2001:db8:0000::2",
@@ -208,7 +208,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAACreatePwshCommand() {
 			},
 			{
 				"assert with ttl parameter",
-				RecordAAAACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"2001:db8:0000::1"}, TimeToLive: 3600},
+				RecordAAAACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"2001:db8:0000::1"}, TimeToLive: time.Second * 3600},
 				"$r=Add-DnsServerResourceRecordAAAA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv6Address @('2001:db8:0000::1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}",
 			},
 		}
@@ -235,7 +235,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAACreate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "$r=Add-DnsServerResourceRecordAAAA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv6Address @('2001:db8:0000::1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}").
 			Return(connection.CmdResult{StdOut: recordAAAAJson}, nil)
-		actualRecord, err := c.RecordAAAACreate(ctx, RecordAAAACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"2001:db8:0000::1"}, TimeToLive: 3600})
+		actualRecord, err := c.RecordAAAACreate(ctx, RecordAAAACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"2001:db8:0000::1"}, TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordAAAA, actualRecord)
 	})
@@ -252,7 +252,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAACreate() {
 			RunWithPowershell(ctx, "$r=Add-DnsServerResourceRecordAAAA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv6Address @('2001:db8:0000::1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}").
 			Return(connection.CmdResult{StdErr: recordAAAAExistsErr}, nil)
 
-		_, err := c.RecordAAAACreate(ctx, RecordAAAACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"2001:db8:0000::1"}, TimeToLive: 3600})
+		_, err := c.RecordAAAACreate(ctx, RecordAAAACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"2001:db8:0000::1"}, TimeToLive: time.Second * 3600})
 		suite.EqualError(err, "windows.dns.server.RecordAAAACreate: the specified record already exists.")
 	})
 }
@@ -267,7 +267,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAUpdatePwshCommand() {
 		}{
 			{
 				"assert without ttl parameter",
-				RecordAAAAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: 3600},
+				RecordAAAAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: time.Second * 3600},
 				"$nr=@();Get-DnsServerResourceRecord -RRType 'AAAA' -Node -Name 'test' -ZoneName 'test.local' | ForEach-Object{$r=$_;$n=[ciminstance]::new($r);$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$nr+=Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName 'test.local' -PassThru} ;if($nr.Count -ge 2){ConvertTo-Json $nr -Compress}else{ConvertTo-Json @($nr) -Compress}",
 			},
 		}
@@ -292,7 +292,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAUpdate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "$nr=@();Get-DnsServerResourceRecord -RRType 'AAAA' -Node -Name 'test' -ZoneName 'test.local' | ForEach-Object{$r=$_;$n=[ciminstance]::new($r);$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$nr+=Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName 'test.local' -PassThru} ;if($nr.Count -ge 2){ConvertTo-Json $nr -Compress}else{ConvertTo-Json @($nr) -Compress}").
 			Return(connection.CmdResult{StdOut: recordAAAAJson}, nil)
-		actualRecord, err := c.RecordAAAAUpdate(ctx, RecordAAAAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: 3600})
+		actualRecord, err := c.RecordAAAAUpdate(ctx, RecordAAAAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordAAAA, actualRecord)
 	})

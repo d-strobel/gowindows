@@ -1,40 +1,37 @@
-// Package server provides a Go library for handling Windows DNS Server.
+// Package dns provides a Go library for handling Windows DNS Server.
 // The functions are related to the Powershell dns server cmdlets provided by Windows.
 // https://learn.microsoft.com/en-us/powershell/module/dnsserver/?view=windowsserver2022-ps
-package server
+package dns
 
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"errors"
+
 	"github.com/d-strobel/gowindows/connection"
 	"github.com/d-strobel/gowindows/parsing"
 )
 
-// server is a type constraint for the run function, ensuring it works with specific types.
-type server interface {
+// dns is a type constraint for the run function, ensuring it works with specific types.
+type dns interface {
 	Zone | []Zone | recordObject | []recordObject
 }
 
 // Default Windows DNS TTL.
 // https://learn.microsoft.com/en-us/windows/win32/ad/configuration-of-ttl-limits?source=recommendations
-const defaultTimeToLive int32 = 86400
-
-// timeToLive represents a time to live (TTL) object returned by Powershell DNS commands.
-type timeToLive struct {
-	Seconds int32 `json:"TotalSeconds"`
-}
+var defaultTimeToLive time.Duration = time.Second * 86400
 
 // recordObject contains the unmarshaled json of the powershell record object.
 type recordObject struct {
-	DistinguishedName string             `json:"DistinguishedName"`
-	Name              string             `json:"HostName"`
-	RecordData        recordRecordData   `json:"RecordData"`
-	RecordType        string             `json:"RecordType"`
-	Timestamp         parsing.DotnetTime `json:"Timestamp"`
-	Type              int8               `json:"Type"`
-	TimeToLive        timeToLive         `json:"TimeToLive"`
+	DistinguishedName string                  `json:"DistinguishedName"`
+	Name              string                  `json:"HostName"`
+	RecordData        recordRecordData        `json:"RecordData"`
+	RecordType        string                  `json:"RecordType"`
+	Timestamp         parsing.DotnetTime      `json:"Timestamp"`
+	Type              int8                    `json:"Type"`
+	TimeToLive        parsing.CimTimeDuration `json:"TimeToLive"`
 }
 type recordRecordData struct {
 	CimInstanceProperties parsing.CimClassKeyVal `json:"CimInstanceProperties"`
@@ -62,7 +59,7 @@ func NewClientWithParser(conn connection.Connection, parsing func(string) (strin
 
 // run runs a PowerShell command against a Windows system, handles the command results,
 // and unmarshals the output into a local object type.
-func run[T server](ctx context.Context, c *Client, cmd string, l *T) error {
+func run[T dns](ctx context.Context, c *Client, cmd string, d *T) error {
 	// Run the command
 	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {
@@ -84,7 +81,7 @@ func run[T server](ctx context.Context, c *Client, cmd string, l *T) error {
 	}
 
 	// Unmarshal stdout
-	if err = json.Unmarshal([]byte(result.StdOut), &l); err != nil {
+	if err = json.Unmarshal([]byte(result.StdOut), &d); err != nil {
 		return err
 	}
 

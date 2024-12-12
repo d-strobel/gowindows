@@ -1,4 +1,4 @@
-package server
+package dns
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type RecordCName struct {
 	Name              string
 	CName             string
 	Timestamp         time.Time
-	TimeToLive        int32
+	TimeToLive        time.Duration
 }
 
 // convertOutput converts the unmarshaled JSON output from the recordObject to a RecordCName object.
@@ -24,7 +24,7 @@ func (r *RecordCName) convertOutput(o recordObject) {
 	r.DistinguishedName = o.DistinguishedName
 	r.Name = o.Name
 	r.Timestamp = o.Timestamp.Time
-	r.TimeToLive = o.TimeToLive.Seconds
+	r.TimeToLive = o.TimeToLive.Duration
 	r.CName = o.RecordData.CimInstanceProperties["HostNameAlias"]
 }
 
@@ -88,7 +88,7 @@ type RecordCNameCreateParams struct {
 	// Specifies the time to live (TTL) of the record in seconds.
 	// If not provided, the default is 86400 seconds.
 	// A TTL of 0 is not allowed.
-	TimeToLive int32
+	TimeToLive time.Duration
 }
 
 // pwshCommand returns the PowerShell command to create a new CName-Record.
@@ -107,7 +107,8 @@ func (params RecordCNameCreateParams) pwshCommand() string {
 	if params.TimeToLive == 0 {
 		params.TimeToLive = defaultTimeToLive
 	}
-	cmd = append(cmd, fmt.Sprintf("-TimeToLive %s", fmt.Sprintf("$(New-TimeSpan -Seconds %d)", params.TimeToLive)))
+	seconds := int32(params.TimeToLive.Round(time.Second).Seconds())
+	cmd = append(cmd, fmt.Sprintf("-TimeToLive %s", fmt.Sprintf("$(New-TimeSpan -Seconds %d)", seconds)))
 
 	// Join the command and ensure Json Output
 	cmd = append(cmd, "| ConvertTo-Json -Compress")
@@ -158,7 +159,7 @@ type RecordCNameUpdateParams struct {
 	// Specifies the time to live (TTL) of the record in seconds.
 	// If not provided, the default TTL is 86400 seconds.
 	// A TTL of 0 is not allowed.
-	TimeToLive int32
+	TimeToLive time.Duration
 }
 
 // pwshCommand returns the PowerShell command to update a CName-Record.
@@ -169,6 +170,7 @@ func (params RecordCNameUpdateParams) pwshCommand() string {
 	if params.TimeToLive == 0 {
 		params.TimeToLive = defaultTimeToLive
 	}
+	seconds := int32(params.TimeToLive.Round(time.Second).Seconds())
 
 	// Get command
 	cmd := []string{"$r=Get-DnsServerResourceRecord -RRType 'CName' -Node"}
@@ -177,7 +179,7 @@ func (params RecordCNameUpdateParams) pwshCommand() string {
 
 	// Add logic for handling TTL and CName update.
 	cmd = append(cmd, ";$n=[ciminstance]::new($r)")
-	cmd = append(cmd, fmt.Sprintf(";$n.TimeToLive=New-TimeSpan -Seconds %d", params.TimeToLive))
+	cmd = append(cmd, fmt.Sprintf(";$n.TimeToLive=New-TimeSpan -Seconds %d", seconds))
 	cmd = append(cmd, fmt.Sprintf(";$n.RecordData.HostNameAlias='%s'", params.CName))
 	cmd = append(cmd, fmt.Sprintf(";Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName '%s' -PassThru", params.Zone))
 
