@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/d-strobel/gowindows/compare/v1.2.0...v1.3.0) (2024-12-12)
+
+
+### Features
+
+* implement UnmarshalJSON for CimTimeDuration ([8df10d5](https://github.com/d-strobel/gowindows/commit/8df10d5659264908b3d94e278f63cb0af0b398bd))
+
 ## [1.2.0](https://github.com/d-strobel/gowindows/compare/v1.1.0...v1.2.0) (2024-12-08)
 
 
