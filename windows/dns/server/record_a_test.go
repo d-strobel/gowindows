@@ -26,7 +26,7 @@ var (
 		DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 		Name:              "test",
 		Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-		TimeToLive:        3600,
+		TimeToLive:        time.Second * 3600,
 		Addresses:         []string{"2.2.2.2"},
 	}
 )
@@ -45,7 +45,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 					Name:              "test",
 					DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-					TimeToLive:        3600,
+					TimeToLive:        time.Duration(time.Second * 3600),
 					Addresses:         []string{"2.2.2.2"},
 				},
 				[]recordObject{
@@ -54,7 +54,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 						Name:              "test",
 						RecordType:        "A",
 						Timestamp:         parsing.DotnetTime{},
-						TimeToLive:        timeToLive{Seconds: 3600},
+						TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 3600},
 						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv4Address": "2.2.2.2",
@@ -69,7 +69,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 					Name:              "test",
 					DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-					TimeToLive:        60,
+					TimeToLive:        time.Duration(time.Second * 60),
 					Addresses:         []string{"2.2.2.2", "3.3.3.3"},
 				},
 				[]recordObject{
@@ -78,7 +78,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 						Name:              "test",
 						RecordType:        "A",
 						Timestamp:         parsing.DotnetTime{},
-						TimeToLive:        timeToLive{Seconds: 3600},
+						TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 3600},
 						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv4Address": "2.2.2.2",
@@ -90,7 +90,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAConvertOutput() {
 						Name:              "test",
 						RecordType:        "A",
 						Timestamp:         parsing.DotnetTime{},
-						TimeToLive:        timeToLive{Seconds: 60},
+						TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 60},
 						RecordData: recordRecordData{
 							CimInstanceProperties: parsing.CimClassKeyVal{
 								"IPv4Address": "3.3.3.3",
@@ -208,7 +208,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreatePwshCommand() {
 			},
 			{
 				"assert with ttl parameter",
-				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: 3600},
+				RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: time.Second * 3600},
 				"$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv4Address @('1.1.1.1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}",
 			},
 		}
@@ -235,7 +235,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv4Address @('1.1.1.1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}").
 			Return(connection.CmdResult{StdOut: recordAJson}, nil)
-		actualRecord, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: 3600})
+		actualRecord, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordA, actualRecord)
 	})
@@ -252,7 +252,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreate() {
 			RunWithPowershell(ctx, "$r=Add-DnsServerResourceRecordA -AllowUpdateAny:$false -CreatePtr:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -TimeToLive $(New-TimeSpan -Seconds 3600) -IPv4Address @('1.1.1.1') ;if($r.Count -ge 2){ConvertTo-Json $r -Compress}else{ConvertTo-Json @($r) -Compress}").
 			Return(connection.CmdResult{StdErr: recordExistsErr}, nil)
 
-		_, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: 3600})
+		_, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []string{"1.1.1.1"}, TimeToLive: time.Second * 3600})
 		suite.EqualError(err, "windows.dns.server.RecordACreate: the specified record already exists.")
 	})
 }
@@ -267,7 +267,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAUpdatePwshCommand() {
 		}{
 			{
 				"assert without ttl parameter",
-				RecordAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: 3600},
+				RecordAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: time.Second * 3600},
 				"$nr=@();Get-DnsServerResourceRecord -RRType 'A' -Node -Name 'test' -ZoneName 'test.local' | ForEach-Object{$r=$_;$n=[ciminstance]::new($r);$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$nr+=Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName 'test.local' -PassThru} ;if($nr.Count -ge 2){ConvertTo-Json $nr -Compress}else{ConvertTo-Json @($nr) -Compress}",
 			},
 		}
@@ -294,7 +294,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAUpdate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "$nr=@();Get-DnsServerResourceRecord -RRType 'A' -Node -Name 'test' -ZoneName 'test.local' | ForEach-Object{$r=$_;$n=[ciminstance]::new($r);$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$nr+=Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName 'test.local' -PassThru} ;if($nr.Count -ge 2){ConvertTo-Json $nr -Compress}else{ConvertTo-Json @($nr) -Compress}").
 			Return(connection.CmdResult{StdOut: recordAJson}, nil)
-		actualRecord, err := c.RecordAUpdate(ctx, RecordAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: 3600})
+		actualRecord, err := c.RecordAUpdate(ctx, RecordAUpdateParams{Name: "test", Zone: "test.local", TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordA, actualRecord)
 	})

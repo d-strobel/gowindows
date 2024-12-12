@@ -16,7 +16,7 @@ type RecordAAAA struct {
 	Name              string
 	Addresses         []string
 	Timestamp         time.Time
-	TimeToLive        int32
+	TimeToLive        time.Duration
 }
 
 // convertOutput converts the unmarshaled JSON output from the recordObject to a RecordAAAA object.
@@ -25,7 +25,7 @@ func (r *RecordAAAA) convertOutput(o []recordObject) {
 	r.DistinguishedName = o[0].DistinguishedName
 	r.Name = o[0].Name
 	r.Timestamp = o[0].Timestamp.Time
-	r.TimeToLive = o[0].TimeToLive.Seconds
+	r.TimeToLive = o[0].TimeToLive.Duration
 
 	// Set the addresses and the lowest TTL.
 	if len(o) == 1 {
@@ -36,8 +36,8 @@ func (r *RecordAAAA) convertOutput(o []recordObject) {
 
 			// Set the lowest TTL to be RFC2181 compliant.
 			// https://www.rfc-editor.org/rfc/rfc2181#section-5.2
-			if record.TimeToLive.Seconds < r.TimeToLive {
-				r.TimeToLive = record.TimeToLive.Seconds
+			if record.TimeToLive.Duration < r.TimeToLive {
+				r.TimeToLive = record.TimeToLive.Duration
 			}
 		}
 	}
@@ -103,7 +103,7 @@ type RecordAAAACreateParams struct {
 	// Specifies the time to live (TTL) of the record in seconds.
 	// If not provided, the default is 86400 seconds.
 	// A TTL of 0 is not allowed.
-	TimeToLive int32
+	TimeToLive time.Duration
 }
 
 // pwshCommand returns the PowerShell command to create a new AAAA-Record.
@@ -123,7 +123,8 @@ func (params RecordAAAACreateParams) pwshCommand() string {
 	if params.TimeToLive == 0 {
 		params.TimeToLive = defaultTimeToLive
 	}
-	cmd = append(cmd, fmt.Sprintf("-TimeToLive %s", fmt.Sprintf("$(New-TimeSpan -Seconds %d)", params.TimeToLive)))
+	seconds := int32(params.TimeToLive.Round(time.Second).Seconds())
+	cmd = append(cmd, fmt.Sprintf("-TimeToLive %s", fmt.Sprintf("$(New-TimeSpan -Seconds %d)", seconds)))
 
 	// Add addresses with single quotes and join them with commas.
 	for _, address := range params.Addresses {
@@ -175,7 +176,7 @@ type RecordAAAAUpdateParams struct {
 	// Specifies the time to live (TTL) of the record in seconds.
 	// If not provided, the default TTL is 86400 seconds.
 	// A TTL of 0 is not allowed.
-	TimeToLive int32
+	TimeToLive time.Duration
 }
 
 // pwshCommand returns the PowerShell command to update an AAAA-Record.
@@ -186,6 +187,7 @@ func (params RecordAAAAUpdateParams) pwshCommand() string {
 	if params.TimeToLive == 0 {
 		params.TimeToLive = defaultTimeToLive
 	}
+	seconds := int32(params.TimeToLive.Round(time.Second).Seconds())
 
 	// Base command
 	cmd := []string{"$nr=@();Get-DnsServerResourceRecord -RRType 'AAAA' -Node"}
@@ -193,7 +195,7 @@ func (params RecordAAAAUpdateParams) pwshCommand() string {
 	// Add parameters and logic for handling the TTL update.
 	cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
 	cmd = append(cmd, fmt.Sprintf("-ZoneName '%s'", params.Zone))
-	cmd = append(cmd, fmt.Sprintf("| ForEach-Object{$r=$_;$n=[ciminstance]::new($r);$n.TimeToLive=New-TimeSpan -Seconds %d", params.TimeToLive))
+	cmd = append(cmd, fmt.Sprintf("| ForEach-Object{$r=$_;$n=[ciminstance]::new($r);$n.TimeToLive=New-TimeSpan -Seconds %d", seconds))
 	cmd = append(cmd, fmt.Sprintf(";$nr+=Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName '%s' -PassThru}", params.Zone))
 	cmd = append(cmd, ";if($nr.Count -ge 2){ConvertTo-Json $nr -Compress}else{ConvertTo-Json @($nr) -Compress}")
 

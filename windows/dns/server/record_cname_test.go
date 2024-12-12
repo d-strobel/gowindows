@@ -26,7 +26,7 @@ var (
 		DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 		Name:              "test",
 		Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-		TimeToLive:        3600,
+		TimeToLive:        time.Second * 3600,
 		CName:             "testalias",
 	}
 )
@@ -45,7 +45,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameConvertOutput() {
 					Name:              "test",
 					DistinguishedName: "DC=test,DC=test.local,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-					TimeToLive:        3600,
+					TimeToLive:        time.Second * 3600,
 					CName:             "testalias",
 				},
 				recordObject{
@@ -53,7 +53,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameConvertOutput() {
 					Name:              "test",
 					RecordType:        "CName",
 					Timestamp:         parsing.DotnetTime{},
-					TimeToLive:        timeToLive{Seconds: 3600},
+					TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 3600},
 					RecordData: recordRecordData{
 						CimInstanceProperties: parsing.CimClassKeyVal{
 							"HostNameAlias": "testalias",
@@ -128,7 +128,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameCreatePwshCommand() {
 			},
 			{
 				"assert with ttl parameter",
-				RecordCNameCreateParams{Name: "test", Zone: "test.local", TimeToLive: 3600, CName: "testalias"},
+				RecordCNameCreateParams{Name: "test", Zone: "test.local", TimeToLive: time.Second * 3600, CName: "testalias"},
 				"Add-DnsServerResourceRecordCName -AllowUpdateAny:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -HostNameAlias 'testalias' -TimeToLive $(New-TimeSpan -Seconds 3600) | ConvertTo-Json -Compress",
 			},
 		}
@@ -155,7 +155,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameCreate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "Add-DnsServerResourceRecordCName -AllowUpdateAny:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -HostNameAlias 'testalias' -TimeToLive $(New-TimeSpan -Seconds 3600) | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdOut: recordCNameJson}, nil)
-		actualRecord, err := c.RecordCNameCreate(ctx, RecordCNameCreateParams{Name: "test", Zone: "test.local", CName: "testalias", TimeToLive: 3600})
+		actualRecord, err := c.RecordCNameCreate(ctx, RecordCNameCreateParams{Name: "test", Zone: "test.local", CName: "testalias", TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordCName, actualRecord)
 	})
@@ -172,7 +172,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameCreate() {
 			RunWithPowershell(ctx, "Add-DnsServerResourceRecordCName -AllowUpdateAny:$false -AgeRecord:$false -Confirm:$false -PassThru -Name 'test' -ZoneName 'test.local' -HostNameAlias 'testalias' -TimeToLive $(New-TimeSpan -Seconds 3600) | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdErr: recordExistsErr}, nil)
 
-		_, err := c.RecordCNameCreate(ctx, RecordCNameCreateParams{Name: "test", Zone: "test.local", CName: "testalias", TimeToLive: 3600})
+		_, err := c.RecordCNameCreate(ctx, RecordCNameCreateParams{Name: "test", Zone: "test.local", CName: "testalias", TimeToLive: time.Second * 3600})
 		suite.EqualError(err, "windows.dns.server.RecordCNameCreate: the specified record already exists.")
 	})
 }
@@ -187,7 +187,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameUpdatePwshCommand() {
 		}{
 			{
 				"assert without ttl parameter",
-				RecordCNameUpdateParams{Name: "test", Zone: "test.local", TimeToLive: 3600, CName: "testalias"},
+				RecordCNameUpdateParams{Name: "test", Zone: "test.local", TimeToLive: time.Second * 3600, CName: "testalias"},
 				"$r=Get-DnsServerResourceRecord -RRType 'CName' -Node -Name 'test' -ZoneName 'test.local' ;$n=[ciminstance]::new($r) ;$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$n.RecordData.HostNameAlias='testalias' ;Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName 'test.local' -PassThru | ConvertTo-Json -Compress",
 			},
 		}
@@ -212,7 +212,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameUpdate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "$r=Get-DnsServerResourceRecord -RRType 'CName' -Node -Name 'test' -ZoneName 'test.local' ;$n=[ciminstance]::new($r) ;$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$n.RecordData.HostNameAlias='testalias' ;Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName 'test.local' -PassThru | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdOut: recordCNameJson}, nil)
-		actualRecord, err := c.RecordCNameUpdate(ctx, RecordCNameUpdateParams{Name: "test", Zone: "test.local", CName: "testalias", TimeToLive: 3600})
+		actualRecord, err := c.RecordCNameUpdate(ctx, RecordCNameUpdateParams{Name: "test", Zone: "test.local", CName: "testalias", TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordCName, actualRecord)
 	})

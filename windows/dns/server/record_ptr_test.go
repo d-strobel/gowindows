@@ -26,7 +26,7 @@ var (
 		DistinguishedName: "DC=1,DC=10.168.192.in-addr.arpa,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 		Name:              "1",
 		Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-		TimeToLive:        3600,
+		TimeToLive:        time.Second * 3600,
 		PTR:               "testptr.test.local.",
 	}
 )
@@ -45,7 +45,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRConvertOutput() {
 					Name:              "1",
 					DistinguishedName: "DC=1,DC=10.168.192.in-addr.arpa,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local",
 					Timestamp:         time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC),
-					TimeToLive:        3600,
+					TimeToLive:        time.Second * 3600,
 					PTR:               "testptr.test.local.",
 				},
 				recordObject{
@@ -53,7 +53,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRConvertOutput() {
 					Name:              "1",
 					RecordType:        "PTR",
 					Timestamp:         parsing.DotnetTime{},
-					TimeToLive:        timeToLive{Seconds: 3600},
+					TimeToLive:        parsing.CimTimeDuration{Duration: time.Second * 3600},
 					RecordData: recordRecordData{
 						CimInstanceProperties: parsing.CimClassKeyVal{
 							"PtrDomainName": "testptr.test.local.",
@@ -128,7 +128,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRCreatePwshCommand() {
 			},
 			{
 				"assert with ttl parameter",
-				RecordPTRCreateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", TimeToLive: 3600, PTR: "testptr.test.local."},
+				RecordPTRCreateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", TimeToLive: time.Second * 3600, PTR: "testptr.test.local."},
 				"Add-DnsServerResourceRecordPTR -AllowUpdateAny:$false -AgeRecord:$false -Confirm:$false -PassThru -Name '1' -ZoneName '10.168.192.in-addr.arpa' -PtrDomainName 'testptr.test.local.' -TimeToLive $(New-TimeSpan -Seconds 3600) | ConvertTo-Json -Compress",
 			},
 		}
@@ -153,7 +153,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRCreate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "Add-DnsServerResourceRecordPTR -AllowUpdateAny:$false -AgeRecord:$false -Confirm:$false -PassThru -Name '1' -ZoneName '10.168.192.in-addr.arpa' -PtrDomainName 'testptr.test.local.' -TimeToLive $(New-TimeSpan -Seconds 3600) | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdOut: recordPTRJson}, nil)
-		actualRecord, err := c.RecordPTRCreate(ctx, RecordPTRCreateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", PTR: "testptr.test.local.", TimeToLive: 3600})
+		actualRecord, err := c.RecordPTRCreate(ctx, RecordPTRCreateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", PTR: "testptr.test.local.", TimeToLive: time.Second * 3600})
 		suite.NoError(err)
 		suite.Equal(expectedRecordPTR, actualRecord)
 	})
@@ -170,7 +170,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRCreate() {
 			RunWithPowershell(ctx, "Add-DnsServerResourceRecordPTR -AllowUpdateAny:$false -AgeRecord:$false -Confirm:$false -PassThru -Name '1' -ZoneName '10.168.192.in-addr.arpa' -PtrDomainName 'testptr.test.local.' -TimeToLive $(New-TimeSpan -Seconds 3600) | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdErr: recordExistsErr}, nil)
 
-		_, err := c.RecordPTRCreate(ctx, RecordPTRCreateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", PTR: "testptr.test.local.", TimeToLive: 3600})
+		_, err := c.RecordPTRCreate(ctx, RecordPTRCreateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", PTR: "testptr.test.local.", TimeToLive: time.Second * 3600})
 		suite.EqualError(err, "windows.dns.server.RecordPTRCreate: the specified record already exists.")
 	})
 }
@@ -185,7 +185,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRUpdatePwshCommand() {
 		}{
 			{
 				"assert with ttl parameter",
-				RecordPTRUpdateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", TimeToLive: 3600, PTR: "testptr.test.local."},
+				RecordPTRUpdateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", TimeToLive: time.Second * 3600, PTR: "testptr.test.local."},
 				"$r=Get-DnsServerResourceRecord -RRType 'PTR' -Node -Name '1' -ZoneName '10.168.192.in-addr.arpa' ;$n=[ciminstance]::new($r) ;$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$n.RecordData.PtrDomainName='testptr.test.local.' ;Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName '10.168.192.in-addr.arpa' -PassThru | ConvertTo-Json -Compress",
 			},
 		}
@@ -210,7 +210,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRUpdate() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, "$r=Get-DnsServerResourceRecord -RRType 'PTR' -Node -Name '1' -ZoneName '10.168.192.in-addr.arpa' ;$n=[ciminstance]::new($r) ;$n.TimeToLive=New-TimeSpan -Seconds 3600 ;$n.RecordData.PtrDomainName='testptr.test.local.' ;Set-DnsServerResourceRecord -OldInputObject $r -NewInputObject $n -ZoneName '10.168.192.in-addr.arpa' -PassThru | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdOut: recordPTRJson}, nil)
-		actualRecord, err := c.RecordPTRUpdate(ctx, RecordPTRUpdateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", TimeToLive: 3600, PTR: "testptr.test.local."})
+		actualRecord, err := c.RecordPTRUpdate(ctx, RecordPTRUpdateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", TimeToLive: time.Second * 3600, PTR: "testptr.test.local."})
 		suite.NoError(err)
 		suite.Equal(expectedRecordPTR, actualRecord)
 	})
