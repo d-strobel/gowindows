@@ -85,18 +85,18 @@ func (c *Client) RecordAAAARead(ctx context.Context, params RecordAAAAReadParams
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return r, errors.New("windows.dns.server.RecordAAAARead: record parameters 'Name' and 'Zone' must be set")
+		return r, errors.New("windows.dns.RecordAAAARead: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordAAAARead: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordAAAARead: %s", err)
 	}
 
 	// Convert the output to a RecordAAAA object.
 	if err := r.convertOutput(o); err != nil {
-		return r, fmt.Errorf(cmd, "windows.dns.server.RecordAAAARead: failed to convert output to RecordAAAA object: %s", err)
+		return r, fmt.Errorf(cmd, "windows.dns.RecordAAAARead: failed to convert output to RecordAAAA object: %s", err)
 	}
 
 	return r, nil
@@ -157,13 +157,13 @@ func (c *Client) RecordAAAACreate(ctx context.Context, params RecordAAAACreatePa
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || len(params.Addresses) == 0 {
-		return r, errors.New("windows.dns.server.RecordAAAACreate: record parameters 'Name', 'Zone' and 'Addresses' must be set")
+		return r, errors.New("windows.dns.RecordAAAACreate: record parameters 'Name', 'Zone' and 'Addresses' must be set")
 	}
 
 	// Assert Ipv4 addresses
 	for _, address := range params.Addresses {
 		if !address.Is6() {
-			return r, errors.New("windows.dns.server.RecordAAAACreate: record parameter 'Addresses' must be a list of IPv6 addresses")
+			return r, errors.New("windows.dns.RecordAAAACreate: record parameter 'Addresses' must be a list of IPv6 addresses")
 		}
 	}
 
@@ -172,15 +172,15 @@ func (c *Client) RecordAAAACreate(ctx context.Context, params RecordAAAACreatePa
 	if err := run(ctx, c, cmd, &o); err != nil {
 		// Handle record already exists error.
 		if strings.Contains(err.Error(), "ResourceExists") {
-			return r, winerror.Errorf(cmd, "windows.dns.server.RecordAAAACreate: the specified record already exists.")
+			return r, winerror.Errorf(cmd, "windows.dns.RecordAAAACreate: the specified record already exists")
 		}
 
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordAAAACreate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordAAAACreate: %s", err)
 	}
 
 	// Convert the output to a RecordAAAA object.
 	if err := r.convertOutput(o); err != nil {
-		return r, fmt.Errorf(cmd, "windows.dns.server.RecordAAAACreate: failed to convert output to RecordAAAA object: %s", err)
+		return r, fmt.Errorf(cmd, "windows.dns.RecordAAAACreate: failed to convert output to RecordAAAA object: %s", err)
 	}
 
 	return r, nil
@@ -233,18 +233,18 @@ func (c *Client) RecordAAAAUpdate(ctx context.Context, params RecordAAAAUpdatePa
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || params.TimeToLive == 0 {
-		return r, errors.New("windows.dns.server.RecordAAAAUpdate: record parameters 'Name', 'Zone' and 'TimeToLive' must be set")
+		return r, errors.New("windows.dns.RecordAAAAUpdate: record parameters 'Name', 'Zone' and 'TimeToLive' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordAAAAUpdate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordAAAAUpdate: %s", err)
 	}
 
 	// Convert the output to a RecordAAAA object.
 	if err := r.convertOutput(o); err != nil {
-		return r, fmt.Errorf(cmd, "windows.dns.server.RecordAAAAUpdate: failed to convert output to RecordAAAA object: %s", err)
+		return r, fmt.Errorf(cmd, "windows.dns.RecordAAAAUpdate: failed to convert output to RecordAAAA object: %s", err)
 	}
 
 	return r, nil
@@ -272,13 +272,13 @@ func (c *Client) RecordAAAADelete(ctx context.Context, params RecordAAAADeletePa
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return errors.New("windows.dns.server.RecordAAAADelete: record parameters 'Name' and 'Zone' must be set")
+		return errors.New("windows.dns.RecordAAAADelete: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return winerror.Errorf(cmd, "windows.dns.server.RecordAAAADelete: %s", err)
+		return winerror.Errorf(cmd, "windows.dns.RecordAAAADelete: %s", err)
 	}
 
 	return nil

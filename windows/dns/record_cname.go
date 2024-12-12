@@ -59,13 +59,13 @@ func (c *Client) RecordCNameRead(ctx context.Context, params RecordCNameReadPara
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return r, errors.New("windows.dns.server.RecordCNameRead: record parameters 'Name' and 'Zone' must be set")
+		return r, errors.New("windows.dns.RecordCNameRead: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordCNameRead: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordCNameRead: %s", err)
 	}
 
 	// Convert the output to a RecordCName object.
@@ -124,7 +124,7 @@ func (c *Client) RecordCNameCreate(ctx context.Context, params RecordCNameCreate
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || params.CName == "" {
-		return r, errors.New("windows.dns.server.RecordCNameCreate: record parameters 'Name', 'Zone' and 'CName' must be set")
+		return r, errors.New("windows.dns.RecordCNameCreate: record parameters 'Name', 'Zone' and 'CName' must be set")
 	}
 
 	// Run command
@@ -132,10 +132,10 @@ func (c *Client) RecordCNameCreate(ctx context.Context, params RecordCNameCreate
 	if err := run(ctx, c, cmd, &o); err != nil {
 		// Handle record already exists error.
 		if strings.Contains(err.Error(), "ResourceExists") {
-			return r, winerror.Errorf(cmd, "windows.dns.server.RecordCNameCreate: the specified record already exists.")
+			return r, winerror.Errorf(cmd, "windows.dns.RecordCNameCreate: the specified record already exists")
 		}
 
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordCNameCreate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordCNameCreate: %s", err)
 	}
 
 	// Convert the output to a RecordCName object.
@@ -198,13 +198,13 @@ func (c *Client) RecordCNameUpdate(ctx context.Context, params RecordCNameUpdate
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || params.CName == "" {
-		return r, errors.New("windows.dns.server.RecordCNameUpdate: record parameters 'Name', 'Zone' and 'CName' must be set")
+		return r, errors.New("windows.dns.RecordCNameUpdate: record parameters 'Name', 'Zone' and 'CName' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordCNameUpdate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordCNameUpdate: %s", err)
 	}
 
 	// Convert the output to a RecordCName object.
@@ -235,13 +235,13 @@ func (c *Client) RecordCNameDelete(ctx context.Context, params RecordCNameDelete
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return errors.New("windows.dns.server.RecordCNameDelete: record parameters 'Name' and 'Zone' must be set")
+		return errors.New("windows.dns.RecordCNameDelete: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return winerror.Errorf(cmd, "windows.dns.server.RecordCNameDelete: %s", err)
+		return winerror.Errorf(cmd, "windows.dns.RecordCNameDelete: %s", err)
 	}
 
 	return nil

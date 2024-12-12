@@ -173,7 +173,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordCNameCreate() {
 			Return(connection.CmdResult{StdErr: recordExistsErr}, nil)
 
 		_, err := c.RecordCNameCreate(ctx, RecordCNameCreateParams{Name: "test", Zone: "test.local", CName: "testalias", TimeToLive: time.Second * 3600})
-		suite.EqualError(err, "windows.dns.server.RecordCNameCreate: the specified record already exists.")
+		suite.EqualError(err, "windows.dns.RecordCNameCreate: the specified record already exists")
 	})
 }
 

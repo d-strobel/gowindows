@@ -160,17 +160,17 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAARead() {
 			{
 				"assert error with empty parameters",
 				RecordAAAAReadParams{},
-				"windows.dns.server.RecordAAAARead: record parameters 'Name' and 'Zone' must be set",
+				"windows.dns.RecordAAAARead: record parameters 'Name' and 'Zone' must be set",
 			},
 			{
 				"assert error with Name only parameters",
 				RecordAAAAReadParams{Name: "tester"},
-				"windows.dns.server.RecordAAAARead: record parameters 'Name' and 'Zone' must be set",
+				"windows.dns.RecordAAAARead: record parameters 'Name' and 'Zone' must be set",
 			},
 			{
 				"assert error with Zone only parameters",
 				RecordAAAAReadParams{Zone: "test.local"},
-				"windows.dns.server.RecordAAAARead: record parameters 'Name' and 'Zone' must be set",
+				"windows.dns.RecordAAAARead: record parameters 'Name' and 'Zone' must be set",
 			},
 		}
 
@@ -254,7 +254,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAACreate() {
 			Return(connection.CmdResult{StdErr: recordAAAAExistsErr}, nil)
 
 		_, err := c.RecordAAAACreate(ctx, RecordAAAACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("2001:db8::1")}, TimeToLive: time.Second * 3600})
-		suite.EqualError(err, "windows.dns.server.RecordAAAACreate: the specified record already exists.")
+		suite.EqualError(err, "windows.dns.RecordAAAACreate: the specified record already exists")
 	})
 }
 

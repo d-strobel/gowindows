@@ -161,17 +161,17 @@ func (suite *DnsServerUnitTestSuite) TestRecordARead() {
 			{
 				"assert error with empty parameters",
 				RecordAReadParams{},
-				"windows.dns.server.RecordARead: record parameters 'Name' and 'Zone' must be set",
+				"windows.dns.RecordARead: record parameters 'Name' and 'Zone' must be set",
 			},
 			{
 				"assert error with Name only parameters",
 				RecordAReadParams{Name: "tester"},
-				"windows.dns.server.RecordARead: record parameters 'Name' and 'Zone' must be set",
+				"windows.dns.RecordARead: record parameters 'Name' and 'Zone' must be set",
 			},
 			{
 				"assert error with Zone only parameters",
 				RecordAReadParams{Zone: "test.local"},
-				"windows.dns.server.RecordARead: record parameters 'Name' and 'Zone' must be set",
+				"windows.dns.RecordARead: record parameters 'Name' and 'Zone' must be set",
 			},
 		}
 
@@ -255,7 +255,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreate() {
 			Return(connection.CmdResult{StdErr: recordExistsErr}, nil)
 
 		_, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("1.1.1.1")}, TimeToLive: time.Second * 3600})
-		suite.EqualError(err, "windows.dns.server.RecordACreate: the specified record already exists.")
+		suite.EqualError(err, "windows.dns.RecordACreate: the specified record already exists")
 	})
 
 	suite.Run("should return 'invalid Ipv4' error", func() {
@@ -267,7 +267,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordACreate() {
 			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 		}
 		_, err := c.RecordACreate(ctx, RecordACreateParams{Name: "test", Zone: "test.local", Addresses: []netip.Addr{netip.MustParseAddr("fe80:0010::")}, TimeToLive: time.Second * 3600})
-		suite.EqualError(err, "windows.dns.server.RecordACreate: record parameter 'Addresses' must be a list of IPv4 addresses")
+		suite.EqualError(err, "windows.dns.RecordACreate: record parameter 'Addresses' must be a list of IPv4 addresses")
 	})
 }
 
