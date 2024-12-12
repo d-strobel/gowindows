@@ -1,7 +1,7 @@
-// Package server provides a Go library for handling Windows DNS Server.
+// Package dns provides a Go library for handling Windows DNS Server.
 // The functions are related to the Powershell dns server cmdlets provided by Windows.
 // https://learn.microsoft.com/en-us/powershell/module/dnsserver/?view=windowsserver2022-ps
-package server
+package dns
 
 import (
 	"context"
@@ -14,8 +14,8 @@ import (
 	"github.com/d-strobel/gowindows/parsing"
 )
 
-// server is a type constraint for the run function, ensuring it works with specific types.
-type server interface {
+// dns is a type constraint for the run function, ensuring it works with specific types.
+type dns interface {
 	Zone | []Zone | recordObject | []recordObject
 }
 
@@ -59,7 +59,7 @@ func NewClientWithParser(conn connection.Connection, parsing func(string) (strin
 
 // run runs a PowerShell command against a Windows system, handles the command results,
 // and unmarshals the output into a local object type.
-func run[T server](ctx context.Context, c *Client, cmd string, l *T) error {
+func run[T dns](ctx context.Context, c *Client, cmd string, d *T) error {
 	// Run the command
 	result, err := c.Connection.RunWithPowershell(ctx, cmd)
 	if err != nil {
@@ -81,7 +81,7 @@ func run[T server](ctx context.Context, c *Client, cmd string, l *T) error {
 	}
 
 	// Unmarshal stdout
-	if err = json.Unmarshal([]byte(result.StdOut), &l); err != nil {
+	if err = json.Unmarshal([]byte(result.StdOut), &d); err != nil {
 		return err
 	}
 
