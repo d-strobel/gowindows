@@ -365,3 +365,76 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4Update() {
 		}
 	})
 }
+
+// Test ScopeV4Delete related methods.
+func (suite *DhcpServerUnitTestSuite) TestScopeV4DeletePwshCommand() {
+	suite.Run("should return the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters ScopeV4DeleteParams
+			expectedCmd     string
+		}{
+			{
+				"assert correct command with neccessary parameters",
+				ScopeV4DeleteParams{
+					ScopeId: netip.MustParseAddr("192.168.10.0"),
+				},
+				"Remove-DhcpServerv4Scope -Confirm:$false -ScopeId '192.168.10.0'",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			actualCmd := tc.inputParameters.pwshCommand()
+			suite.Equal(tc.expectedCmd, actualCmd)
+		}
+	})
+}
+
+func (suite *DhcpServerUnitTestSuite) TestScopeV4Delete() {
+	suite.T().Parallel()
+
+	suite.Run("should not error", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnection(suite.T())
+		c := &Client{
+			Connection:      mockConn,
+			decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+		}
+		mockConn.EXPECT().
+			RunWithPowershell(ctx, "Remove-DhcpServerv4Scope -Confirm:$false -ScopeId '192.168.10.0'").
+			Return(connection.CmdResult{}, nil)
+		err := c.ScopeV4Delete(ctx, ScopeV4DeleteParams{
+			ScopeId: netip.MustParseAddr("192.168.10.0"),
+		})
+		suite.NoError(err)
+	})
+
+	suite.Run("should return specific errors", func() {
+		tcs := []struct {
+			description     string
+			inputParameters ScopeV4DeleteParams
+			expectedErr     string
+		}{
+			{
+				"assert error with empty parameters",
+				ScopeV4DeleteParams{},
+				"windows.dhcp.ScopeV4Delete: scope parameter 'ScopeId' must be a valid IPv4 address",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnection(suite.T())
+			c := &Client{
+				Connection:      mockConn,
+				decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+			}
+			err := c.ScopeV4Delete(ctx, tc.inputParameters)
+			suite.EqualError(err, tc.expectedErr)
+		}
+	})
+}

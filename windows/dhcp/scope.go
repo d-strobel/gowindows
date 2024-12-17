@@ -395,3 +395,34 @@ func (c *Client) ScopeV4Update(ctx context.Context, params ScopeV4UpdateParams) 
 
 	return s, nil
 }
+
+// ScopeV4DeleteParams represents parameters for the scope delete function.
+type ScopeV4DeleteParams struct {
+	// Specifies the scope identifier (ID), in IPv4 address format, to delete.
+	ScopeId netip.Addr
+}
+
+// pwshCommand returns the PowerShell command to delete a DHCP scope.
+func (params ScopeV4DeleteParams) pwshCommand() string {
+	// Base command
+	return fmt.Sprintf("Remove-DhcpServerv4Scope -Confirm:$false -ScopeId '%s'", params.ScopeId)
+}
+
+// ScopeV4Delete removes a DHCP IPv4 scope.
+// It returns a *winerror.WinError if the windows client returns an error.
+func (c *Client) ScopeV4Delete(ctx context.Context, params ScopeV4DeleteParams) error {
+	var o scopeObject
+
+	// Assert needed parameters
+	if !params.ScopeId.Is4() {
+		return errors.New("windows.dhcp.ScopeV4Delete: scope parameter 'ScopeId' must be a valid IPv4 address")
+	}
+
+	// Run command
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &o); err != nil {
+		return winerror.Errorf(cmd, "windows.dhcp.ScopeV4Delete: %s", err)
+	}
+
+	return nil
+}
