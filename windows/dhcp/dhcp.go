@@ -23,6 +23,7 @@ type dhcp interface {
 type scopeObject struct {
 	Name             string                  `json:"Name"`
 	Description      string                  `json:"Description"`
+	ScopeId          scopeId                 `json:"ScopeId"`
 	StartRange       startRange              `json:"StartRange"`
 	EndRange         endRange                `json:"EndRange"`
 	SubnetMask       subnetMask              `json:"SubnetMask"`
@@ -33,6 +34,9 @@ type scopeObject struct {
 	NapProfile       string                  `json:"NapProfile"`
 	Delay            uint16                  `json:"Delay"`
 	LeaseDuration    parsing.CimTimeDuration `json:"LeaseDuration"`
+}
+type scopeId struct {
+	Address netip.Addr `json:"IPAddressToString"`
 }
 type startRange struct {
 	Address netip.Addr `json:"IPAddressToString"`

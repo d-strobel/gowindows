@@ -14,6 +14,7 @@ import (
 type ScopeV4 struct {
 	Name             string
 	Description      string
+	ScopeId          netip.Addr
 	StartRange       netip.Addr
 	EndRange         netip.Addr
 	SubnetMask       netip.Addr
@@ -30,6 +31,7 @@ type ScopeV4 struct {
 func (s *ScopeV4) convertOutput(o scopeObject) {
 	s.Name = o.Name
 	s.Description = o.Description
+	s.ScopeId = o.ScopeId.Address
 	s.StartRange = o.StartRange.Address
 	s.EndRange = o.EndRange.Address
 	s.SubnetMask = o.SubnetMask.Address

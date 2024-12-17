@@ -19,6 +19,9 @@ var (
 	expectedScopeObject = scopeObject{
 		Name:        "test",
 		Description: "Test description",
+		ScopeId: scopeId{
+			Address: netip.MustParseAddr("192.168.10.0"),
+		},
 		StartRange: startRange{
 			Address: netip.MustParseAddr("192.168.10.5"),
 		},
@@ -41,6 +44,7 @@ var (
 	expectedScopeV4 = ScopeV4{
 		Name:             "test",
 		Description:      "Test description",
+		ScopeId:          netip.MustParseAddr("192.168.10.0"),
 		StartRange:       netip.MustParseAddr("192.168.10.5"),
 		EndRange:         netip.MustParseAddr("192.168.10.10"),
 		SubnetMask:       netip.MustParseAddr("255.255.255.0"),
