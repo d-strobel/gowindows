@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/d-strobel/gowindows/compare/v1.3.0...v1.4.0) (2024-12-17)
+
+
+### Features
+
+* add dhcp client to gowindows client ([524fc19](https://github.com/d-strobel/gowindows/commit/524fc1950ff661b6b7868a59366cadb2b7ebb744))
+* add dhcp package for windows dhcp server functions ([b8f1969](https://github.com/d-strobel/gowindows/commit/b8f196901ee3f9b8e2f48c860ca28b44f1610736))
+* add dhcp scope read function ([444f7a7](https://github.com/d-strobel/gowindows/commit/444f7a757d181eb75415835363cf0287312fb26a))
+* add dhcp ScopeV4Create function ([6df96ca](https://github.com/d-strobel/gowindows/commit/6df96ca444e4f7d8d1c35b552e117c3f9c1896c9))
+* add dhcp ScopeV4Delete function ([79c5416](https://github.com/d-strobel/gowindows/commit/79c5416cf8773beb9a56fb72d054095b0234c10e))
+* add dhcp ScopeV4Update function ([af522ae](https://github.com/d-strobel/gowindows/commit/af522ae0a74f4c5a9702f774466dd8ccf9ecaa60))
+* add helper function for powershell timespans ([db2170e](https://github.com/d-strobel/gowindows/commit/db2170e5f63cd6457cdadb92f070ddd74ff30fa2))
+* add ScopeId field to ScopeV4 object ([64ae60e](https://github.com/d-strobel/gowindows/commit/64ae60e922e5d514ed9b3718a842a86d1de92082))
+* implement netip package for typed ip address handling ([ce9a05c](https://github.com/d-strobel/gowindows/commit/ce9a05cc5b85eed874ad4774772f8953acda1785))
+
 ## [1.3.0](https://github.com/d-strobel/gowindows/compare/v1.2.0...v1.3.0) (2024-12-12)
 
 
