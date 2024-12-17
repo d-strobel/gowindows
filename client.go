@@ -3,6 +3,7 @@ package gowindows
 
 import (
 	"github.com/d-strobel/gowindows/connection"
+	"github.com/d-strobel/gowindows/windows/dhcp"
 	"github.com/d-strobel/gowindows/windows/dns"
 	"github.com/d-strobel/gowindows/windows/local/accounts"
 )
@@ -16,6 +17,7 @@ type Client struct {
 	Connection    connection.Connection
 	LocalAccounts *accounts.Client
 	Dns           *dns.Client
+	Dhcp          *dhcp.Client
 }
 
 // NewClient returns a new instance of the Client object, initialized with the provided configuration.
@@ -29,6 +31,7 @@ func NewClient(conn connection.Connection) *Client {
 	// Build the client with the subpackages.
 	c.LocalAccounts = accounts.NewClient(c.Connection)
 	c.Dns = dns.NewClient(c.Connection)
+	c.Dhcp = dhcp.NewClient(c.Connection)
 
 	return c
 }

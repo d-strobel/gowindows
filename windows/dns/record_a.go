@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/netip"
 	"strings"
 	"time"
 
@@ -14,13 +15,13 @@ import (
 type RecordA struct {
 	DistinguishedName string
 	Name              string
-	Addresses         []string
+	Addresses         []netip.Addr
 	Timestamp         time.Time
 	TimeToLive        time.Duration
 }
 
 // convertOutput converts the unmarshaled JSON output from the recordObject to a RecordA object.
-func (r *RecordA) convertOutput(o []recordObject) {
+func (r *RecordA) convertOutput(o []recordObject) error {
 	// Set the values of the first object to the RecordA object.
 	r.DistinguishedName = o[0].DistinguishedName
 	r.Name = o[0].Name
@@ -29,10 +30,18 @@ func (r *RecordA) convertOutput(o []recordObject) {
 
 	// Set the addresses and the lowest TTL.
 	if len(o) == 1 {
-		r.Addresses = []string{o[0].RecordData.CimInstanceProperties["IPv4Address"]}
+		ip, err := netip.ParseAddr(o[0].RecordData.CimInstanceProperties["IPv4Address"])
+		if err != nil {
+			return err
+		}
+		r.Addresses = []netip.Addr{ip}
 	} else {
 		for _, record := range o {
-			r.Addresses = append(r.Addresses, record.RecordData.CimInstanceProperties["IPv4Address"])
+			ip, err := netip.ParseAddr(record.RecordData.CimInstanceProperties["IPv4Address"])
+			if err != nil {
+				return err
+			}
+			r.Addresses = append(r.Addresses, ip)
 
 			// Set the lowest TTL to be RFC2181 compliant.
 			// https://www.rfc-editor.org/rfc/rfc2181#section-5.2
@@ -41,6 +50,8 @@ func (r *RecordA) convertOutput(o []recordObject) {
 			}
 		}
 	}
+
+	return nil
 }
 
 // RecordAReadParams represents parameters for the A-Record read function.
@@ -74,17 +85,19 @@ func (c *Client) RecordARead(ctx context.Context, params RecordAReadParams) (Rec
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return r, errors.New("windows.dns.server.RecordARead: record parameters 'Name' and 'Zone' must be set")
+		return r, errors.New("windows.dns.RecordARead: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordARead: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordARead: %s", err)
 	}
 
 	// Convert the output to a RecordA object.
-	r.convertOutput(o)
+	if err := r.convertOutput(o); err != nil {
+		return r, fmt.Errorf(cmd, "windows.dns.RecordARead: failed to convert output to RecordA object: %s", err)
+	}
 
 	return r, nil
 }
@@ -98,7 +111,7 @@ type RecordACreateParams struct {
 	Zone string
 
 	// Specifies the IPv4 addresses of the record.
-	Addresses []string
+	Addresses []netip.Addr
 
 	// Specifies the time to live (TTL) of the record in seconds.
 	// If not provided, the default is 86400 seconds.
@@ -129,7 +142,7 @@ func (params RecordACreateParams) pwshCommand() string {
 
 	// Add addresses with single quotes and join them with commas.
 	for _, address := range params.Addresses {
-		addressList = append(addressList, fmt.Sprintf("'%s'", address))
+		addressList = append(addressList, fmt.Sprintf("'%s'", address.String()))
 	}
 	cmd = append(cmd, fmt.Sprintf("-IPv4Address @(%s)", strings.Join(addressList, ",")))
 
@@ -145,7 +158,14 @@ func (c *Client) RecordACreate(ctx context.Context, params RecordACreateParams) 
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || len(params.Addresses) == 0 {
-		return r, errors.New("windows.dns.server.RecordACreate: record parameters 'Name', 'Zone' and 'Addresses' must be set")
+		return r, errors.New("windows.dns.RecordACreate: record parameters 'Name', 'Zone' and 'Addresses' must be set")
+	}
+
+	// Assert Ipv4 addresses
+	for _, address := range params.Addresses {
+		if !address.Is4() {
+			return r, errors.New("windows.dns.RecordACreate: record parameter 'Addresses' must be a list of IPv4 addresses")
+		}
 	}
 
 	// Run command
@@ -153,14 +173,16 @@ func (c *Client) RecordACreate(ctx context.Context, params RecordACreateParams) 
 	if err := run(ctx, c, cmd, &o); err != nil {
 		// Handle record already exists error.
 		if strings.Contains(err.Error(), "ResourceExists") {
-			return r, winerror.Errorf(cmd, "windows.dns.server.RecordACreate: the specified record already exists.")
+			return r, winerror.Errorf(cmd, "windows.dns.RecordACreate: the specified record already exists")
 		}
 
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordACreate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordACreate: %s", err)
 	}
 
 	// Convert the output to a RecordA object.
-	r.convertOutput(o)
+	if err := r.convertOutput(o); err != nil {
+		return r, fmt.Errorf(cmd, "windows.dns.RecordACreate: failed to convert output to RecordA object: %s", err)
+	}
 
 	return r, nil
 }
@@ -212,17 +234,19 @@ func (c *Client) RecordAUpdate(ctx context.Context, params RecordAUpdateParams) 
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || params.TimeToLive == 0 {
-		return r, errors.New("windows.dns.server.RecordAUpdate: record parameters 'Name', 'Zone' and 'TimeToLive' must be set")
+		return r, errors.New("windows.dns.RecordAUpdate: record parameters 'Name', 'Zone' and 'TimeToLive' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordAUpdate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordAUpdate: %s", err)
 	}
 
 	// Convert the output to a RecordA object.
-	r.convertOutput(o)
+	if err := r.convertOutput(o); err != nil {
+		return r, fmt.Errorf(cmd, "windows.dns.RecordAUpdate: failed to convert output to RecordA object: %s", err)
+	}
 
 	return r, nil
 }
@@ -249,13 +273,13 @@ func (c *Client) RecordADelete(ctx context.Context, params RecordADeleteParams) 
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return errors.New("windows.dns.server.RecordADelete: record parameters 'Name' and 'Zone' must be set")
+		return errors.New("windows.dns.RecordADelete: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return winerror.Errorf(cmd, "windows.dns.server.RecordADelete: %s", err)
+		return winerror.Errorf(cmd, "windows.dns.RecordADelete: %s", err)
 	}
 
 	return nil

@@ -59,13 +59,13 @@ func (c *Client) RecordPTRRead(ctx context.Context, params RecordPTRReadParams) 
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return r, errors.New("windows.dns.server.RecordPTRRead: record parameters 'Name' and 'Zone' must be set")
+		return r, errors.New("windows.dns.RecordPTRRead: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordPTRRead: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordPTRRead: %s", err)
 	}
 
 	// Convert the output to a RecordPTR object.
@@ -124,7 +124,7 @@ func (c *Client) RecordPTRCreate(ctx context.Context, params RecordPTRCreatePara
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || params.PTR == "" {
-		return r, errors.New("windows.dns.server.RecordPTRCreate: record parameters 'Name', 'Zone' and 'PTR' must be set")
+		return r, errors.New("windows.dns.RecordPTRCreate: record parameters 'Name', 'Zone' and 'PTR' must be set")
 	}
 
 	// Run command
@@ -132,10 +132,10 @@ func (c *Client) RecordPTRCreate(ctx context.Context, params RecordPTRCreatePara
 	if err := run(ctx, c, cmd, &o); err != nil {
 		// Handle record already exists error.
 		if strings.Contains(err.Error(), "ResourceExists") {
-			return r, winerror.Errorf(cmd, "windows.dns.server.RecordPTRCreate: the specified record already exists.")
+			return r, winerror.Errorf(cmd, "windows.dns.RecordPTRCreate: the specified record already exists")
 		}
 
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordPTRCreate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordPTRCreate: %s", err)
 	}
 
 	// Convert the output to a RecordPTR object.
@@ -198,13 +198,13 @@ func (c *Client) RecordPTRUpdate(ctx context.Context, params RecordPTRUpdatePara
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" || params.PTR == "" {
-		return r, errors.New("windows.dns.server.RecordPTRUpdate: record parameters 'Name', 'Zone' and 'PTR' must be set")
+		return r, errors.New("windows.dns.RecordPTRUpdate: record parameters 'Name', 'Zone' and 'PTR' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return r, winerror.Errorf(cmd, "windows.dns.server.RecordPTRUpdate: %s", err)
+		return r, winerror.Errorf(cmd, "windows.dns.RecordPTRUpdate: %s", err)
 	}
 
 	// Convert the output to a RecordPTR object.
@@ -235,13 +235,13 @@ func (c *Client) RecordPTRDelete(ctx context.Context, params RecordPTRDeletePara
 
 	// Assert needed parameters
 	if params.Name == "" || params.Zone == "" {
-		return errors.New("windows.dns.server.RecordPTRDelete: record parameters 'Name' and 'Zone' must be set")
+		return errors.New("windows.dns.RecordPTRDelete: record parameters 'Name' and 'Zone' must be set")
 	}
 
 	// Run command
 	cmd := params.pwshCommand()
 	if err := run(ctx, c, cmd, &o); err != nil {
-		return winerror.Errorf(cmd, "windows.dns.server.RecordPTRDelete: %s", err)
+		return winerror.Errorf(cmd, "windows.dns.RecordPTRDelete: %s", err)
 	}
 
 	return nil

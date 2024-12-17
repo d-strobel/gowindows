@@ -171,7 +171,7 @@ func (suite *DnsServerUnitTestSuite) TestRecordPTRCreate() {
 			Return(connection.CmdResult{StdErr: recordExistsErr}, nil)
 
 		_, err := c.RecordPTRCreate(ctx, RecordPTRCreateParams{Name: "1", Zone: "10.168.192.in-addr.arpa", PTR: "testptr.test.local.", TimeToLive: time.Second * 3600})
-		suite.EqualError(err, "windows.dns.server.RecordPTRCreate: the specified record already exists.")
+		suite.EqualError(err, "windows.dns.RecordPTRCreate: the specified record already exists")
 	})
 }
 
