@@ -258,3 +258,110 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4Create() {
 		}
 	})
 }
+
+// Test ScopeV4Update related methods.
+func (suite *DhcpServerUnitTestSuite) TestScopeV4UpdatePwshCommand() {
+	suite.Run("should return the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters ScopeV4UpdateParams
+			expectedCmd     string
+		}{
+			{
+				"assert correct command with neccessary parameters",
+				ScopeV4UpdateParams{
+					ScopeId: netip.MustParseAddr("192.168.10.0"),
+				},
+				"Set-DhcpServerv4Scope -PassThru -Confirm:$false -ScopeId '192.168.10.0' -State 'InActive' | ConvertTo-Json -Compress",
+			},
+			{
+				"assert correct command with additional parameters",
+				ScopeV4UpdateParams{
+					ScopeId:          netip.MustParseAddr("192.168.10.0"),
+					Name:             "test",
+					StartRange:       netip.MustParseAddr("192.168.10.5"),
+					EndRange:         netip.MustParseAddr("192.168.10.10"),
+					Description:      "Test description",
+					Enabled:          true,
+					MaxBootpClients:  10000,
+					ActivatePolicies: true,
+					NapEnable:        true,
+					NapProfile:       "testNap",
+					Delay:            10,
+					LeaseDuration:    time.Duration(27*time.Hour + 30*time.Minute + 10*time.Second),
+					Type:             "Dhcp",
+					Superscope:       "testSuperscope",
+				},
+				"Set-DhcpServerv4Scope -PassThru -Confirm:$false -ScopeId '192.168.10.0' -Name 'test' -StartRange '192.168.10.5' -EndRange '192.168.10.10' -Description 'Test description' -State 'Active' -MaxBootpClients 10000 -ActivatePolicies -NapEnable -NapProfile 'testNap' -Delay 10 -LeaseDuration $(New-TimeSpan -Days 1 -Hours 3 -Minutes 30 -Seconds 10) -Type 'Dhcp' -SuperscopeName 'testSuperscope' | ConvertTo-Json -Compress",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			actualCmd := tc.inputParameters.pwshCommand()
+			suite.Equal(tc.expectedCmd, actualCmd)
+		}
+	})
+}
+
+func (suite *DhcpServerUnitTestSuite) TestScopeV4Update() {
+	suite.T().Parallel()
+
+	suite.Run("should return the correct ScopeV4", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnection(suite.T())
+		c := &Client{
+			Connection:      mockConn,
+			decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+		}
+		mockConn.EXPECT().
+			RunWithPowershell(ctx, "Set-DhcpServerv4Scope -PassThru -Confirm:$false -ScopeId '192.168.10.0' -Name 'test' -StartRange '192.168.10.5' -EndRange '192.168.10.10' -State 'InActive' | ConvertTo-Json -Compress").
+			Return(connection.CmdResult{StdOut: scopeV4Json}, nil)
+		actualScopeV4, err := c.ScopeV4Update(ctx, ScopeV4UpdateParams{
+			ScopeId:    netip.MustParseAddr("192.168.10.0"),
+			Name:       "test",
+			StartRange: netip.MustParseAddr("192.168.10.5"),
+			EndRange:   netip.MustParseAddr("192.168.10.10"),
+		})
+		suite.NoError(err)
+		suite.Equal(expectedScopeV4, actualScopeV4)
+	})
+
+	suite.Run("should return specific errors", func() {
+		tcs := []struct {
+			description     string
+			inputParameters ScopeV4UpdateParams
+			expectedErr     string
+		}{
+			{
+				"assert error with empty parameters",
+				ScopeV4UpdateParams{},
+				"windows.dhcp.ScopeV4Update: scope parameter 'ScopeId' must be a valid IPv4 address",
+			},
+			{
+				"assert error with StartRange only",
+				ScopeV4UpdateParams{ScopeId: netip.MustParseAddr("192.168.10.0"), StartRange: netip.MustParseAddr("192.168.10.10")},
+				"windows.dhcp.ScopeV4Update: scope parameter 'StartRange' and 'EndRange' must be set together",
+			},
+			{
+				"assert error with EndRange only",
+				ScopeV4UpdateParams{ScopeId: netip.MustParseAddr("192.168.10.0"), EndRange: netip.MustParseAddr("192.168.10.10")},
+				"windows.dhcp.ScopeV4Update: scope parameter 'StartRange' and 'EndRange' must be set together",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnection(suite.T())
+			c := &Client{
+				Connection:      mockConn,
+				decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+			}
+			_, err := c.ScopeV4Update(ctx, tc.inputParameters)
+			suite.EqualError(err, tc.expectedErr)
+		}
+	})
+}

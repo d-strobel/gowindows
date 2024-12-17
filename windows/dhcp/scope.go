@@ -236,3 +236,162 @@ func (c *Client) ScopeV4Create(ctx context.Context, params ScopeV4CreateParams) 
 
 	return s, nil
 }
+
+// ScopeV4UpdateParams represents parameters for the scope update function.
+type ScopeV4UpdateParams struct {
+	// Specifies the enabled state for the policy enforcement on the scope.
+	ActivatePolicies bool
+
+	// Specifies the time, in milliseconds, by which the DHCP server service should delay sending
+	//a response to the clients. This parameter should be used on the secondary DHCP server service
+	// in a split scope configuration.
+	Delay uint16
+
+	// Specifies the description to set for the scope.
+	Description string
+
+	// Specify if the scope is enabled.
+	Enabled bool
+
+	// Specifies the ending address of the IPv4 range to set for the scope.
+	// If a new IPv4 range is being set, then the previously set IPv4 range of the scope is discarded.
+	EndRange netip.Addr
+
+	// Specifies the duration of the IPv4 address lease to give for the clients of the scope.
+	LeaseDuration time.Duration
+
+	// Specifies the maximum number of Bootp clients permitted to get an IP address lease from the scope.
+	// This parameter can only be used if the Type parameter value is Both.
+	MaxBootpClients uint32
+
+	// Specifies the name for the scope.
+	Name string
+
+	// Specifies the enabled state for network access protection (NAP) for the scope.
+	NapEnable bool
+
+	// Specifies the name of the NAP profile for clients in the scope.
+	// The NAP profile refers to the Microsoft Service Class which is a condition used in network policies
+	// on the network policy server (NPS).
+	//
+	// This parameter can only be used if the NapEnable parameter value is true.
+	NapProfile string
+
+	// Specifies the scope identifier (ID), in IPv4 address format, for which the properties are set.
+	ScopeId netip.Addr
+
+	// Specifies the starting address of the IPv4 range to set for the scope.
+	// If a new IP range is being set, the previously set IP range of the scope is discarded.
+	StartRange netip.Addr
+
+	// Specifies the name of the superscope to which this scope is added.
+	Superscope string
+
+	// Specifies the type of the scope.
+	// The type of the scope determines if the DHCP server service responds to only DHCP client requests,
+	// only BootP client requests, or Both types of clients.
+	//
+	// The acceptable values for this parameter are:
+	// "Dhcp", "Bootp", "Both".
+	Type string
+}
+
+// pwshCommand returns the PowerShell command to update a DHCP scope.
+func (params ScopeV4UpdateParams) pwshCommand() string {
+	// Base command
+	cmd := []string{fmt.Sprintf("Set-DhcpServerv4Scope -PassThru -Confirm:$false -ScopeId '%s'", params.ScopeId)}
+
+	// Add optional parameters
+	if params.Name != "" {
+		cmd = append(cmd, fmt.Sprintf("-Name '%s'", params.Name))
+	}
+
+	if params.StartRange.Is4() {
+		cmd = append(cmd, fmt.Sprintf("-StartRange '%s'", params.StartRange))
+	}
+
+	if params.EndRange.Is4() {
+		cmd = append(cmd, fmt.Sprintf("-EndRange '%s'", params.EndRange))
+	}
+
+	if params.Description != "" {
+		cmd = append(cmd, fmt.Sprintf("-Description '%s'", params.Description))
+	}
+
+	if params.Enabled {
+		cmd = append(cmd, "-State 'Active'")
+	} else {
+		cmd = append(cmd, "-State 'InActive'")
+	}
+
+	if params.MaxBootpClients != 0 {
+		cmd = append(cmd, fmt.Sprintf("-MaxBootpClients %d", params.MaxBootpClients))
+	}
+
+	if params.ActivatePolicies {
+		cmd = append(cmd, "-ActivatePolicies")
+	}
+
+	if params.NapEnable {
+		cmd = append(cmd, "-NapEnable")
+	}
+
+	if params.NapProfile != "" {
+		cmd = append(cmd, fmt.Sprintf("-NapProfile '%s'", params.NapProfile))
+	}
+
+	if params.Delay != 0 {
+		cmd = append(cmd, fmt.Sprintf("-Delay %d", params.Delay))
+	}
+
+	if params.LeaseDuration != 0 {
+		cmd = append(cmd, fmt.Sprintf("-LeaseDuration %s", parsing.PwshTimespanString(params.LeaseDuration)))
+	}
+
+	if params.Type != "" {
+		cmd = append(cmd, fmt.Sprintf("-Type '%s'", params.Type))
+	}
+
+	if params.Superscope != "" {
+		cmd = append(cmd, fmt.Sprintf("-SuperscopeName '%s'", params.Superscope))
+	}
+
+	// Convert output to json
+	cmd = append(cmd, "| ConvertTo-Json -Compress")
+
+	// Return the full command
+	return strings.Join(cmd, " ")
+}
+
+// ScopeV4Update updates a DHCP IPv4 scope. It returns a ScopeV4 object.
+// It returns a *winerror.WinError if the windows client returns an error.
+func (c *Client) ScopeV4Update(ctx context.Context, params ScopeV4UpdateParams) (ScopeV4, error) {
+	var s ScopeV4
+	var o scopeObject
+
+	// Assert needed parameters
+	if !params.ScopeId.Is4() {
+		return s, errors.New("windows.dhcp.ScopeV4Update: scope parameter 'ScopeId' must be a valid IPv4 address")
+	}
+
+	// Assert optional parameters
+	if params.Type != "" {
+		if params.Type != "Dhcp" && params.Type != "Bootp" && params.Type != "Both" {
+			return s, errors.New("windows.dhcp.ScopeV4Update: scope parameter 'Type' must be one of the following values: 'Dhcp', 'Bootp', 'Both'")
+		}
+	}
+	if (params.StartRange.Is4() && !params.EndRange.Is4()) || (params.EndRange.Is4() && !params.StartRange.Is4()) {
+		return s, errors.New("windows.dhcp.ScopeV4Update: scope parameter 'StartRange' and 'EndRange' must be set together")
+	}
+
+	// Run command
+	cmd := params.pwshCommand()
+	if err := run(ctx, c, cmd, &o); err != nil {
+		return s, winerror.Errorf(cmd, "windows.dhcp.ScopeV4Update: %s", err)
+	}
+
+	// Convert the output to a ScopeV4 object.
+	s.convertOutput(o)
+
+	return s, nil
+}
