@@ -91,6 +91,8 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4ReadPwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestScopeV4Read() {
+	suite.T().Parallel()
+
 	suite.Run("should return the correct ScopeV4", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -137,6 +139,121 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4Read() {
 				decodeCliXmlErr: func(s string) (string, error) { return "", nil },
 			}
 			_, err := c.ScopeV4Read(ctx, tc.inputParameters)
+			suite.EqualError(err, tc.expectedErr)
+		}
+	})
+}
+
+// Test ScopeV4Create related methods.
+func (suite *DhcpServerUnitTestSuite) TestScopeV4CreatePwshCommand() {
+	suite.Run("should return the correct command", func() {
+		tcs := []struct {
+			description     string
+			inputParameters ScopeV4CreateParams
+			expectedCmd     string
+		}{
+			{
+				"assert correct command with neccessary parameters",
+				ScopeV4CreateParams{
+					Name:       "test",
+					StartRange: netip.MustParseAddr("192.168.10.5"),
+					EndRange:   netip.MustParseAddr("192.168.10.10"),
+					SubnetMask: netip.MustParseAddr("255.255.255.0"),
+				},
+				"Add-DhcpServerv4Scope -PassThru -Confirm:$false -Name 'test' -StartRange '192.168.10.5' -EndRange '192.168.10.10' -SubnetMask '255.255.255.0' -State 'InActive' | ConvertTo-Json -Compress",
+			},
+			{
+				"assert correct command with additional parameters",
+				ScopeV4CreateParams{
+					Name:             "test",
+					StartRange:       netip.MustParseAddr("192.168.10.5"),
+					EndRange:         netip.MustParseAddr("192.168.10.10"),
+					SubnetMask:       netip.MustParseAddr("255.255.255.0"),
+					Description:      "Test description",
+					Enabled:          true,
+					MaxBootpClients:  10000,
+					ActivatePolicies: true,
+					NapEnable:        true,
+					NapProfile:       "testNap",
+					Delay:            10,
+					LeaseDuration:    time.Duration(27*time.Hour + 30*time.Minute + 10*time.Second),
+					Type:             "Dhcp",
+					Superscope:       "testSuperscope",
+				},
+				"Add-DhcpServerv4Scope -PassThru -Confirm:$false -Name 'test' -StartRange '192.168.10.5' -EndRange '192.168.10.10' -SubnetMask '255.255.255.0' -Description 'Test description' -State 'Active' -MaxBootpClients 10000 -ActivatePolicies -NapEnable -NapProfile 'testNap' -Delay 10 -LeaseDuration $(New-TimeSpan -Days 1 -Hours 3 -Minutes 30 -Seconds 10) -Type 'Dhcp' -SuperscopeName 'testSuperscope' | ConvertTo-Json -Compress",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			actualCmd := tc.inputParameters.pwshCommand()
+			suite.Equal(tc.expectedCmd, actualCmd)
+		}
+	})
+}
+
+func (suite *DhcpServerUnitTestSuite) TestScopeV4Create() {
+	suite.T().Parallel()
+
+	suite.Run("should return the correct ScopeV4", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnection(suite.T())
+		c := &Client{
+			Connection:      mockConn,
+			decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+		}
+		mockConn.EXPECT().
+			RunWithPowershell(ctx, "Add-DhcpServerv4Scope -PassThru -Confirm:$false -Name 'test' -StartRange '192.168.10.5' -EndRange '192.168.10.10' -SubnetMask '255.255.255.0' -State 'InActive' | ConvertTo-Json -Compress").
+			Return(connection.CmdResult{StdOut: scopeV4Json}, nil)
+		actualScopeV4, err := c.ScopeV4Create(ctx, ScopeV4CreateParams{
+			Name:       "test",
+			StartRange: netip.MustParseAddr("192.168.10.5"),
+			EndRange:   netip.MustParseAddr("192.168.10.10"),
+			SubnetMask: netip.MustParseAddr("255.255.255.0"),
+		})
+		suite.NoError(err)
+		suite.Equal(expectedScopeV4, actualScopeV4)
+	})
+
+	suite.Run("should return specific errors", func() {
+		tcs := []struct {
+			description     string
+			inputParameters ScopeV4CreateParams
+			expectedErr     string
+		}{
+			{
+				"assert error with empty parameters",
+				ScopeV4CreateParams{},
+				"windows.dhcp.ScopeV4Create: scope parameter 'Name' must be set",
+			},
+			{
+				"assert error without SubnetMask needed fields",
+				ScopeV4CreateParams{Name: "test", StartRange: netip.MustParseAddr("192.168.10.5"), EndRange: netip.MustParseAddr("192.168.10.10")},
+				"windows.dhcp.ScopeV4Create: scope parameter 'StartRange', 'EndRange' and 'SubnetMask' must be a valid IPv4 address",
+			},
+			{
+				"assert error with IPv6 fields",
+				ScopeV4CreateParams{Name: "test", StartRange: netip.MustParseAddr("fe80::0010"), EndRange: netip.MustParseAddr("fe80::0020"), SubnetMask: netip.MustParseAddr("fe80::0005")},
+				"windows.dhcp.ScopeV4Create: scope parameter 'StartRange', 'EndRange' and 'SubnetMask' must be a valid IPv4 address",
+			},
+			{
+				"assert error with invalid Type",
+				ScopeV4CreateParams{Name: "test", StartRange: netip.MustParseAddr("192.168.10.5"), EndRange: netip.MustParseAddr("192.168.10.10"), SubnetMask: netip.MustParseAddr("255.255.255.0"), Type: "test"},
+				"windows.dhcp.ScopeV4Create: scope parameter 'Type' must be one of the following values: 'Dhcp', 'Bootp', 'Both'",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnection(suite.T())
+			c := &Client{
+				Connection:      mockConn,
+				decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+			}
+			_, err := c.ScopeV4Create(ctx, tc.inputParameters)
 			suite.EqualError(err, tc.expectedErr)
 		}
 	})
