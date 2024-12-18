@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	expectedScopeObject = scopeObject{
+	expectedScopeObject = scopeV4Object{
 		Name:        "test",
 		Description: "Test description",
 		ScopeId: scopeId{
