@@ -16,7 +16,7 @@ import (
 
 // dhcp is a type constraint for the run function, ensuring it works with specific types.
 type dhcp interface {
-	scopeV4Object
+	scopeV4Object | exclusionRangeV4Object
 }
 
 // scopeId is used to unmarshal the JSON output of a scopeId object.
