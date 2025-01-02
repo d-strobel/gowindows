@@ -93,7 +93,7 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4ReadPwshCommand() {
 func (suite *DhcpServerUnitTestSuite) TestScopeV4Read() {
 	suite.T().Parallel()
 
-	suite.Run("should return the correct ScopeV4", func() {
+	suite.Run("should return the correct ScopeV4 (Read)", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
@@ -195,7 +195,7 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4CreatePwshCommand() {
 func (suite *DhcpServerUnitTestSuite) TestScopeV4Create() {
 	suite.T().Parallel()
 
-	suite.Run("should return the correct ScopeV4", func() {
+	suite.Run("should return the correct ScopeV4 (Create)", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
@@ -307,7 +307,7 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4UpdatePwshCommand() {
 func (suite *DhcpServerUnitTestSuite) TestScopeV4Update() {
 	suite.T().Parallel()
 
-	suite.Run("should return the correct ScopeV4", func() {
+	suite.Run("should return the correct ScopeV4 (Update)", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		mockConn := mockConnection.NewMockConnection(suite.T())
