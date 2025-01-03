@@ -1,5 +1,6 @@
 // Package dhcp provides a Go library for handling Windows DHCP Server resources.
 // The functions are related to the Powershell DhcpServer cmdlets provided by Windows.
+//
 // https://learn.microsoft.com/en-us/powershell/module/dhcpserver/?view=windowsserver2022-ps
 package dhcp
 
