@@ -1,5 +1,6 @@
 // Package dhcp provides a Go library for handling Windows DHCP Server resources.
 // The functions are related to the Powershell DhcpServer cmdlets provided by Windows.
+//
 // https://learn.microsoft.com/en-us/powershell/module/dhcpserver/?view=windowsserver2022-ps
 package dhcp
 
@@ -16,34 +17,25 @@ import (
 
 // dhcp is a type constraint for the run function, ensuring it works with specific types.
 type dhcp interface {
-	scopeObject
+	scopeV4Object | exclusionRangeV4Object
 }
 
-// scopeObject is used to unmarshal the JSON output of a scope object.
-type scopeObject struct {
-	Name             string                  `json:"Name"`
-	Description      string                  `json:"Description"`
-	ScopeId          scopeId                 `json:"ScopeId"`
-	StartRange       startRange              `json:"StartRange"`
-	EndRange         endRange                `json:"EndRange"`
-	SubnetMask       subnetMask              `json:"SubnetMask"`
-	State            string                  `json:"State"`
-	MaxBootpClients  uint32                  `json:"MaxBootpClients"`
-	ActivatePolicies bool                    `json:"ActivatePolicies"`
-	NapEnable        bool                    `json:"NapEnable"`
-	NapProfile       string                  `json:"NapProfile"`
-	Delay            uint16                  `json:"Delay"`
-	LeaseDuration    parsing.CimTimeDuration `json:"LeaseDuration"`
-}
+// scopeId is used to unmarshal the JSON output of a scopeId object.
 type scopeId struct {
 	Address netip.Addr `json:"IPAddressToString"`
 }
+
+// startRange is used to unmarshal the JSON output of a startRange object.
 type startRange struct {
 	Address netip.Addr `json:"IPAddressToString"`
 }
+
+// endRange is used to unmarshal the JSON output of an endRange object.
 type endRange struct {
 	Address netip.Addr `json:"IPAddressToString"`
 }
+
+// subnetMask is used to unmarshal the JSON output of a subnetMask object.
 type subnetMask struct {
 	Address netip.Addr `json:"IPAddressToString"`
 }

@@ -29,8 +29,25 @@ type ScopeV4 struct {
 	LeaseDuration    time.Duration
 }
 
-// convertOutput converts the unmarshaled JSON output from the scopeObject to a ScopeV4 object.
-func (s *ScopeV4) convertOutput(o scopeObject) {
+// scopeV4Object is used to unmarshal the JSON output of a scope object.
+type scopeV4Object struct {
+	Name             string                  `json:"Name"`
+	Description      string                  `json:"Description"`
+	ScopeId          scopeId                 `json:"ScopeId"`
+	StartRange       startRange              `json:"StartRange"`
+	EndRange         endRange                `json:"EndRange"`
+	SubnetMask       subnetMask              `json:"SubnetMask"`
+	State            string                  `json:"State"`
+	MaxBootpClients  uint32                  `json:"MaxBootpClients"`
+	ActivatePolicies bool                    `json:"ActivatePolicies"`
+	NapEnable        bool                    `json:"NapEnable"`
+	NapProfile       string                  `json:"NapProfile"`
+	Delay            uint16                  `json:"Delay"`
+	LeaseDuration    parsing.CimTimeDuration `json:"LeaseDuration"`
+}
+
+// convertOutput converts the unmarshaled JSON output from the scopeV4Object to a ScopeV4 object.
+func (s *ScopeV4) convertOutput(o scopeV4Object) {
 	s.Name = o.Name
 	s.Description = o.Description
 	s.ScopeId = o.ScopeId.Address
@@ -63,7 +80,7 @@ func (params ScopeV4ReadParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Read(ctx context.Context, params ScopeV4ReadParams) (ScopeV4, error) {
 	var s ScopeV4
-	var o scopeObject
+	var o scopeV4Object
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() {
@@ -208,7 +225,7 @@ func (params ScopeV4CreateParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Create(ctx context.Context, params ScopeV4CreateParams) (ScopeV4, error) {
 	var s ScopeV4
-	var o scopeObject
+	var o scopeV4Object
 
 	// Assert needed parameters
 	if params.Name == "" {
@@ -367,7 +384,7 @@ func (params ScopeV4UpdateParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Update(ctx context.Context, params ScopeV4UpdateParams) (ScopeV4, error) {
 	var s ScopeV4
-	var o scopeObject
+	var o scopeV4Object
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() {
@@ -411,7 +428,7 @@ func (params ScopeV4DeleteParams) pwshCommand() string {
 // ScopeV4Delete removes a DHCP IPv4 scope.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Delete(ctx context.Context, params ScopeV4DeleteParams) error {
-	var o scopeObject
+	var o scopeV4Object
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() {
