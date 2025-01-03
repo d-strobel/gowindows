@@ -20,8 +20,10 @@ func TestCimIpAddressUnmarshalJSON(t *testing.T) {
 		err := json.Unmarshal([]byte(jsonData), &ip)
 		require.NoError(t, err)
 
-		expectedIP := netip.MustParseAddr("10.100.91.51")
-		assert.Equal(t, expectedIP, netip.Addr(ip))
+		expectedIP := CimIpAddress{
+			netip.MustParseAddr("10.100.91.51"),
+		}
+		assert.Equal(t, expectedIP, ip)
 	})
 
 	t.Run("InvalidJSONFormat", func(t *testing.T) {
@@ -41,8 +43,10 @@ func TestCimIpAddressUnmarshalJSON(t *testing.T) {
 		err := json.Unmarshal([]byte(jsonData), &ip)
 		require.NoError(t, err)
 
-		expectedIP := netip.MustParseAddr("0.0.0.0")
-		assert.Equal(t, expectedIP, netip.Addr(ip))
+		expectedIP := CimIpAddress{
+			netip.MustParseAddr("0.0.0.0"),
+		}
+		assert.Equal(t, expectedIP, ip)
 	})
 
 	t.Run("MaxIPv4Address", func(t *testing.T) {
@@ -53,7 +57,9 @@ func TestCimIpAddressUnmarshalJSON(t *testing.T) {
 		err := json.Unmarshal([]byte(jsonData), &ip)
 		require.NoError(t, err)
 
-		expectedIP := netip.MustParseAddr("255.255.255.255")
-		assert.Equal(t, expectedIP, netip.Addr(ip))
+		expectedIP := CimIpAddress{
+			netip.MustParseAddr("255.255.255.255"),
+		}
+		assert.Equal(t, expectedIP, ip)
 	})
 }

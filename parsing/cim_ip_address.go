@@ -7,7 +7,9 @@ import (
 )
 
 // CimIpAddress represents an IP Address value.
-type CimIpAddress netip.Addr
+type CimIpAddress struct {
+	netip.Addr
+}
 
 // UnmarshalJSON implements the json.Unmarshaler interface for the CimIpAddress type.
 func (a *CimIpAddress) UnmarshalJSON(b []byte) error {
@@ -29,7 +31,9 @@ func (a *CimIpAddress) UnmarshalJSON(b []byte) error {
 	parsedAddr := netip.AddrFrom4(ip)
 
 	// Assign the parsed address to the pointer receiver
-	*a = CimIpAddress(parsedAddr)
+	*a = CimIpAddress{
+		parsedAddr,
+	}
 
 	return nil
 }
