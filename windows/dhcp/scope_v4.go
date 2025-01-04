@@ -14,29 +14,12 @@ import (
 
 // ScopeV4 represents an IPv4 DHCP scope.
 type ScopeV4 struct {
-	Name             string
-	Description      string
-	ScopeId          netip.Addr
-	StartRange       netip.Addr
-	EndRange         netip.Addr
-	SubnetMask       netip.Addr
-	Enabled          bool
-	MaxBootpClients  uint32
-	ActivatePolicies bool
-	NapEnable        bool
-	NapProfile       string
-	Delay            uint16
-	LeaseDuration    time.Duration
-}
-
-// scopeV4Object is used to unmarshal the JSON output of a scope object.
-type scopeV4Object struct {
 	Name             string                  `json:"Name"`
 	Description      string                  `json:"Description"`
-	ScopeId          scopeId                 `json:"ScopeId"`
-	StartRange       startRange              `json:"StartRange"`
-	EndRange         endRange                `json:"EndRange"`
-	SubnetMask       subnetMask              `json:"SubnetMask"`
+	ScopeId          addressString           `json:"ScopeId"`
+	StartRange       addressString           `json:"StartRange"`
+	EndRange         addressString           `json:"EndRange"`
+	SubnetMask       addressString           `json:"SubnetMask"`
 	State            string                  `json:"State"`
 	MaxBootpClients  uint32                  `json:"MaxBootpClients"`
 	ActivatePolicies bool                    `json:"ActivatePolicies"`
@@ -44,23 +27,6 @@ type scopeV4Object struct {
 	NapProfile       string                  `json:"NapProfile"`
 	Delay            uint16                  `json:"Delay"`
 	LeaseDuration    parsing.CimTimeDuration `json:"LeaseDuration"`
-}
-
-// convertOutput converts the unmarshaled JSON output from the scopeV4Object to a ScopeV4 object.
-func (s *ScopeV4) convertOutput(o scopeV4Object) {
-	s.Name = o.Name
-	s.Description = o.Description
-	s.ScopeId = o.ScopeId.Address
-	s.StartRange = o.StartRange.Address
-	s.EndRange = o.EndRange.Address
-	s.SubnetMask = o.SubnetMask.Address
-	s.Enabled = o.State == "Active"
-	s.MaxBootpClients = o.MaxBootpClients
-	s.ActivatePolicies = o.ActivatePolicies
-	s.NapEnable = o.NapEnable
-	s.NapProfile = o.NapProfile
-	s.Delay = o.Delay
-	s.LeaseDuration = o.LeaseDuration.Duration
 }
 
 // ScopeV4ReadParams represents parameters for the scope read function.
@@ -80,7 +46,6 @@ func (params ScopeV4ReadParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Read(ctx context.Context, params ScopeV4ReadParams) (ScopeV4, error) {
 	var s ScopeV4
-	var o scopeV4Object
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() {
@@ -89,12 +54,9 @@ func (c *Client) ScopeV4Read(ctx context.Context, params ScopeV4ReadParams) (Sco
 
 	// Run command
 	cmd := params.pwshCommand()
-	if err := run(ctx, c, cmd, &o); err != nil {
+	if err := run(ctx, c, cmd, &s); err != nil {
 		return s, winerror.Errorf(cmd, "windows.dhcp.ScopeV4Read: %s", err)
 	}
-
-	// Convert the output to a ScopeV4 object.
-	s.convertOutput(o)
 
 	return s, nil
 }
@@ -225,7 +187,6 @@ func (params ScopeV4CreateParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Create(ctx context.Context, params ScopeV4CreateParams) (ScopeV4, error) {
 	var s ScopeV4
-	var o scopeV4Object
 
 	// Assert needed parameters
 	if params.Name == "" {
@@ -244,12 +205,9 @@ func (c *Client) ScopeV4Create(ctx context.Context, params ScopeV4CreateParams) 
 
 	// Run command
 	cmd := params.pwshCommand()
-	if err := run(ctx, c, cmd, &o); err != nil {
+	if err := run(ctx, c, cmd, &s); err != nil {
 		return s, winerror.Errorf(cmd, "windows.dhcp.ScopeV4Create: %s", err)
 	}
-
-	// Convert the output to a ScopeV4 object.
-	s.convertOutput(o)
 
 	return s, nil
 }
@@ -384,7 +342,6 @@ func (params ScopeV4UpdateParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Update(ctx context.Context, params ScopeV4UpdateParams) (ScopeV4, error) {
 	var s ScopeV4
-	var o scopeV4Object
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() {
@@ -403,12 +360,9 @@ func (c *Client) ScopeV4Update(ctx context.Context, params ScopeV4UpdateParams) 
 
 	// Run command
 	cmd := params.pwshCommand()
-	if err := run(ctx, c, cmd, &o); err != nil {
+	if err := run(ctx, c, cmd, &s); err != nil {
 		return s, winerror.Errorf(cmd, "windows.dhcp.ScopeV4Update: %s", err)
 	}
-
-	// Convert the output to a ScopeV4 object.
-	s.convertOutput(o)
 
 	return s, nil
 }
@@ -428,7 +382,7 @@ func (params ScopeV4DeleteParams) pwshCommand() string {
 // ScopeV4Delete removes a DHCP IPv4 scope.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ScopeV4Delete(ctx context.Context, params ScopeV4DeleteParams) error {
-	var o scopeV4Object
+	var s ScopeV4
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() {
@@ -437,7 +391,7 @@ func (c *Client) ScopeV4Delete(ctx context.Context, params ScopeV4DeleteParams) 
 
 	// Run command
 	cmd := params.pwshCommand()
-	if err := run(ctx, c, cmd, &o); err != nil {
+	if err := run(ctx, c, cmd, &s); err != nil {
 		return winerror.Errorf(cmd, "windows.dhcp.ScopeV4Delete: %s", err)
 	}
 

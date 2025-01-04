@@ -17,7 +17,7 @@ import (
 
 // dhcp is a type constraint for the run function, ensuring it works with specific types.
 type dhcp interface {
-	scopeV4Object | exclusionRangeV4Object | FailoverV4
+	ScopeV4 | ExclusionRangeV4 | FailoverV4
 }
 
 // addressString is used to unmarshal the JSON output of an IP address object represented by a string.
@@ -30,30 +30,10 @@ type addressBytes struct {
 	Address parsing.CimIpAddress `json:"Address"`
 }
 
-// scopeId is used to unmarshal the JSON output of a scopeId object.
-type scopeId struct {
-	Address netip.Addr `json:"IPAddressToString"`
-}
-
 // scopeIdVal represents a scopeId object for the IPv4 failover JSON unmarshal.
 // The output here differs from the typical scopeId output. Therefore we made a new type of it.
 type scopeIdVal struct {
 	Value []addressBytes `json:"value"`
-}
-
-// startRange is used to unmarshal the JSON output of a startRange object.
-type startRange struct {
-	Address netip.Addr `json:"IPAddressToString"`
-}
-
-// endRange is used to unmarshal the JSON output of an endRange object.
-type endRange struct {
-	Address netip.Addr `json:"IPAddressToString"`
-}
-
-// subnetMask is used to unmarshal the JSON output of a subnetMask object.
-type subnetMask struct {
-	Address netip.Addr `json:"IPAddressToString"`
 }
 
 // Client represents a client for handling DHCP server functions.

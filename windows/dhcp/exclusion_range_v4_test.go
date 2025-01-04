@@ -15,32 +15,18 @@ const (
 )
 
 var (
-	expectedExclusionRangeV4Object = exclusionRangeV4Object{
-		ScopeId: scopeId{
+	expectedExclusionRangeV4 = ExclusionRangeV4{
+		ScopeId: addressString{
 			Address: netip.MustParseAddr("192.168.10.0"),
 		},
-		StartRange: startRange{
+		StartRange: addressString{
 			Address: netip.MustParseAddr("192.168.10.5"),
 		},
-		EndRange: endRange{
+		EndRange: addressString{
 			netip.MustParseAddr("192.168.10.10"),
 		},
 	}
-	expectedExclusionRangeV4 = ExclusionRangeV4{
-		ScopeId:    netip.MustParseAddr("192.168.10.0"),
-		StartRange: netip.MustParseAddr("192.168.10.5"),
-		EndRange:   netip.MustParseAddr("192.168.10.10"),
-	}
 )
-
-// Test the convertOutput method.
-func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4ConvertOutput() {
-	suite.Run("should return the correct command", func() {
-		s := ExclusionRangeV4{}
-		s.convertOutput(expectedExclusionRangeV4Object)
-		suite.Equal(expectedExclusionRangeV4, s)
-	})
-}
 
 // Test ExclusionRangeV4 related methods.
 func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4ReadPwshCommand() {

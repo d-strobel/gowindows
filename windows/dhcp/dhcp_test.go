@@ -45,9 +45,9 @@ func (suite *DhcpServerUnitTestSuite) TestDhcpRun() {
 		mockConn.EXPECT().
 			RunWithPowershell(ctx, cmd).
 			Return(connection.CmdResult{StdOut: scopeV4Json}, nil)
-		var o scopeV4Object
-		err := run(ctx, c, cmd, &o)
+		var s ScopeV4
+		err := run(ctx, c, cmd, &s)
 		suite.NoError(err)
-		suite.Equal(expectedScopeObject, o)
+		suite.Equal(expectedScopeV4, s)
 	})
 }

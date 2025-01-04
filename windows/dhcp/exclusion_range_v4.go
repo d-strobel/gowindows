@@ -11,23 +11,9 @@ import (
 
 // ExclusionRangeV4 represents an IPv4 DHCP exclusion range.
 type ExclusionRangeV4 struct {
-	ScopeId    netip.Addr
-	StartRange netip.Addr
-	EndRange   netip.Addr
-}
-
-// exclusionRangeV4Object is used to unmarshal the JSON output of an exclusionRangeV4Object object.
-type exclusionRangeV4Object struct {
-	ScopeId    scopeId    `json:"ScopeId"`
-	StartRange startRange `json:"StartRange"`
-	EndRange   endRange   `json:"EndRange"`
-}
-
-// convertOutput converts the unmarshaled JSON output from the exclusionRangeV4Object to an ExclusionRangeV4 object.
-func (s *ExclusionRangeV4) convertOutput(o exclusionRangeV4Object) {
-	s.ScopeId = o.ScopeId.Address
-	s.StartRange = o.StartRange.Address
-	s.EndRange = o.EndRange.Address
+	ScopeId    addressString `json:"ScopeId"`
+	StartRange addressString `json:"StartRange"`
+	EndRange   addressString `json:"EndRange"`
 }
 
 // ExclusionRangeV4ReadParams represents parameters for the ipv4 exclusion range read function.
@@ -56,7 +42,6 @@ func (params ExclusionRangeV4ReadParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ExclusionRangeV4Read(ctx context.Context, params ExclusionRangeV4ReadParams) (ExclusionRangeV4, error) {
 	var s ExclusionRangeV4
-	var o exclusionRangeV4Object
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() || !params.StartRange.Is4() || !params.EndRange.Is4() {
@@ -65,17 +50,14 @@ func (c *Client) ExclusionRangeV4Read(ctx context.Context, params ExclusionRange
 
 	// Run command
 	cmd := params.pwshCommand()
-	if err := run(ctx, c, cmd, &o); err != nil {
+	if err := run(ctx, c, cmd, &s); err != nil {
 		return s, winerror.Errorf(cmd, "windows.dhcp.ExclusionRangeV4Read: %s", err)
 	}
 
 	// If the output of the command is empty, return an error.
-	if !o.ScopeId.Address.Is4() {
+	if !s.ScopeId.Address.Is4() {
 		return s, winerror.Errorf(cmd, "windows.dhcp.ExclusionRangeV4Read: exclusion range not found")
 	}
-
-	// Convert the output to a ExclusionRangeV4 object.
-	s.convertOutput(o)
 
 	return s, nil
 }
@@ -108,7 +90,6 @@ func (params ExclusionRangeV4CreateParams) pwshCommand() string {
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ExclusionRangeV4Create(ctx context.Context, params ExclusionRangeV4CreateParams) (ExclusionRangeV4, error) {
 	var s ExclusionRangeV4
-	var o exclusionRangeV4Object
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() || !params.StartRange.Is4() || !params.EndRange.Is4() {
@@ -117,12 +98,9 @@ func (c *Client) ExclusionRangeV4Create(ctx context.Context, params ExclusionRan
 
 	// Run command
 	cmd := params.pwshCommand()
-	if err := run(ctx, c, cmd, &o); err != nil {
+	if err := run(ctx, c, cmd, &s); err != nil {
 		return s, winerror.Errorf(cmd, "windows.dhcp.ExclusionRangeV4Create: %s", err)
 	}
-
-	// Convert the output to a ExclusionRangeV4 object.
-	s.convertOutput(o)
 
 	return s, nil
 }
@@ -152,7 +130,7 @@ func (params ExclusionRangeV4DeleteParams) pwshCommand() string {
 // ExclusionRangeV4Delete removes an IPv4 exclusion range.
 // It returns a *winerror.WinError if the windows client returns an error.
 func (c *Client) ExclusionRangeV4Delete(ctx context.Context, params ExclusionRangeV4DeleteParams) error {
-	var o exclusionRangeV4Object
+	var s ExclusionRangeV4
 
 	// Assert needed parameters
 	if !params.ScopeId.Is4() || !params.StartRange.Is4() || !params.EndRange.Is4() {
@@ -161,7 +139,7 @@ func (c *Client) ExclusionRangeV4Delete(ctx context.Context, params ExclusionRan
 
 	// Run command
 	cmd := params.pwshCommand()
-	if err := run(ctx, c, cmd, &o); err != nil {
+	if err := run(ctx, c, cmd, &s); err != nil {
 		return winerror.Errorf(cmd, "windows.dhcp.ExclusionRangeV4Delete: %s", err)
 	}
 
