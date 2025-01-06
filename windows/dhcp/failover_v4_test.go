@@ -118,3 +118,83 @@ func (suite *DhcpServerUnitTestSuite) TestFailoverV4Read() {
 		}
 	})
 }
+
+func (suite *DhcpServerUnitTestSuite) TestFailoverV4CreatePwshCommand() {
+	tcs := []struct {
+		description     string
+		inputParameters FailoverV4CreateParams
+		expectedCmd     string
+	}{
+		{
+			"Test with neccessary parameters (PartnerServerName)",
+			FailoverV4CreateParams{
+				Name: "test-failover",
+				ScopeIds: []netip.Addr{
+					netip.MustParseAddr("192.168.10.0"),
+				},
+				PartnerServerName: "dhcp-n-p-01.test.local",
+			},
+			"Add-DhcpServerv4Failover -PassThru -Confirm:$false -Name 'test-failover' -PartnerServer 'dhcp-n-p-01.test.local' -ScopeId @('192.168.10.0')",
+		},
+		{
+			"Test with neccessary parameters (PartnerServerIp)",
+			FailoverV4CreateParams{
+				Name: "test-failover",
+				ScopeIds: []netip.Addr{
+					netip.MustParseAddr("192.168.10.0"),
+				},
+				PartnerServerIp: netip.MustParseAddr("192.168.5.2"),
+			},
+			"Add-DhcpServerv4Failover -PassThru -Confirm:$false -Name 'test-failover' -PartnerServer '192.168.5.2' -ScopeId @('192.168.10.0')",
+		},
+		{
+			"Test with additional parameters",
+			FailoverV4CreateParams{
+				Name: "test-failover",
+				ScopeIds: []netip.Addr{
+					netip.MustParseAddr("192.168.10.0"),
+					netip.MustParseAddr("192.168.20.0"),
+				},
+				PartnerServerIp:     netip.MustParseAddr("192.168.5.2"),
+				LoadBalancePercent:  60,
+				MaxClientLeadTime:   time.Hour*20 + time.Minute*20,
+				ReservePercent:      20,
+				ServerRole:          "PrimaryServer",
+				SharedSecret:        "testsharedsecret",
+				StateSwitchInterval: time.Hour*4 + time.Minute*30 + time.Second*10,
+			},
+			"Add-DhcpServerv4Failover -PassThru -Confirm:$false -Name 'test-failover' -PartnerServer '192.168.5.2' -ScopeId @('192.168.10.0','192.168.20.0') -LoadBalancePercent 60 -MaxClientLeadTime $(New-TimeSpan -Days 0 -Hours 20 -Minutes 20 -Seconds 0) -ReservePercent 20 -ServerRole 'PrimaryServer' -SharedSecret 'testsharedsecret' -StateSwitchInterval $(New-TimeSpan -Days 0 -Hours 4 -Minutes 30 -Seconds 10)",
+		},
+	}
+
+	for _, tc := range tcs {
+		suite.T().Logf("test case: %s", tc.description)
+		actualCmd := tc.inputParameters.pwshCommand()
+		suite.Equal(tc.expectedCmd, actualCmd)
+	}
+}
+
+func (suite *DhcpServerUnitTestSuite) TestFailoverV4Create() {
+	suite.Run("should return the correct FailoverV4 (Create)", func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		mockConn := mockConnection.NewMockConnection(suite.T())
+		c := &Client{
+			Connection:      mockConn,
+			decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+		}
+		mockConn.EXPECT().
+			RunWithPowershell(ctx, "Add-DhcpServerv4Failover -PassThru -Confirm:$false -Name 'dhcp-master<-->dhcp-node' -PartnerServer '192.168.5.2' -ScopeId @('192.168.10.0','192.168.20.0')").
+			Return(connection.CmdResult{StdOut: failoverV4Json}, nil)
+		actualFailoverV4, err := c.FailoverV4Create(ctx, FailoverV4CreateParams{
+			Name:            "dhcp-master<-->dhcp-node",
+			PartnerServerIp: netip.MustParseAddr("192.168.5.2"),
+			ScopeIds: []netip.Addr{
+				netip.MustParseAddr("192.168.10.0"),
+				netip.MustParseAddr("192.168.20.0"),
+			},
+		})
+		suite.NoError(err)
+		suite.Equal(expectedFailoverV4, actualFailoverV4)
+	})
+}
