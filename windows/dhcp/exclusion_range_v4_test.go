@@ -52,8 +52,6 @@ func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4ReadPwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4Read() {
-	suite.T().Parallel()
-
 	suite.Run("should return the correct ExclusionRangeV4", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -135,8 +133,6 @@ func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4CreatePwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4Create() {
-	suite.T().Parallel()
-
 	suite.Run("should return the correct ExclusionRangeV4", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -218,8 +214,6 @@ func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4DeletePwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestExclusionRangeV4Delete() {
-	suite.T().Parallel()
-
 	suite.Run("should not error", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()

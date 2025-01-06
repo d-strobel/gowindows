@@ -73,8 +73,6 @@ func (suite *DhcpServerUnitTestSuite) TestFailoverV4ReadPwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestFailoverV4Read() {
-	suite.T().Parallel()
-
 	suite.Run("should return the correct FailoverV4 (Read)", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()

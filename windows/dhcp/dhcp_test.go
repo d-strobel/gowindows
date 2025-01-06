@@ -31,8 +31,6 @@ func (suite *DhcpServerUnitTestSuite) TestNewClient() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestDhcpRun() {
-	suite.T().Parallel()
-
 	suite.Run("should return an unmarshalled scope object", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()

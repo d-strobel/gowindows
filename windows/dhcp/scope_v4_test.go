@@ -169,8 +169,6 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4CreatePwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestScopeV4Create() {
-	suite.T().Parallel()
-
 	suite.Run("should return the correct ScopeV4 (Create)", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -281,8 +279,6 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4UpdatePwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestScopeV4Update() {
-	suite.T().Parallel()
-
 	suite.Run("should return the correct ScopeV4 (Update)", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -368,8 +364,6 @@ func (suite *DhcpServerUnitTestSuite) TestScopeV4DeletePwshCommand() {
 }
 
 func (suite *DhcpServerUnitTestSuite) TestScopeV4Delete() {
-	suite.T().Parallel()
-
 	suite.Run("should not error", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
