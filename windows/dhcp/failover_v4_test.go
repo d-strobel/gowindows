@@ -197,4 +197,49 @@ func (suite *DhcpServerUnitTestSuite) TestFailoverV4Create() {
 		suite.NoError(err)
 		suite.Equal(expectedFailoverV4, actualFailoverV4)
 	})
+
+	suite.Run("should return specific errors", func() {
+		tcs := []struct {
+			description     string
+			inputParameters FailoverV4CreateParams
+			expectedErr     string
+		}{
+			{
+				"assert with empty parameters",
+				FailoverV4CreateParams{},
+				"windows.dhcp.FailoverV4Create: failover parameters 'Name', 'ScopeIds' and one of 'PartnerServerName', 'PartnerServerIp' must be set",
+			},
+			{
+				"assert with without PartnerServerName",
+				FailoverV4CreateParams{
+					Name: "test",
+					ScopeIds: []netip.Addr{
+						netip.MustParseAddr("192.168.10.0"),
+					},
+				},
+				"windows.dhcp.FailoverV4Create: failover parameters 'Name', 'ScopeIds' and one of 'PartnerServerName', 'PartnerServerIp' must be set",
+			},
+			{
+				"assert with without ScopeIds",
+				FailoverV4CreateParams{
+					Name:              "test",
+					PartnerServerName: "test",
+				},
+				"windows.dhcp.FailoverV4Create: failover parameters 'Name', 'ScopeIds' and one of 'PartnerServerName', 'PartnerServerIp' must be set",
+			},
+		}
+
+		for _, tc := range tcs {
+			suite.T().Logf("test case: %s", tc.description)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			mockConn := mockConnection.NewMockConnection(suite.T())
+			c := &Client{
+				Connection:      mockConn,
+				decodeCliXmlErr: func(s string) (string, error) { return "", nil },
+			}
+			_, err := c.FailoverV4Create(ctx, tc.inputParameters)
+			suite.EqualError(err, tc.expectedErr)
+		}
+	})
 }

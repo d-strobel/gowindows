@@ -177,7 +177,7 @@ func (c *Client) FailoverV4Create(ctx context.Context, params FailoverV4CreatePa
 	var f FailoverV4
 
 	// Assert needed parameters.
-	if params.Name == "" {
+	if params.Name == "" || len(params.ScopeIds) == 0 || (params.PartnerServerName == "" && !params.PartnerServerIp.Is4()) {
 		return f, errors.New(
 			"windows.dhcp.FailoverV4Create: failover parameters 'Name', 'ScopeIds' and one of 'PartnerServerName', 'PartnerServerIp' must be set",
 		)
