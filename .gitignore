@@ -22,10 +22,12 @@ go.work
 
 # Ignore environment
 .env
-.envrc
 
 # IDE
 .vscode
 
 # Vagrant
 .vagrant
+
+# Nix devenv
+.direnv
