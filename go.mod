@@ -1,13 +1,12 @@
 module github.com/d-strobel/gowindows
 
 go 1.23
-
-toolchain go1.23.3
+toolchain go1.24.1
 
 require (
 	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
 	github.com/vektra/mockery/v2 v2.53.2
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.35.0
 )
 
 require (
@@ -65,7 +64,7 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/net v0.35.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0
 )
