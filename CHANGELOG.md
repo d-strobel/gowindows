@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.0](https://github.com/d-strobel/gowindows/compare/v1.4.0...v1.5.0) (2026-01-01)
+
+
+### Features
+
+* add dhcp exclusion range ipv4 functions ([2ec5ff1](https://github.com/d-strobel/gowindows/commit/2ec5ff115ab750d2f3642b97b696c9cfd9cfee2d))
+* add dhcp failover ipv4 read function ([e7979c5](https://github.com/d-strobel/gowindows/commit/e7979c5e19060e624841044d6ab8a2ea5d5442ac))
+* add dhcp ipv4 failover create function ([ecff802](https://github.com/d-strobel/gowindows/commit/ecff8020cc91134c965e6ee2cdcc104a35bb1392))
+* add helper function to handle cim IP Addresses ([54da90d](https://github.com/d-strobel/gowindows/commit/54da90d024cbd47aa6d2bb1b7565c39987fa987c))
+* change CimIpAddress type ([067f004](https://github.com/d-strobel/gowindows/commit/067f004b1de87f08f5d215d0f1a775160476397e))
+
+
+### Bug Fixes
+
+* dhcp ipv4 failover create parameter assertion ([d6ca30b](https://github.com/d-strobel/gowindows/commit/d6ca30b3d431435a665d8b6e2c8a311406a3d217))
+
 ## [1.4.0](https://github.com/d-strobel/gowindows/compare/v1.3.0...v1.4.0) (2024-12-17)
 
 
