@@ -282,7 +282,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			decodeCliXmlErr: func(s string) (string, error) { return s, nil },
 		}
 		mockConn.EXPECT().
-			RunWithPowershell(ctx, "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '2025-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -UserMayNotChangePassword:$false | ConvertTo-Json -Compress").
+			RunWithPowershell(ctx, "New-LocalUser -Name 'Test-User' -Description 'This is a test user' -AccountExpires $(Get-Date '3000-11-10 16:00:00') -Disabled:$false -FullName 'Full-Test-User' -NoPassword -UserMayNotChangePassword:$false | ConvertTo-Json -Compress").
 			Return(connection.CmdResult{StdOut: testUser}, nil)
 		actualTestUser, err := c.UserCreate(ctx, UserCreateParams{
 			Name:                  "Test-User",
@@ -290,7 +290,7 @@ func (suite *LocalUnitTestSuite) TestUserCreate() {
 			FullName:              "Full-Test-User",
 			Enabled:               true,
 			UserMayChangePassword: true,
-			AccountExpires:        time.Date(2025, time.November, 10, 16, 0, 0, 0, time.UTC),
+			AccountExpires:        time.Date(3000, time.November, 10, 16, 0, 0, 0, time.UTC),
 		})
 		suite.NoError(err)
 		suite.Equal(expectedTestUser, actualTestUser)

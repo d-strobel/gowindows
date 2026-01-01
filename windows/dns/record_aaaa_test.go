@@ -105,7 +105,8 @@ func (suite *DnsServerUnitTestSuite) TestRecordAAAAConvertOutput() {
 		for _, tc := range tcs {
 			suite.T().Logf("test case: %s", tc.description)
 			r := RecordAAAA{}
-			r.convertOutput(tc.inputRecordAAAAObject)
+			err := r.convertOutput(tc.inputRecordAAAAObject)
+			suite.NoError(err)
 			suite.Equal(tc.expectedRecordAAAA, r)
 		}
 	})

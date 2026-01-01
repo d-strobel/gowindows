@@ -13,12 +13,12 @@ import (
 const (
 	recordPTRJson = `{"DistinguishedName":"DC=1,DC=10.168.192.in-addr.arpa,cn=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local","Hostname":"1","RecordType":"PTR","Timestamp":null,"timetolive":{"Ticks":36000000000,"Days":0,"Hours":1,"Milliseconds":0,"Minutes":0,"Seconds":0,"TotalDays":0.041666666666666664,"TotalHours":1,"TotalMilliseconds":3600000,"TotalMinutes":60,"TotalSeconds":3600},"RecordData":{"CimClass":"root/Microsoft/Windows/DNS:DnsServerResourceRecordPTR","CimInstanceProperties":["PtrDomainName = \"testptr.test.local.\""],"CimSystemProperties":"Microsoft.Management.Infrastructure.CimSystemProperties"},"Type":1}`
 
-	recordPTRExistsErr = `Fehler beim Erstellen des Ressourcendatensatzes "terratest" in der Zone "test.local" auf dem Server "DC-01".In Zeile:1 Zeichen:43
-        ... yContinue'; Add-DnsServerResourceRecordPTR -AllowUpdateAny:$false -Crea ...
-                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        CategoryInfo          : ResourceExists: (terratest:root/Microsoft/...ResourceRecordPTR) [Add-DnsServerResourceReco rdA], CimException
-        FullyQualifiedErrorId : WIN32 9711,Add-DnsServerResourceRecordPTR)
-	`
+	// recordPTRExistsErr = `Fehler beim Erstellen des Ressourcendatensatzes "terratest" in der Zone "test.local" auf dem Server "DC-01".In Zeile:1 Zeichen:43
+	//        ... yContinue'; Add-DnsServerResourceRecordPTR -AllowUpdateAny:$false -Crea ...
+	//                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//        CategoryInfo          : ResourceExists: (terratest:root/Microsoft/...ResourceRecordPTR) [Add-DnsServerResourceReco rdA], CimException
+	//        FullyQualifiedErrorId : WIN32 9711,Add-DnsServerResourceRecordPTR)
+	// `
 )
 
 var (
