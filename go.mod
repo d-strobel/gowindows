@@ -46,7 +46,7 @@ require (
 )
 
 require (
-	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
+	github.com/Azure/go-ntlmssp v0.1.1 // indirect
 	github.com/ChrisTrenkamp/goxpath v0.0.0-20210404020558-97928f7e12b6 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
