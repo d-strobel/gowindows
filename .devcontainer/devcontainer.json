@@ -1,0 +1,11 @@
+{
+    "name": "gowindows development",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "GO_VERSION": "1.26.4",
+            "GO_ARCH": "linux-amd64"
+        }
+    },
+    "remoteUser": "vscode"
+}
