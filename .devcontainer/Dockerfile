@@ -21,8 +21,11 @@ USER vscode
 RUN python3 -m venv /home/vscode/venv
 
 # Add venv and go to PATH
-ENV PATH="/home/vscode/venv/bin:/usr/local/go/bin:${PATH}"
+ENV PATH="/home/vscode/venv/bin:/usr/local/go/bin:/home/vscode/go/bin:${PATH}"
 
 # Install Python packages into the venv
 RUN pip install --upgrade pip && \
     pip install pre-commit
+
+# Install go tooling
+RUN go install golang.org/x/tools/gopls@latest
