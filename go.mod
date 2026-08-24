@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
 	github.com/vektra/mockery/v2 v2.53.6
-	golang.org/x/crypto v0.54.0
+	golang.org/x/crypto v0.55.0
 )
 
 require (
