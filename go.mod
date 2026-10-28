@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
-	github.com/vektra/mockery/v2 v2.53.7
+	github.com/vektra/mockery/v2 v2.53.8
 	golang.org/x/crypto v0.58.0
 )
 
